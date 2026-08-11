@@ -1,148 +1,1183 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN" data-theme="dark">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="Academic Webpage" />
-    <meta name="author" content="senli1073" />
-    <title id="title"></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutureTech Co. | 机密档案 — Classified</title>
 
-    <!-- Icon -->
-    <link rel="icon" type="image/x-icon" href="static/assets/favicon.ico" />
+    <meta name="author" content="Classified Manager">
+    <meta name="description" content="FutureTech Corporation — Internal Personnel File. Clearance Level Required.">
+    <meta name="keywords" content="FutureTech, Red Alert, 科技, 机密">
 
-    <!-- Bootstrap icons-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Orbitron:wght@400;700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Google fonts-->
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,600;1,600&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,300;0,500;0,600;0,700;1,300;1,500;1,600;1,700&amp;display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;1,400&amp;display=swap"
-        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <!-- Core theme CSS (includes Bootstrap)-->
-    <link type="text/css" href="static/css/main.css" rel="stylesheet" />
+    <style>
+    :root, [data-theme='light'] {
+        --primary-color: #00aaff;
+        --primary-color-alt: #0088dd;
+        --highlight-color: #00ffff;
+        --accent-color: #ff4444;
+        --title-color: #1a1a2e;
+        --text-color: #333344;
+        --text-color-light: #666677;
+        --body-bg-color: #e8e8e8;
+        --container-bg-color: rgba(255, 255, 255, 0.9);
+        --border-color: #bbccee;
+        --box-shadow: 0 5px 20px rgba(0, 50, 100, 0.1);
+        --bg-overlay-color: rgba(255, 255, 255, 0.55);
+        --nav-bg: rgba(255, 255, 255, 0.85);
+        --tag-hover-bg: #e0f0ff;
+        --classified-color: #ff4444;
+        --terminal-bg: rgba(240, 240, 245, 0.95);
+        --terminal-text: #1a1a2e;
+    }
 
-    <!-- Bootstrap core JS-->
-    <script type="text/javascript" src="static/js/bootstrap.bundle.min.js"></script>
+    [data-theme='dark'] {
+        --primary-color: #00aaff;
+        --primary-color-alt: #0099ee;
+        --highlight-color: #00ffff;
+        --accent-color: #ff4444;
+        --title-color: #e0e8ff;
+        --text-color: #99aabb;
+        --text-color-light: #667788;
+        --body-bg-color: #0a0a14;
+        --container-bg-color: rgba(15, 20, 35, 0.82);
+        --border-color: #223344;
+        --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        --bg-overlay-color: rgba(5, 10, 20, 0.72);
+        --nav-bg: rgba(10, 15, 25, 0.88);
+        --tag-hover-bg: rgba(0, 170, 255, 0.12);
+        --classified-color: #ff5555;
+        --terminal-bg: rgba(8, 12, 22, 0.95);
+        --terminal-text: #00ff88;
+    }
 
-    <!-- Markdown -->
-    <script type="text/javascript" src="static/js/marked.min.js"></script>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-    <!-- Mathematics -->
-    <script>
-        // See https://docs.mathjax.org/en/latest/index.html for more details.
-        MathJax = {
-            tex: {
-                packages: {},              // extensions to use
-                inlineMath: [              // start/end delimiter pairs for in-line math
-                    ['$', '$'],
-                    ['\\(', '\\)']
-                ],
-                displayMath: [             // start/end delimiter pairs for display math
-                    ['$$', '$$'],
-                    ['\\[', '\\]']
-                ],
-                processEscapes: false,      // use \$ to produce a literal dollar sign
-                processEnvironments: true, // process \begin{xxx}...\end{xxx} outside math mode
-                processRefs: true,         // process \ref{...} outside of math mode
-                digits: /^(?:[0-9]+(?:\{,\}[0-9]{3})*(?:\.[0-9]*)?|\.[0-9]+)/,    // pattern for recognizing numbers
-                tags: 'all',              // or 'ams' or 'all'
-                tagSide: 'right',          // side for \tag macros
-                tagIndent: '0.8em',        // amount to indent tags
-                useLabelIds: true,         // use label name rather than tag for ids
-                maxMacros: 10000,          // maximum number of macro substitutions per expression
-                maxBuffer: 5 * 1024,       // maximum size for the internal TeX string (5K)
-                // baseURL:                   // URL for use with links to tags (when there is a <base> tag in effect)
-                // (document.getElementsByTagName('base').length === 0) ? '' : String(document.location).replace(/#.*$/, ''),
-                formatError:               // function called when TeX syntax errors occur
-                    (jax, err) => jax.formatError(err)
-            }
-        };
-    </script>
-    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-    
-    <!-- Core JS-->
-    <script type="text/javascript" src="static/js/scripts.js"></script>
-    <script type="text/javascript" src="static/js/js-yaml.min.js"></script>
+    html { scroll-behavior: smooth; }
 
+    body {
+        font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+        font-size: 1rem;
+        background-color: var(--body-bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        padding-top: 4.5rem;
+        transition: background-color 0.3s, color 0.3s;
+        background-image: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 30%, #1b2838 60%, #0a0a1a 100%);
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+        position: relative;
+        z-index: 0;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: var(--bg-overlay-color);
+        z-index: -1;
+        transition: all 0.3s ease-in-out;
+    }
+
+    h1, h2, h3 {
+        color: var(--title-color);
+        font-weight: 700;
+    }
+
+    ul { list-style: none; }
+    a {
+        text-decoration: none;
+        color: var(--primary-color);
+        transition: all 0.3s ease-in-out;
+    }
+    a:hover { color: var(--highlight-color); }
+    img { max-width: 100%; height: auto; }
+
+    .section { padding: 5rem 0; }
+
+    .section__title {
+        font-size: 2.25rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        position: relative;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+        letter-spacing: 0.05em;
+    }
+    .section__title::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--highlight-color));
+        border-radius: 2px;
+    }
+
+    .section__subtitle {
+        text-align: center;
+        color: var(--classified-color);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 3rem;
+        font-family: 'Orbitron', monospace;
+    }
+
+    .container {
+        max-width: 1120px;
+        margin-inline: auto;
+        padding-inline: 1.5rem;
+    }
+
+    .grid { display: grid; gap: 1.5rem; }
+
+    .button {
+        display: inline-block;
+        background: var(--primary-color);
+        color: #fff;
+        padding: 0.9rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        border: 2px solid transparent;
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+        letter-spacing: 0.03em;
+    }
+    .button:hover {
+        background: var(--primary-color-alt);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 170, 255, 0.3);
+    }
+    .button--ghost {
+        background: transparent;
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    .button--ghost:hover {
+        background: var(--primary-color);
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(0, 170, 255, 0.2);
+    }
+    .button--danger {
+        background: transparent;
+        color: var(--classified-color);
+        border-color: var(--classified-color);
+    }
+    .button--danger:hover {
+        background: var(--classified-color);
+        color: #fff;
+    }
+
+    .header {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 4.5rem;
+        background: var(--nav-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 100;
+        transition: all 0.3s ease-in-out;
+    }
+    .nav {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .nav__logo {
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        font-family: 'Orbitron', sans-serif;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .nav__logo i { font-size: 1.2rem; }
+    .nav__list {
+        display: flex;
+        gap: 2rem;
+    }
+    .nav__link {
+        color: var(--text-color);
+        font-weight: 600;
+        font-size: 0.95rem;
+        position: relative;
+        transition: all 0.3s ease-in-out;
+    }
+    .nav__link:hover, .nav__link.active {
+        color: var(--primary-color);
+    }
+    .nav__link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -0.5rem;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary-color);
+        border-radius: 2px;
+        box-shadow: 0 0 8px var(--primary-color);
+    }
+    .nav__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .theme-switcher {
+        font-size: 1.25rem;
+        color: var(--text-color);
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+    .theme-switcher:hover { color: var(--primary-color); }
+    .nav__toggle {
+        display: none;
+        font-size: 1.5rem;
+        color: var(--text-color);
+        cursor: pointer;
+    }
+
+    .hero { padding: 4rem 0 3rem; }
+    .hero__container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: center;
+        gap: 3rem;
+    }
+    .hero__content h1 {
+        font-size: 3rem;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+        letter-spacing: 0.03em;
+    }
+    .hero__badge {
+        display: inline-block;
+        background: rgba(255, 68, 68, 0.15);
+        color: var(--classified-color);
+        border: 1px solid var(--classified-color);
+        padding: 0.25rem 0.8rem;
+        border-radius: 0.3rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        font-family: 'Orbitron', monospace;
+    }
+    .hero__subtitle {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+    .hero__description {
+        margin-bottom: 2.5rem;
+        font-style: italic;
+        color: var(--text-color-light);
+        position: relative;
+        padding-left: 1.5rem;
+        border-left: 3px solid var(--primary-color);
+    }
+    .hero__buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    .hero__image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .hero__avatar {
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #1a2a3a, #0a0a14);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        color: var(--primary-color);
+        border: 3px solid var(--primary-color);
+        box-shadow: 0 0 40px rgba(0, 170, 255, 0.3), inset 0 0 30px rgba(0, 170, 255, 0.1);
+        position: relative;
+    }
+    .hero__avatar::before {
+        content: 'CLASSIFIED';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--classified-color);
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        padding: 0.25rem 0.8rem;
+        border-radius: 0.25rem;
+        font-family: 'Orbitron', monospace;
+        white-space: nowrap;
+    }
+    .hero__avatar i {
+        text-shadow: 0 0 20px var(--primary-color);
+    }
+
+    .about__container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3rem;
+        align-items: flex-start;
+    }
+    .about__left, .about__right {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .glass-card {
+        background-color: var(--container-bg-color);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 0.5rem;
+        box-shadow: var(--box-shadow);
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--primary-color), transparent);
+    }
+
+    .classified-stamp {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 0.7rem;
+        color: var(--classified-color);
+        border: 2px solid var(--classified-color);
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        font-family: 'Orbitron', monospace;
+        opacity: 0.7;
+        transform: rotate(8deg);
+    }
+
+    .musings__title, .about__right h3:first-child {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+    }
+    .musings blockquote {
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1.5rem;
+        font-style: italic;
+        color: var(--text-color-light);
+    }
+    .about__right p { margin-bottom: 1rem; }
+
+    .skills__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .skill-tag {
+        background-color: var(--container-bg-color);
+        color: var(--primary-color);
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: 1px solid var(--primary-color);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.3s ease-in-out;
+        cursor: default;
+    }
+    .skill-tag:hover {
+        background: var(--primary-color);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 170, 255, 0.25);
+    }
+    .skill-tag i { font-size: 1rem; }
+
+    .skill-category {
+        margin-bottom: 1.5rem;
+    }
+    .skill-category h4 {
+        font-size: 1rem;
+        color: var(--title-color);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+    }
+    .skill-category h4 i { color: var(--primary-color); }
+
+    .terminal {
+        background: var(--terminal-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1rem 1.5rem;
+        margin-top: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        color: var(--terminal-text);
+        line-height: 1.8;
+    }
+    .terminal__line::before {
+        content: '> ';
+        color: var(--primary-color);
+    }
+    .terminal__cursor {
+        display: inline-block;
+        animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+
+    .projects__filters {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+    }
+    .filter-button {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        padding: 0.5rem 1.25rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease-in-out;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+    }
+    .filter-button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    .filter-button.active {
+        background-color: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+    .projects__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+    .project-card {
+        background-color: var(--container-bg-color);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 0.5rem;
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border-color);
+        position: relative;
+    }
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 170, 255, 0.15);
+        border-color: var(--primary-color);
+    }
+    .project-card__banner {
+        width: 100%;
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #fff;
+        position: relative;
+    }
+    .project-card__banner::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 40px;
+        background: linear-gradient(180deg, transparent, rgba(0,0,0,0.4));
+    }
+    .project-card__clearance {
+        position: absolute;
+        top: 0.8rem;
+        right: 0.8rem;
+        background: rgba(0, 0, 0, 0.6);
+        color: var(--classified-color);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        font-family: 'Orbitron', monospace;
+        letter-spacing: 0.1em;
+        border: 1px solid var(--classified-color);
+    }
+    .project-card__content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .project-card__title {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        font-family: 'Orbitron', 'Poppins', sans-serif;
+    }
+    .project-card__description {
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+        font-size: 0.92rem;
+    }
+    .project-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .project-card__tag {
+        font-size: 0.72rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 1rem;
+        background: var(--tag-hover-bg);
+        color: var(--primary-color);
+        font-weight: 600;
+        font-family: 'Orbitron', monospace;
+        letter-spacing: 0.03em;
+    }
+    .project-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .project-card__action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem;
+        border-radius: 0.4rem;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease-in-out;
+    }
+    .project-card__action:hover {
+        background: var(--primary-color);
+        color: #fff;
+    }
+    .project-card__action--primary {
+        background: var(--primary-color);
+        color: #fff;
+    }
+    .project-card__action--primary:hover {
+        background: var(--primary-color-alt);
+        border-color: var(--primary-color-alt);
+    }
+    .project-hidden { display: none !important; }
+
+    .contact__container {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    .contact__links {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    .contact__link {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--container-bg-color);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 2px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: var(--text-color);
+        transition: all 0.3s ease-in-out;
+    }
+    .contact__link:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 170, 255, 0.2);
+    }
+
+    .footer {
+        text-align: center;
+        padding: 2rem 0;
+        color: var(--text-color-light);
+        font-size: 0.8rem;
+        border-top: 1px solid var(--border-color);
+        background: var(--container-bg-color);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        font-family: 'Orbitron', monospace;
+        letter-spacing: 0.05em;
+    }
+    .footer__classified {
+        color: var(--classified-color);
+        font-size: 0.7rem;
+        margin-top: 0.3rem;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease-in-out;
+        backdrop-filter: blur(5px);
+    }
+    .modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal__content {
+        background-color: var(--container-bg-color);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 2.5rem;
+        border-radius: 0.5rem;
+        box-shadow: var(--box-shadow);
+        text-align: center;
+        position: relative;
+        transform: scale(0.9);
+        transition: all 0.3s ease-in-out;
+        max-width: 340px;
+        border: 1px solid var(--primary-color);
+    }
+    .modal.active .modal__content {
+        transform: scale(1);
+    }
+    .modal__close {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 1.5rem;
+        color: var(--text-color-light);
+        cursor: pointer;
+    }
+    .modal__content h3 {
+        margin-bottom: 1rem;
+        font-family: 'Orbitron', sans-serif;
+    }
+    .modal__content p {
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+    .modal__qr {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 1rem;
+        background: radial-gradient(circle at 30% 30%, #1a2a3a, #0a0a14);
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: 4rem;
+        border: 2px solid var(--primary-color);
+    }
+
+    @media screen and (max-width: 992px) {
+        .hero__container, .about__container {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        .hero__image { order: -1; margin-bottom: 2rem; }
+        .hero__buttons { justify-content: center; }
+        .hero__description { text-align: left; }
+        .nav__menu {
+            position: fixed;
+            top: 4.5rem;
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transform: translateY(-150%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .nav__menu.show { transform: translateY(0); }
+        .nav__list {
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .nav__toggle { display: block; }
+        .skills__tags { justify-content: center; }
+    }
+
+    @media screen and (max-width: 576px) {
+        .hero__content h1 { font-size: 2.2rem; }
+        .hero__avatar { width: 220px; height: 220px; font-size: 4rem; }
+        .section__title { font-size: 1.6rem; }
+        .hero__buttons { flex-direction: column; align-items: center; }
+        .hero__buttons .button { width: 100%; max-width: 280px; text-align: center; }
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    </style>
 </head>
+<body>
 
-<body id="page-top" class="site-loading">
-    <div id="page-skeleton" class="page-skeleton" aria-hidden="true">
-        <div class="skeleton-section skeleton-section-light">
-            <div class="container px-5">
-                <div class="skeleton-block skeleton-section-title"></div>
-                <div class="skeleton-block skeleton-line skeleton-line-long"></div>
-                <div class="skeleton-block skeleton-line"></div>
-                <div class="skeleton-block skeleton-line skeleton-line-short"></div>
+    <header class="header">
+        <nav class="nav">
+            <a href="#hero" class="nav__logo"><i class="fas fa-atom"></i> FutureTech Co.</a>
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li><a href="#hero" class="nav__link active">首页</a></li>
+                    <li><a href="#about" class="nav__link">档案</a></li>
+                    <li><a href="#projects" class="nav__link">机密项目</a></li>
+                    <li><a href="#contact" class="nav__link">联络</a></li>
+                </ul>
             </div>
-        </div>
-        <div class="skeleton-section skeleton-section-gray">
-            <div class="container px-5">
-                <div class="skeleton-block skeleton-section-title"></div>
-                <div class="skeleton-block skeleton-line skeleton-line-long"></div>
-                <div class="skeleton-block skeleton-line"></div>
-                <div class="skeleton-block skeleton-line skeleton-line-short"></div>
+            <div class="nav__actions">
+                <i class="fas fa-moon theme-switcher" id="theme-button"></i>
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
             </div>
-        </div>
-    </div>
+        </nav>
+    </header>
 
-    <!-- Navigation-->
-    <nav class="header navbar navbar-expand-lg navbar-light fixed-top shadow-sm" id="mainNav">
-        <div class="container px-5">
-            <a id="page-top-title" class="navbar-brand fw-bold" href="#page-top">&nbsp;</a>
-            <!-- <a href="#page-top"><img src="static/assets/img/CUMT_LOGO.svg" style="width: 11rem;"></a> -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                MENU
-                <i class="bi-list"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul id="navbar-items" class="navbar-nav ms-auto me-4 my-3 my-lg-0"></ul>
+    <main>
+        <section id="hero" class="hero section">
+            <div class="hero__container container">
+                <div class="hero__content">
+                    <span class="hero__badge">CLASSIFIED — LEVEL 9 CLEARANCE</span>
+                    <h1>FutureTech Co.</h1>
+                    <p class="hero__subtitle">机密项目经理 / Classified Manager</p>
+                    <p class="hero__description">"科技塑造未来，而未来属于 FutureTech。你看到的每一项尖端武器背后，都有我们不可公开的努力。"</p>
+                    <div class="hero__buttons">
+                        <a href="#projects" class="button">查看机密项目</a>
+                        <a href="#about" class="button button--ghost">人员档案</a>
+                        <a href="#contact" class="button button--danger">加密联络</a>
+                    </div>
+                </div>
+                <div class="hero__image">
+                    <div class="hero__avatar">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                </div>
             </div>
-        </div>
-    </nav>
+        </section>
 
-    <!-- Top Section -->
-    <section class="top-section" id="top-section">
-        <div class="top-section-bg top-section-bg-active" aria-hidden="true"></div>
-        <div class="top-section-bg" aria-hidden="true"></div>
-        <div class="top-section-content">
-            <div class="container px-5">
-                <h2 id="top-section-bg-text" class="text-white display-3 lh-1 font-alt"></h2>
+        <section id="about" class="section">
+            <h2 class="section__title">人员档案</h2>
+            <p class="section__subtitle">Personnel File — Restricted Access</p>
+            <div class="about__container container">
+                <div class="about__left">
+                    <div class="glass-card">
+                        <div class="classified-stamp">CONFIDENTIAL</div>
+                        <p style="margin-bottom: 1rem;">姓名：<strong style="color: var(--classified-color);">[已编辑]</strong></p>
+                        <p style="margin-bottom: 1rem;">职务：<strong>FutureTech Co. 机密项目经理</strong></p>
+                        <p style="margin-bottom: 1rem;">权限等级：<strong>Level 9 — 最高机密</strong></p>
+                        <p style="margin-bottom: 1rem;">负责统筹 FutureTech 旗下多线尖端科技武器化项目的测试与质量保障工作，包括但不限于冷冻技术、光谱武器、质子对撞机及时空传送系统的实战验证。</p>
+                        <p>因涉及盟军最高军事机密，个人身份信息已根据《FutureTech 信息安全条例》第 7 条予以屏蔽。</p>
+                    </div>
+                    <div class="glass-card">
+                        <div class="musings">
+                            <h3 class="musings__title">内部备忘录</h3>
+                            <blockquote>
+                                "我们不是在制造武器，我们是在定义下一场战争的规则。每一项测试通过的产品，都将改变战场的形态。这是 FutureTech 的使命，也是我的使命。"
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about__right">
+                    <div class="glass-card">
+                        <h3>核心能力</h3>
+
+                        <div class="skill-category">
+                            <h4><i class="fas fa-microchip"></i> 武器系统测试</h4>
+                            <div class="skills__tags">
+                                <span class="skill-tag"><i class="fas fa-snowflake"></i> 冷冻技术验证</span>
+                                <span class="skill-tag"><i class="fas fa-bolt"></i> 光谱武器测试</span>
+                                <span class="skill-tag"><i class="fas fa-atom"></i> 质子对撞系统</span>
+                                <span class="skill-tag"><i class="fas fa-clock"></i> 时空传送验证</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4><i class="fas fa-shield-alt"></i> 质量保障</h4>
+                            <div class="skills__tags">
+                                <span class="skill-tag"><i class="fas fa-clipboard-check"></i> 实战场景模拟</span>
+                                <span class="skill-tag"><i class="fas fa-vials"></i> 武器稳定性测试</span>
+                                <span class="skill-tag"><i class="fas fa-bug"></i> 系统缺陷追踪</span>
+                                <span class="skill-tag"><i class="fas fa-file-alt"></i> 机密报告撰写</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category">
+                            <h4><i class="fas fa-users-cog"></i> 管理能力</h4>
+                            <div class="skills__tags">
+                                <span class="skill-tag"><i class="fas fa-project-diagram"></i> 跨部门协调</span>
+                                <span class="skill-tag"><i class="fas fa-lock"></i> 机密信息管控</span>
+                                <span class="skill-tag"><i class="fas fa-handshake"></i> 盟军联络对接</span>
+                            </div>
+                        </div>
+
+                        <div class="skill-category" style="margin-bottom: 0;">
+                            <h4><i class="fas fa-flask"></i> 研究领域</h4>
+                            <div class="skills__tags">
+                                <span class="skill-tag"><i class="fas fa-radiation"></i> 超武器研发支持</span>
+                                <span class="skill-tag"><i class="fas fa-satellite-dish"></i> 防御系统验证</span>
+                                <span class="skill-tag"><i class="fas fa-robot"></i> 无人机战斗系统</span>
+                            </div>
+                        </div>
+
+                        <div class="terminal">
+                            <div class="terminal__line">SYSTEM: FutureTech Internal Network</div>
+                            <div class="terminal__line">STATUS: Connection encrypted [AES-256]</div>
+                            <div class="terminal__line">CLEARANCE: Level 9 — VERIFIED</div>
+                            <div class="terminal__line">ACCESS LOG: 847 classified operations<span class="terminal__cursor">_</span></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
-    <!-- Top Section -->
+        </section>
 
-    <!-- Photo -->
-    <div class="container px-5">
-        <div id="avatar">
-            <img class="shadow" src="static/assets/img/photo.jpeg" alt="Profile photo">
-        </div>
-    </div>
-    <!-- Photo -->
-    
-    <main id="sections"></main>
+        <section id="projects" class="section">
+            <h2 class="section__title">机密项目</h2>
+            <p class="section__subtitle">Classified Projects — Need To Know Basis Only</p>
+            <div class="container">
+                <div class="projects__filters">
+                    <button class="filter-button active" data-filter="all">全部</button>
+                    <button class="filter-button" data-filter="weapon">武器系统</button>
+                    <button class="filter-button" data-filter="defense">防御工程</button>
+                </div>
 
+                <div class="projects__grid">
+                    <div class="project-card" data-category="weapon">
+                        <div class="project-card__banner" style="background: linear-gradient(135deg, #0d1b2a, #1b4f72);">
+                            <i class="fas fa-snowflake"></i>
+                            <span class="project-card__clearance">LEVEL 7</span>
+                        </div>
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">冷冻直升机 — Cryocopter</h3>
+                            <p class="project-card__description">负责冷冻直升机武器系统的实战测试，验证冷冻光束对各类目标的冻结效果、持续时间及连锁冻结机制，确保战场可靠性。</p>
+                            <div class="project-card__tags">
+                                <span class="project-card__tag">冷冻技术</span>
+                                <span class="project-card__tag">实战验证</span>
+                                <span class="project-card__tag">武器系统</span>
+                            </div>
+                            <div class="project-card__actions">
+                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Footer-->
-    <footer class="bg-bottom text-center py-5">
-        <div class="container px-5">
-            <div class="text-white-50 small">
-                <div id="copyright-text" class="mb-2"></div>
-                <a id="github-link" href="https://github.com/username">Github</a>
-                <span class="mx-1">&middot;</span>
-                <a id="license-link" href="https://github.com/username/username.github.io/blob/main/LICENSE">License</a>
+                    <div class="project-card" data-category="weapon">
+                        <div class="project-card__banner" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                            <i class="fas fa-bolt"></i>
+                            <span class="project-card__clearance">LEVEL 8</span>
+                        </div>
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">光谱塔 — Spectrum Tower</h3>
+                            <p class="project-card__description">主导光谱塔防御系统的全流程测试，验证光束折射杀伤链、多塔协同攻击逻辑及能量消耗曲线，优化目标锁定算法。</p>
+                            <div class="project-card__tags">
+                                <span class="project-card__tag">光谱技术</span>
+                                <span class="project-card__tag">防御系统</span>
+                                <span class="project-card__tag">协同攻击</span>
+                            </div>
+                            <div class="project-card__actions">
+                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="weapon">
+                        <div class="project-card__banner" style="background: linear-gradient(135deg, #0f0f23, #2d3436);">
+                            <i class="fas fa-atom"></i>
+                            <span class="project-card__clearance">LEVEL 9</span>
+                        </div>
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">质子对撞机 — Proton Collider</h3>
+                            <p class="project-card__description">参与盟军最高机密武器"质子对撞机"的终极测试阶段，验证多弹头分导系统、抛物线弹道精度及区域毁灭半径，测试数据直接汇报盟军最高指挥部。</p>
+                            <div class="project-card__tags">
+                                <span class="project-card__tag">超武器</span>
+                                <span class="project-card__tag">最高机密</span>
+                                <span class="project-card__tag">弹道系统</span>
+                            </div>
+                            <div class="project-card__actions">
+                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="defense">
+                        <div class="project-card__banner" style="background: linear-gradient(135deg, #1b2838, #0a3d62);">
+                            <i class="fas fa-clock"></i>
+                            <span class="project-card__clearance">LEVEL 8</span>
+                        </div>
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">时空传送仪 — Chronosphere</h3>
+                            <p class="project-card__description">负责时空传送仪的安全性测试与边界验证，确保传送精度、冷却周期及异常回溯机制的可靠性，防止时空悖论等灾难性事故。</p>
+                            <div class="project-card__tags">
+                                <span class="project-card__tag">时空技术</span>
+                                <span class="project-card__tag">安全验证</span>
+                                <span class="project-card__tag">边界测试</span>
+                            </div>
+                            <div class="project-card__actions">
+                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="defense">
+                        <div class="project-card__banner" style="background: linear-gradient(135deg, #1a1a2e, #0f3460);">
+                            <i class="fas fa-shield-alt"></i>
+                            <span class="project-card__clearance">LEVEL 7</span>
+                        </div>
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">超时空交换器 — Gap Generator</h3>
+                            <p class="project-card__description">主导超时空交换器的隐蔽性测试，验证战场迷雾覆盖范围、持续时间及对敌方雷达的干扰效率，确保盟军基地防御体系安全。</p>
+                            <div class="project-card__tags">
+                                <span class="project-card__tag">隐蔽系统</span>
+                                <span class="project-card__tag">雷达干扰</span>
+                                <span class="project-card__tag">防御工程</span>
+                            </div>
+                            <div class="project-card__actions">
+                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-card" data-category="weapon">
+                        <div class="project-card__banner" style="background: linear-gradient(135deg, #0d1b2a, #1a237e);">
+                            <i class="fas fa-robot"></i>
+                            <span class="project-card__clearance">LEVEL 8</span>
+                        </div>
+                        <div class="project-card__content">
+                            <h3 class="project-card__title">无人机战斗系统 — Harbinger</h3>
+                            <p class="project-card__description">负责 FutureTech 旗舰级无人作战系统的全套测试，包括自主作战AI验证、武器挂载稳定性测试及远程操控延迟评估。</p>
+                            <div class="project-card__tags">
+                                <span class="project-card__tag">无人机</span>
+                                <span class="project-card__tag">AI验证</span>
+                                <span class="project-card__tag">远程操控</span>
+                            </div>
+                            <div class="project-card__actions">
+                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h2 class="section__title">加密联络</h2>
+            <p class="section__subtitle">Encrypted Communication Channel</p>
+            <div class="contact__container container">
+                <div class="glass-card" style="text-align: center;">
+                    <p style="margin-bottom: 0.5rem; font-size: 1.1rem;">需要建立加密通讯？</p>
+                    <p style="color: var(--text-color-light);">所有联络均通过 FutureTech 内部加密通道进行，请确认你的身份权限后再建立连接。</p>
+                    <div class="contact__links">
+                        <a href="mailto:classified@futuretech.ra" class="contact__link" title="加密邮件">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        <a href="#" class="contact__link" title="加密频道" onclick="openModal(event)">
+                            <i class="fas fa-satellite-dish"></i>
+                        </a>
+                        <a href="#" class="contact__link" title="内部网络">
+                            <i class="fas fa-network-wired"></i>
+                        </a>
+                        <a href="#" class="contact__link" title="安全线路">
+                            <i class="fas fa-phone-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 FutureTech Corporation. All Rights Reserved.</p>
+        <p class="footer__classified">UNAUTHORIZED ACCESS IS A VIOLATION OF FUTURE TECH SECURITY PROTOCOL — violators will be prosecuted.</p>
     </footer>
 
-</body>
+    <div class="modal" id="wechat-modal">
+        <div class="modal__content">
+            <i class="fas fa-times modal__close" onclick="closeModal()"></i>
+            <h3>加密频道验证</h3>
+            <div class="modal__qr">
+                <i class="fas fa-fingerprint"></i>
+            </div>
+            <p>扫描验证身份</p>
+            <p style="font-size: 0.8rem; color: var(--text-color-light);">请使用 FutureTech 内部安全应用扫描</p>
+        </div>
+    </div>
 
+    <script>
+    const themeButton = document.getElementById('theme-button');
+    const html = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        html.setAttribute('data-theme', savedTheme);
+        themeButton.className = savedTheme === 'dark' ? 'fas fa-sun theme-switcher' : 'fas fa-moon theme-switcher';
+    }
+
+    themeButton.addEventListener('click', () => {
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        themeButton.className = newTheme === 'dark' ? 'fas fa-sun theme-switcher' : 'fas fa-moon theme-switcher';
+        localStorage.setItem('theme', newTheme);
+    });
+
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('show');
+    });
+
+    document.querySelectorAll('.nav__link').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('show');
+        });
+    });
+
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav__link');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            if (window.scrollY >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    const filterButtons = document.querySelectorAll('.filter-button');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const filter = button.getAttribute('data-filter');
+            projectCards.forEach(card => {
+                if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                    card.classList.remove('project-hidden');
+                } else {
+                    card.classList.add('project-hidden');
+                }
+            });
+        });
+    });
+
+    function openModal(e) {
+        e.preventDefault();
+        document.getElementById('wechat-modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('wechat-modal').classList.remove('active');
+    }
+
+    document.getElementById('wechat-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'wechat-modal') {
+            closeModal();
+        }
+    });
+
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.glass-card, .project-card, .section__title').forEach(el => {
+        el.classList.add('fade-in');
+        observer.observe(el);
+    });
+    </script>
+
+</body>
 </html>

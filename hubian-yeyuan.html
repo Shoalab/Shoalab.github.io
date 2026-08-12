@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>印象东江，湖边野院 · George Zhang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --lake: #5b9aa0;
+            --lake-deep: #3d7a80;
+            --lake-light: #a8d5d8;
+            --warm: #c9a96e;
+            --warm-light: #f0e6d2;
+            --ink: #2c3e50;
+            --ink-light: #5a6c7d;
+            --paper: #faf8f5;
+            --card: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 阅读进度条 */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--lake), var(--warm));
+            z-index: 1000;
+            transition: width 0.1s;
+        }
+
+        /* 返回按钮 */
+        .back-home {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--ink);
+            font-size: 0.88rem;
+            font-weight: 500;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        .back-home:hover {
+            transform: translateX(-3px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            color: var(--lake-deep);
+        }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+        .hero__img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        .hero__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.1) 0%,
+                rgba(0,0,0,0.05) 40%,
+                rgba(0,0,0,0.5) 100%
+            );
+        }
+        .hero__content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 4rem 2rem 5rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #fff;
+        }
+        .hero__tag {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.2rem;
+        }
+        .hero__title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .hero__subtitle {
+            font-size: 1.05rem;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 560px;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+        }
+        .hero__meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+        .hero__meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* 文章主体 */
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 2rem;
+        }
+
+        .article__lead {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.25rem;
+            line-height: 1.9;
+            color: var(--ink);
+            text-align: center;
+            padding: 0 1rem 3rem;
+            border-bottom: 1px solid #e8e4de;
+            margin-bottom: 3rem;
+        }
+        .article__lead em {
+            font-style: normal;
+            color: var(--lake-deep);
+            font-weight: 600;
+        }
+
+        .section {
+            margin-bottom: 3.5rem;
+        }
+        .section__label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--lake);
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+        .section__label::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--lake);
+        }
+        .section h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+        }
+        .section p {
+            font-size: 1rem;
+            color: var(--ink-light);
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+        .section p strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* 图片组 */
+        .photo {
+            margin: 2rem -1.5rem;
+            border-radius: 0;
+            overflow: hidden;
+        }
+        .photo img {
+            width: 100%;
+            display: block;
+            transition: transform 0.6s;
+        }
+        .photo:hover img {
+            transform: scale(1.02);
+        }
+        .photo--rounded {
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+        .photo__caption {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #9a9590;
+            margin-top: 0.6rem;
+            font-style: italic;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin: 2rem -1.5rem;
+        }
+        .photo-grid.three {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        .photo-grid img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.4s;
+        }
+        .photo-grid img:hover {
+            transform: scale(1.03);
+        }
+        .photo-grid .wide {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+
+        /* 引用块 */
+        .quote {
+            position: relative;
+            margin: 2.5rem 0;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, rgba(91,154,160,0.06), rgba(201,169,110,0.06));
+            border-left: 3px solid var(--lake);
+            border-radius: 0 12px 12px 0;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.05rem;
+            color: var(--ink);
+            line-height: 1.8;
+        }
+        .quote i {
+            color: var(--lake);
+            margin-right: 0.5rem;
+        }
+
+        /* 信息卡片 */
+        .info-card {
+            margin: 3rem -1.5rem;
+            padding: 2.5rem 2rem;
+            background: linear-gradient(135deg, var(--lake-deep), var(--lake));
+            color: #fff;
+            border-radius: 0;
+        }
+        .info-card h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .info-card ul {
+            list-style: none;
+        }
+        .info-card li {
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            opacity: 0.92;
+        }
+        .info-card li i {
+            margin-top: 0.35rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* 分隔装饰 */
+        .divider {
+            text-align: center;
+            margin: 3rem 0;
+            color: var(--lake-light);
+            font-size: 1.2rem;
+            letter-spacing: 1rem;
+        }
+
+        /* 页脚 */
+        .article-footer {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            text-align: center;
+            border-top: 1px solid #e8e4de;
+        }
+        .article-footer p {
+            font-size: 0.85rem;
+            color: #9a9590;
+            margin-bottom: 1.5rem;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 2rem;
+            background: var(--ink);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            background: var(--lake-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61,122,128,0.3);
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .hero__content { padding: 3rem 1.5rem 4rem; }
+            .article { padding: 3rem 1.2rem 1rem; }
+            .photo, .photo-grid, .info-card { margin-left: -1.2rem; margin-right: -1.2rem; }
+            .photo-grid.three { grid-template-columns: 1fr 1fr; }
+            .back-home { top: 1rem; left: 1rem; padding: 0.5rem 1rem; font-size: 0.8rem; }
+        }
+
+        /* 淡入动画 */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<a href="index.html#about" class="back-home">
+    <i class="fas fa-arrow-left"></i> 返回
+</a>
+
+<!-- ========== Hero ========== -->
+<header class="hero">
+    <img class="hero__img" src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj8ll9sib8Tr04dTc6DlibYd4UIrRCszodqnwg5HSGyz4VCfc7WhgRRYibejQCRvvicrT2nQZMXvrA53d4zb5icORyqnbyjjibaRic9rzU/640?wx_fmt=jpeg&from=appmsg" alt="湖边野院">
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+        <span class="hero__tag"><i class="fas fa-map-marker-alt"></i> 湖南 · 郴州</span>
+        <h1 class="hero__title">印象东江，湖边野院</h1>
+        <p class="hero__subtitle">如果说东江湖是郴州的一颗明珠，那白廊就是这颗明珠最美的一道光环。</p>
+        <div class="hero__meta">
+            <span><i class="far fa-calendar"></i> 2026年7月</span>
+            <span><i class="far fa-clock"></i> 阅读约 8 分钟</span>
+        </div>
+    </div>
+    <div class="scroll-hint">SCROLL</div>
+</header>
+
+<!-- ========== 正文 ========== -->
+<article class="article">
+
+    <div class="article__lead fade-up">
+        这一次，我没有选择住在裕后街、苏仙区或高椅岭，而是顺着东江湖找到环湖路，相中了一家<em>湖边野院</em>。它依山而建，将东江湖的绝美画卷，毫无保留地送到了我的窗前。
+    </div>
+
+    <!-- 小院初见 -->
+    <div class="section fade-up">
+        <div class="section__label">初见</div>
+        <h2>推开阳台门，慢生活瞬间覆盖全身</h2>
+        <p>推开我们下榻的小院阳台门，一种"慢生活"的滤镜瞬间就覆盖了全身。民宿是依山而建的，设计师保留了山体的野性，再一览无余地把东江湖美景收揽其中，旁边用大大小小的鹅卵石砌成了坚固的挡土墙，充满了手工感和粗犷的美。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiajib5Nu2ZvGFqUkFljo1kX5K88hE8xjPOZ8OhtZXbgD0V9ssaDib2Lqh7o44L0FWTaFZ6KMIvDLhqCcNAKicCwCa6dN3pYXLqicVp2M/640?wx_fmt=jpeg&from=appmsg" alt="阳台风景">
+        </div>
+        <p>台阶旁，一抹正值灿烂的红枫，对上郁郁葱葱的绿植，色彩对比极其鲜明。抬眼望去，房间依山势错落分布：底层的客房有着木质门窗，稍高处的房间则拥有巨大的全景玻璃幕墙，既保留了自然绿意的包裹感，又将观景体验做到了极致。这拾级而上的每一步，都是对大自然的致敬。</p>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiaj9mbxvxypA3tiaPUPTMaA1OEWVTGvoMMQdOHlk66uB90UE3wM9nqWeicFIGuic1wCqfHXaXtKjJJkDBiavDzvjNJr2W1KJ8gAAkMZ4/640?wx_fmt=jpeg&from=appmsg" alt="红枫绿植">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiajic2G5QEwiahOmyAFiciaiaKib7SBmUhQ6HxXu3Eeu4cJv74KChCXzQgew0oxNwyuoSddMc4Ea9ia4vBniaOTF1b3LaO4FFfz6jeKknOHw/640?wx_fmt=jpeg&from=appmsg" alt="依山建筑">
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 树屋露台 -->
+    <div class="section fade-up">
+        <div class="section__label">望月</div>
+        <h2>树上的露台，小院的灯塔</h2>
+        <p>最巧妙的是，阶梯中途的树上，还延伸出了一个"树屋"般的木质露台，上面放着一个圆球灯，仿佛是小院的灯塔，给我的第一感觉就是坐着"望月"。</p>
+        <div class="photo-grid three">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8HiajicNBibx0xRYggfw5dNBaXXtPIFLZUqq59iaN9VNGzJicOE8KPAFY3WkQ6eTo52rUn5fCuuTW04n2e7VUMgrc5xKZkdL6pChaia8aia8/640?wx_fmt=jpeg&from=appmsg" alt="树屋露台1">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8HiajibGpcbiaPyrs0mW2ULTlfTtbbhN3BTT6yoh2bgA5YUMYxXxmjgvAt3hkqLv7PVCe6CupRuNUG4bI67LYwyoIuPiaiaKUO5y1x6Y64/640?wx_fmt=jpeg&from=appmsg" alt="树屋露台2">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8HiajicD3PesciaZmdf7temZkIUBpTbjxib3CtPSCxKicySoN9JyLdLX3TSXPlARC7asIYiaA1KMfM0uogfulm3Ru58YtPUZRCHhfHqiahPY/640?wx_fmt=jpeg&from=appmsg" alt="树屋露台3">
+        </div>
+    </div>
+
+    <!-- 小院区 -->
+    <div class="section fade-up">
+        <div class="section__label">入院</div>
+        <h2>竹门幽径，通往世外桃源</h2>
+        <p>野院有两个分区，我们所住的是依山而建且更高视野的半山区，下边的是更有庭院氛围且温馨湖景的小院区。小院区也是初临者首先到访的地方，视野尚佳。</p>
+        <p>首先是竹门幽径，拾级而入，映入眼帘的是青灰色的瓦顶、粗犷的毛石墙、半掩的古朴木门，门梁上还悬挂着透着暖光的黄色小灯笼，在满眼翠绿的映衬下，宛如通往一个"世外桃源"的结界。脚踩在平整的水泥小径上，仿佛即将开始的不是一次住宿，而是一场湖边的隐居。</p>
+    </div>
+
+    <!-- 悬空休闲亭 -->
+    <div class="section fade-up">
+        <div class="section__label">禅意</div>
+        <h2>悬空休闲亭，新中式的质朴</h2>
+        <p>穿过院门，拾级而下，湖边那个惊艳的悬空休闲亭便占据了视线焦点。</p>
+        <p>这里采用了极具度假感的"新中式禅意"风格，没有繁复的装饰，只有最质朴的材质。深色的茅草屋顶、随风飘动的白色纱幔、做旧的木质地板，搭配上粗麻编织的地毯和厚实的素色蒲团坐垫。中间一张敦实的矮木桌，旁边静静放置着一个深色陶瓶。</p>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiaj9iafXXKavbDZxiaDvib1Gk2I5owzic2LIBWVLejQpibick09LxYQeGwia3wPnvvPApxc28YCjtbedAXiajYFp4JT6VRBhBuMW2AMrMpF4/640?wx_fmt=jpeg&from=appmsg" alt="休闲亭1">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiaj8Via37bHKyhxE248hcMCmvlQ2cqPW5TfFibiaLr7RVzhJcxib0dyCDeATdG31cfLNdxDj78lcpfmsXbqDHG1n8wmjBuNUj9T2Z1Mg/640?wx_fmt=jpeg&from=appmsg" alt="休闲亭2">
+        </div>
+    </div>
+
+    <!-- 碎石院 -->
+    <div class="section fade-up">
+        <div class="section__label">湖景</div>
+        <h2>碎石院，宛如南欧庄园</h2>
+        <p>而在旁边，变出了一个截然不同的空间。用河滩石和水泥砌成了一道低矮的围墙，里面铺满了灰色的碎石，种上了一片翠绿的草坪，形成了一处依湖而建的碎石院。在碎石院里，安置着一套极简的白色铁艺网格桌椅，铺上纯白色的桌布，桌上一束插花，搭配上背后触手可及的东江湖水和对岸层层叠叠的农田山丘。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj8Ckx8DXLA5F7DNAYNYPt2icibGVNfvJibTGA86NFpib5Su4kNzYmrTKHub2TNG4CNhuBBfRyrZibf6icXbYYEv6Nj7RRrcyPKd3GMqY/640?wx_fmt=jpeg&from=appmsg" alt="碎石院">
+        </div>
+        <div class="quote">
+            <i class="fas fa-quote-left"></i>这里让我感觉，宛如在意大利南部或法国南部沿海的度假庄园，午后或者黄昏时期在这里享用一顿精致的下午茶或本地特色的风情晚餐简直是绝杀。
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 庭院侘寂 -->
+    <div class="section fade-up">
+        <div class="section__label">侘寂</div>
+        <h2>老砖火塘，岁月的痕迹</h2>
+        <p>走进小院，一股侘寂的生活气息扑面而来。地面上铺满了红褐色的老砖，经过风吹雨打，砖缝里带着岁月的痕迹，脚感踏实。院子的视觉中心是一个用砖石围起来的户外火塘，里面还留着炭火的痕迹，旁边静静地横着一条原木长凳。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8HiajibvS0RR06jWXn1hCicDrucp3H8Afe1PcpXTia8bK5JicSFqjSF9UvKNhE6QSSlJzkKHGibvgCZaqfS0CC6YFfo5FX4pJghqdQtYv98/640?wx_fmt=jpeg&from=appmsg" alt="火塘庭院">
+        </div>
+        <p>想象一下，在微凉的秋夜或初冬，三五好友围坐在火塘边，烤火、闲谈，感受火星噼啪作响，该是多么惬意的一件事。</p>
+        <p>在这个院子的一侧，还搭建了一个青瓦木架的休闲连廊。檐下放着木质躺椅和茶几，旁边是郁郁葱葱的绿植。无论是午后在这里躲阴凉看书，还是傍晚在这里喝茶发呆，都能感受到一种"避世"的安宁。</p>
+    </div>
+
+    <!-- 公区厨房 -->
+    <div class="section fade-up">
+        <div class="section__label">乡野</div>
+        <h2>竹席顶棚，开放式厨房</h2>
+        <p>沿着院子往侧边走，是一个完全开放式的公区厨房。这里充满了乡野的感觉。抬头看，不是天花板的吊顶，而是用竹席拼接而成的波浪状顶棚，阳光和微风能顺着竹编的缝隙漏进来，既遮阴又透气。</p>
+    </div>
+
+    <!-- 湖畔晚餐 -->
+    <div class="section fade-up">
+        <div class="section__label">晚餐</div>
+        <h2>落日余晖，东江湖的滋味</h2>
+        <p>落日余晖下，吃着本地特色的银鱼煎蛋，这是一道选用东江湖出产的银鱼与本地土鸡蛋煎制而成的美食，口感嫩滑鲜美；配上来湖南必吃的辣椒小炒肉；再搭配时蔬，解决晚间餐食。</p>
+        <div class="photo-grid three">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8HiajibyVicgLRt86aU70bhaWbibYXzVzvu6WPloN3BwegUUq4EQg9DFoRibV8K802vfVEPXGswctLZnJyt5K5nBDRMJ366s7eIZf5D5Lo/640?wx_fmt=jpeg&from=appmsg" alt="晚餐1">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_png/ibciaGoL8Hiaj887SV4TTP97tH5Hia97mAbzsvytwhvOHuibmibIqAKboe7L55jRaLLyFJ7voZ2olJ6JibF86XTr8ATUia9kJWBiaZYIMftf5Z8a4KGc/640?wx_fmt=png&from=appmsg" alt="晚餐2">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8HiajibCQ6cpaQTr45pbVG8W0HRjUicLor2SYDYwQK4EUVicmaevI3axUxjBreqaubuWAKQzMn7vh5NnkYs5w06CVHDicvvNAVpBhaLfhI/640?wx_fmt=jpeg&from=appmsg" alt="晚餐3">
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 意外访客 -->
+    <div class="section fade-up">
+        <div class="section__label">惊喜</div>
+        <h2>一只绿色的"生猛"蛐蛐</h2>
+        <p>一只绿色的"生猛"长腿蛐蛐，不知何时悄悄在门口等候。为了逗趣，我找了个透明的塑料小盒把它请了进去。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj9CGicOW0TLs3FvKaZ2RHyg9K4ibriciaPnAqlZOaemUic8Sjr85XNUjX8ibDueY0gH3gQTvibQvIbmBud7djAsDudgiawL2J8qxVyGAMI/640?wx_fmt=jpeg&from=appmsg" alt="蛐蛐">
+        </div>
+    </div>
+
+    <!-- 湖畔早餐 -->
+    <div class="section fade-up">
+        <div class="section__label">清晨</div>
+        <h2>与蛐蛐共进早餐</h2>
+        <p>因为比较懒，让管家打包了早餐送上来，五谷杂粮粥、水煮蛋、甜玉米和红薯、咸蛋黄流沙包、几颗果子，再搭配上特仑苏。</p>
+        <p>我没舍得把蛐蛐放走，让它隔着盒子与我"共进早餐"。我把它放在圆桌中央，一边"没见过世面"的逗蛐蛐，一边在平静的碧绿湖水和层叠的山峦前用餐。微风吹过，树影婆娑。</p>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiaj8hCZpt9dlwQNe5c0O3cWQV33lMrWKlAY7wThhpOrIHbVt0sZpIwJ0nFJwIYfNrWaOeS805dM9vWppSDmaBjP33CNxUdLL37iaw/640?wx_fmt=jpeg&from=appmsg" alt="早餐1">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8HiajibNLH5PLibwOiaEQrX6Um0jnkb1Fy2oNqc6Hk8oOP7F2QUxibdl0gicBvPoWqOyquek6SzaTYOgvM1m2Vwr2NBHoAasOjwuqlvApkc/640?wx_fmt=png&from=appmsg" alt="早餐2">
+        </div>
+        <div class="quote">
+            <i class="fas fa-quote-left"></i>这大概就是旅行最迷人的意义吧——把日常里的鸡毛蒜皮留在城市，在这里，连意外遇到的一只小虫子和一顿简单的早餐，都变成了值得怀念的风景。
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 午后环湖 -->
+    <div class="section fade-up">
+        <div class="section__label">午后</div>
+        <h2>环湖路走马观花</h2>
+        <p>午后没有了特定的行程安排，索性在民宿周围的环湖路上走马观花，感受白廊的另一种日常。</p>
+        <p>先在我们野院的水池边逗留了一会儿，跟一大群红白相间的锦鲤原住民打个招呼。扔把鱼食，水面瞬间沸腾，鱼群摆动着尾巴争相抢食，搅动出层层叠叠的涟漪和水花，生机勃勃。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj87HLtaEcwkn9V6kkibIVG1hCR4ERI4XtlmiaWhynmqzz3bBbegneCofxDfkaKe2awBQctZibOVyEBNDO3aaMRFeH7lYojEBeAQVQ/640?wx_fmt=jpeg&from=appmsg" alt="锦鲤">
+        </div>
+        <p>白廊的湖水不是那种深邃的蓝，而是带着碧石绿的清透。感觉在这里，都不需要刻意寻找景点，坐在露台躺椅上，看远方群山连绵，看白云在湖面上投下影子，一杯可乐汽水配上几枝鲜花，就是一下午的美好。</p>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8HiajicrauzTpQD2pKsanNupDjGQF17J2r27FNic1bn5WCSc14UGRibibawyOib7N3Oic3n4ehpNflTMawbicZdFVogkicFwZdnBhWya8IuL7Y/640?wx_fmt=jpeg&from=appmsg" alt="东江湖1">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiaj8FjiaRicnejzTPLWoQibQ7HywZ8uwc3HUIVrcZoT8y8b8p7D6G1QXl7gSNfdK9lXVdD9afSENUuuKnc2sNYk7zYrCyQry6mEKyxU/640?wx_fmt=jpeg&from=appmsg" alt="东江湖2">
+        </div>
+        <p>阴天的东江湖褪去了阳光下的翠绿，呈现出一种高级的灰蓝色调，像一幅水墨画。岸边大片紫红色的百日菊在风中摇曳，静静停在花朵上采蜜的小蜜蜂，给这份略显清冷的景色平添了许多生机。</p>
+    </div>
+
+    <!-- 知青岁月 -->
+    <div class="section fade-up">
+        <div class="section__label">印记</div>
+        <h2>知青岁月，湖底的青春</h2>
+        <p>环湖路边一块巨大的景石映入眼帘。石头上刻着鲜红的"知青岁月"四个大字。旁边的铭文记录着那段特殊的历史："前方八百米湖底，是原资兴县干校知青点，在东江湖山间度过青春岁月的地方。"</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj9lpR8ic50t3fTw4tlicuxs4O6pn6GW5GaGcz7ddiaZuwz0rsGENFDYRa1Aic7Xg1sdB8JSe7e7JiaXPWZBPiaFB7Q6KXIPwvwew61hc/640?wx_fmt=jpeg&from=appmsg" alt="知青岁月">
+        </div>
+        <p>站在这里，看着远方那片被湖水淹没的山谷，突然觉得东江湖不仅仅有绝美的自然风光，它的水底和岸边，还沉淀着当年一代人的青春和故事。</p>
+    </div>
+
+    <!-- 码头烟火 -->
+    <div class="section fade-up">
+        <div class="section__label">烟火</div>
+        <h2>码头烤鱼，人间滋味</h2>
+        <p>漫无目的地闲逛到码头，最后停在了路边一排热闹的湖鲜小吃摊前。</p>
+        <p>铁盘上摆满了刚出锅的烤鱼，用竹签串好，金黄油亮。都是东江湖的翘嘴鱼。这种鱼肉质细嫩，经过油炸慢烤，鱼皮微微焦脆，撒上辣椒粉和孜然，香味立刻随着热气飘散开来。一口咬下去，外酥里嫩，鲜香十足。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj9PKRTZBREHsUYg3n3p4R59XlGFUCeLjVZ8J8dDI7CHR3W0QlDENWibiansialOjmWSZ2czVyxOGxwohqicxicdMz6bmKTib11rhM3B8/640?wx_fmt=jpeg&from=appmsg" alt="烤鱼">
+        </div>
+        <div class="quote">
+            <i class="fas fa-quote-left"></i>虽然开始我是抗拒和嫌弃这种路边油炸食物，但这种"人间烟火"配上当时饥饿感，还是折服于东江湖鲜的灵气，这何尝不是旅途中不可或缺的滋味吗？
+        </div>
+    </div>
+
+    <!-- 傍晚渡船 -->
+    <div class="section fade-up">
+        <div class="section__label">傍晚</div>
+        <h2>渡船、甲板与最动人的生命力</h2>
+        <p>野院傍晚，往庭院下面看，就是东江湖真实的日常。停泊的渡船、甲板上的货车、连接岸边的跳板。它没有游轮的华丽，却有着最动人的生命力，载着两岸人家穿梭于山水之间。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiaj9xh3fCrk48XWmV1ZWJCPARbiby2OW3xOyUGcHupA3QBZC6FrCbG7Mlu9W13AKcZokDWON5GjXXuODXLX8hKUmoqkwBxKnnGTGc/640?wx_fmt=jpeg&from=appmsg" alt="渡船">
+        </div>
+        <div class="quote">
+            <i class="fas fa-quote-left"></i>旅行的意义，或许就在于能看到别人的日常，然后思考自己的人生。
+        </div>
+    </div>
+
+    <!-- 信息卡片 -->
+    <div class="info-card fade-up">
+        <h3><i class="fas fa-map-marked-alt"></i> 旅行信息</h3>
+        <ul>
+            <li><i class="fas fa-map-marker-alt"></i> <span><strong>坐标：</strong>湖南郴州 · 东江湖白廊景区 · 石角头村环湖路旁</span></li>
+            <li><i class="fas fa-bed"></i> <span><strong>下榻：</strong>野小院·白廊</span></li>
+            <li><i class="fas fa-camera"></i> <span><strong>特色：</strong>依山临湖、新中式禅意、悬空休闲亭、火塘庭院</span></li>
+            <li><i class="fas fa-utensils"></i> <span><strong>美食：</strong>东江湖银鱼煎蛋、辣椒小炒肉、翘嘴鱼烤鱼</span></li>
+        </ul>
+    </div>
+
+</article>
+
+<!-- ========== 页脚 ========== -->
+<footer class="article-footer">
+    <p>印象东江，湖边野院 · 2026年7月 · George Zhang</p>
+    <a href="index.html#about" class="btn-back">
+        <i class="fas fa-arrow-left"></i> 返回 ATLAS
+    </a>
+</footer>
+
+<script>
+    // 阅读进度条
+    window.addEventListener('scroll', () => {
+        const bar = document.getElementById('progressBar');
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (scrollTop / docHeight) * 100;
+        bar.style.width = progress + '%';
+    });
+
+    // 滚动淡入
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

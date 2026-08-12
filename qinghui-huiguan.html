@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>阳朔山水为景，粤式雅致为居 · George Zhang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --jade: #5a8a7e;
+            --jade-deep: #3d6b5f;
+            --jade-light: #a8c8be;
+            --gold: #c9a96e;
+            --gold-light: #f0e6d2;
+            --ink: #2c3e50;
+            --ink-light: #5a6c7d;
+            --paper: #faf8f5;
+            --card: #ffffff;
+            --accent: #b85c38;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.8;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--jade), var(--gold));
+            z-index: 1000;
+            transition: width 0.1s;
+        }
+
+        .back-home {
+            position: fixed;
+            top: 1.5rem; left: 1.5rem;
+            z-index: 100;
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--ink);
+            font-size: 0.88rem;
+            font-weight: 500;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        .back-home:hover {
+            transform: translateX(-3px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            color: var(--jade-deep);
+        }
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+        .hero__img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        .hero__overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.15) 0%,
+                rgba(0,0,0,0.05) 40%,
+                rgba(0,0,0,0.55) 100%
+            );
+        }
+        .hero__content {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 4rem 2rem 5rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #fff;
+        }
+        .hero__tag {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.2rem;
+        }
+        .hero__title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .hero__subtitle {
+            font-size: 1.05rem;
+            font-weight: 300;
+            opacity: 0.9;
+            max-width: 600px;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+        }
+        .hero__meta {
+            display: flex; gap: 1.5rem;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+        .hero__meta span { display: flex; align-items: center; gap: 0.4rem; }
+        .scroll-hint {
+            position: absolute;
+            bottom: 1.5rem; left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+
+        .article {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 2rem;
+        }
+
+        .article__lead {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: var(--ink);
+            text-align: center;
+            padding: 0 1rem 3rem;
+            border-bottom: 1px solid #e8e4de;
+            margin-bottom: 3rem;
+        }
+        .article__lead em {
+            font-style: normal;
+            color: var(--jade-deep);
+            font-weight: 600;
+        }
+
+        .section { margin-bottom: 3.5rem; }
+        .section__label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--jade);
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+        }
+        .section__label::before {
+            content: '';
+            width: 24px; height: 1px;
+            background: var(--jade);
+        }
+        .section h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1.2rem;
+            line-height: 1.4;
+        }
+        .section p {
+            font-size: 1rem;
+            color: var(--ink-light);
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+        .section p strong { color: var(--ink); font-weight: 600; }
+
+        .photo {
+            margin: 2rem -1.5rem;
+            overflow: hidden;
+        }
+        .photo img {
+            width: 100%; display: block;
+            transition: transform 0.6s;
+        }
+        .photo:hover img { transform: scale(1.02); }
+        .photo--rounded {
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+        .photo__caption {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #9a9590;
+            margin-top: 0.6rem;
+            font-style: italic;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin: 2rem -1.5rem;
+        }
+        .photo-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+        .photo-grid img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.4s;
+        }
+        .photo-grid img:hover { transform: scale(1.03); }
+        .photo-grid .wide {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+        .photo-grid .tall {
+            grid-row: span 2;
+            aspect-ratio: 3/4;
+        }
+
+        .quote {
+            position: relative;
+            margin: 2.5rem 0;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, rgba(90,138,126,0.06), rgba(201,169,110,0.06));
+            border-left: 3px solid var(--jade);
+            border-radius: 0 12px 12px 0;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.05rem;
+            color: var(--ink);
+            line-height: 1.8;
+        }
+        .quote i { color: var(--jade); margin-right: 0.5rem; }
+
+        .info-card {
+            margin: 3rem -1.5rem;
+            padding: 2.5rem 2rem;
+            background: linear-gradient(135deg, var(--jade-deep), var(--jade));
+            color: #fff;
+        }
+        .info-card h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            display: flex; align-items: center; gap: 0.6rem;
+        }
+        .info-card ul { list-style: none; }
+        .info-card li {
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            display: flex; align-items: flex-start; gap: 0.6rem;
+            opacity: 0.92;
+        }
+        .info-card li i { margin-top: 0.35rem; font-size: 0.85rem; opacity: 0.8; }
+
+        .divider {
+            text-align: center;
+            margin: 3rem 0;
+            color: var(--jade-light);
+            font-size: 1.2rem;
+            letter-spacing: 1rem;
+        }
+
+        .article-footer {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            text-align: center;
+            border-top: 1px solid #e8e4de;
+        }
+        .article-footer p {
+            font-size: 0.85rem;
+            color: #9a9590;
+            margin-bottom: 1.5rem;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center; gap: 0.5rem;
+            padding: 0.8rem 2rem;
+            background: var(--ink);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            background: var(--jade-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(61,107,95,0.3);
+        }
+
+        @media (max-width: 640px) {
+            .hero__content { padding: 3rem 1.5rem 4rem; }
+            .article { padding: 3rem 1.2rem 1rem; }
+            .photo, .photo-grid, .info-card { margin-left: -1.2rem; margin-right: -1.2rem; }
+            .photo-grid.three { grid-template-columns: 1fr 1fr; }
+            .back-home { top: 1rem; left: 1rem; padding: 0.5rem 1rem; font-size: 0.8rem; }
+        }
+
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<a href="index.html#about" class="back-home">
+    <i class="fas fa-arrow-left"></i> 返回
+</a>
+
+<!-- ========== Hero ========== -->
+<header class="hero">
+    <img class="hero__img" src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8Hiaj9BFp1ssMDS390Wsxu8H1etqrICdTzWHqwptiaqcWPJURNbZFooaHlwtC4JGdSgaa4YDAkIKcGice6wQeVMEFzsLwNLjjPysoRdk/640?wx_fmt=png&from=appmsg" alt="清晖会馆">
+    <div class="hero__overlay"></div>
+    <div class="hero__content">
+        <span class="hero__tag"><i class="fas fa-map-marker-alt"></i> 广西 · 阳朔</span>
+        <h1 class="hero__title">阳朔山水为景<br>粤式雅致为居</h1>
+        <p class="hero__subtitle">在桂林阳朔选择清晖会馆民宿下榻，不单是顺德清晖园给我带来的联想，更是契合了我对粤式雅致的欣赏。</p>
+        <div class="hero__meta">
+            <span><i class="far fa-calendar"></i> 2026年7月</span>
+            <span><i class="far fa-clock"></i> 阅读约 6 分钟</span>
+        </div>
+    </div>
+    <div class="scroll-hint">SCROLL</div>
+</header>
+
+<!-- ========== 正文 ========== -->
+<article class="article">
+
+    <div class="article__lead fade-up">
+        其实在选择酒店民宿的时候，我一直会犹豫能否直接通过通透落地窗或宽敞露天阳台看到漓江、遇龙河、十里画廊这样的桂林山水。尽管最终选择当中有住在漓江边上，但之后还是追选了一所<em>岭南园林风格</em>且致敬清晖园的民宿，位于阳朔县骥马铁岭村的山脚下。
+    </div>
+
+    <!-- 庭院初见 -->
+    <div class="section fade-up">
+        <div class="section__label">入园</div>
+        <h2>园中有园，景外有景</h2>
+        <p>进入庭院，果然不负我的期望，碧水、绿荫、古墙、石桥、彩窗，宅院里丰富的装饰，配上桂林山水的外景、倚着十里画廊风景区的峰丛、眺望着千古情景区的峰林，也算是另外一番"园中有园，景外有景"的层次感和丰富的空间变化。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8HiajibEJrOJCWJW9ibY38IOzJABCL5iavibCDGlBljLY5LpicV0Zhqs87ia1FNibDr55cHMPDEqzALxz5cTJvoqJD3wE3uibtQXyIxEqxr4cs/640?wx_fmt=png&from=appmsg" alt="庭院石桥碧水">
+        </div>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiajicib8Oa81Pt8qVqHstrRYSMoeuq4wl8NMZDOyhVRs71kY3W2dMlXbaaZsPF7PQ92QPulwakAqcZu6MZ2z5t0ut5tNhIu6oKd6JM/640?wx_fmt=jpeg&from=appmsg" alt="庭院古墙绿荫">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8Hiaj8EcGG1jRKE2XSun4GED6aKuADU0wibmKD8t26QE6BicEtAdJgSpVdVNuF11F3Y3qJ9LGBibSkz2iaH8mDHPYuFoBbTkSHdRFnrABI/640?wx_fmt=jpeg&from=appmsg" alt="庭院彩窗">
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 大堂 -->
+    <div class="section fade-up">
+        <div class="section__label">大堂</div>
+        <h2>百鸟朝阳，亮堂雅致</h2>
+        <p>步入一楼大堂，亮黄色的墙面配深色实木家具，视觉上很亮堂。正中间是幅做工精细的"百鸟朝阳"的刺绣，是这里的视觉中心，看着特别有生机。两侧的台子上摆着金元宝和红果花瓶，搭配中间一尊双鼠摆件，前面再配上一张小茶桌和整套鸡公图案的白瓷茶具。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_png/ibciaGoL8HiajibKrn827aZeP9ibxqib03WdaDujIIx9CQvMVIJmN7SHxDSnqe5o988xnBYzuYhruBxRtk8EJ2pKd2iau4CXoyXVJuiaWTgvKEhZbuQ/640?wx_fmt=png&from=appmsg" alt="大堂百鸟朝阳刺绣">
+        </div>
+        <p>大堂的视觉中心还有一面硕大的孔雀蓝绿底色大鼓，鼓面布满了祥云彩绘与铆钉，上书"順龍堂 二郎真君廟"，透着一种古拙而庄重的民俗庙会感。右侧青砖墙上，斜挂着一把朱红色的木桨，上面印着白字的"桃源社"，仿佛带着几分水乡社火和民间信仰的故事感。</p>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8Hiaj8qMBHibpRibraJeVbK5T9aGOGicoiaWiaZeKKHnBgFH4eGfz1nI1QfdTIX6IvmwjsASt3zBriaCTmUIYlVibLibAFibbFogqS93rwJ7VUg/640?wx_fmt=png&from=appmsg" alt="孔雀蓝大鼓">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_png/ibciaGoL8HiajicC7yno3iaqXR9dbeFLRaY6HplKlIicWDGuNIT8Sb4qegSG5t6ia9O4ocaWOiamRekpkDrv9wVuicH7D8oWg173ycNxYK6piaC8Q0Q4o/640?wx_fmt=png&from=appmsg" alt="朱红木桨桃源社">
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 房间 -->
+    <div class="section fade-up">
+        <div class="section__label">居室</div>
+        <h2>满洲窗映山水，老木地板温润</h2>
+        <p>进入我们的房间：做旧的老木地板满铺全屋，粗粝温润；极简木茶几配蒲垫，随意一坐配上喝茶便是增添雅致；阳台门窗参照了清代岭南"满洲窗"的彩色格子门，摒弃了传统的繁琐木格，重构了蓝、黄、绿的套色玻璃，这种参照顺德清晖园满洲窗蚀刻术，有种诉说着清代工匠的巧思与东西方文化碰撞火花的感觉，把窗外的山水都映出了复古调调；中央一张原木大床铺着雪白软枕，古朴与舒适结合得刚刚好，躺下便能沉入这份宁静。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_png/ibciaGoL8HiajicZls0g178iaQ0lMJaBoqvIQyXIVsM8j2bfQluWUUqQa6T852XZZBKnWvvJ02kOQic7xa634SjQVDaf6ICjaicicCPMGbkZkCIxjqc/640?wx_fmt=png&from=appmsg" alt="房间全景满洲窗">
+        </div>
+        <div class="quote">
+            <i class="fas fa-quote-left"></i>青砖月洞窗映着玉兰繁花，老木案几素面无物，一进这方玄关，便顿感古朴静谧的东方禅意。
+        </div>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8HiajicMzY90orh8YGxqloaDj8RkokcBMeQbiaRiboBckIfA3zobGvGqQumcVWowmtGKQTkiachwdxHqNoOIAh8G821vStCQjbSdsVbxeQ/640?wx_fmt=png&from=appmsg" alt="青砖月洞窗玄关">
+        </div>
+    </div>
+
+    <!-- 细节 -->
+    <div class="section fade-up">
+        <div class="section__label">细节</div>
+        <h2>一器一物，皆是巧思</h2>
+        <p>床头的灯具是一盏宝石蓝柱身，釉面光滑润泽，带有陶瓷或烤漆的高级光感。与米白色类似亚麻或棉麻的织物质地的灯罩形成经典的冷暖撞色，合适且不抢调。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8HiajicEUu6ObmoicqznenMiaTbhYtBPmawf0CQtIwGf0OUFnNmMpiccrI9QLiaYVM3ricPSayR1icTic9jicsb1icBiawhicnfcicBmCWicicwo2NI0E/640?wx_fmt=png&from=appmsg" alt="宝石蓝床头灯">
+        </div>
+        <p>床头做了些内嵌拼木以形成的装饰，即不显单调还非常有实用价值，且不必担心脱落的问题。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8HiajibBm7usUD7sA9vEicrlwQgxCJc0AuvOibS1WTwhhJzuEUOOAG9zIicnU1gKdK8wiaXBXKo0zK51x5kTZKsfibuaGaiaibP6wEgVVIUNt0/640?wx_fmt=png&from=appmsg" alt="床头内嵌拼木装饰">
+        </div>
+        <p>阳台门上的白釉陶瓷把手，带着天然的冰裂纹，配上古铜色的金属杆，挺有那种老房子的味道。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_png/ibciaGoL8HiajibT12I0flibsEiaic3sTibC6LQZGRice2IOhGzNu1VpOqm2enFKX55LFue9g6yTU6R8J9ZZbO6dDC375pN2krpFJiaa7m8505YVVO5nM/640?wx_fmt=png&from=appmsg" alt="白釉冰裂纹陶瓷把手">
+        </div>
+        <p>洗手台下，用一整块实木板隔断以便置物，然后用褪色的泥砖镂空花窗余料做点缀。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8HiajicJ5JHD1SNCGklicUUNRGPxn3aF4TSeTzJlVckng9r7aDSxvmqDxy9x44pibMqODVYfKriaX8suorYib7NhSsY1xJTKxxAibNibXQaj8/640?wx_fmt=png&from=appmsg" alt="洗手台实木板泥砖花窗">
+        </div>
+        <p>淋浴空间的置物架用绿琉璃镂空花窗的余料所替代，这点非常的好评，我感觉我也应该学习。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_png/ibciaGoL8HiajibQK7pw6YDqmwicIxEgia9PlBI1UDgF0y2vz5DkD9vfbY4UtLOCtZ5xIz8xGzyJKiblyQUGMK0qWPYyhNoDMMeCdxr9Kywicib6baok/640?wx_fmt=png&from=appmsg" alt="绿琉璃镂空花窗置物架">
+        </div>
+    </div>
+
+    <!-- 浴缸山景 -->
+    <div class="section fade-up">
+        <div class="section__label">沐浴</div>
+        <h2>半截青砖窗台，满窗十里画廊</h2>
+        <p>浴室的浴缸贴着半截青砖窗台，外头就是桂林十里画廊的山景，在仿古的屋檐下，边泡边看景，不用出门便满眼翠绿，很安逸。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/mmbiz_png/ibciaGoL8Hiaj9Ud0x8p1ZuNgz7avicLkwtpf2WPb2Pf651hvfibd6p1dkiaZ15Z2sOblWtN14e0KkHibelLeIcoP1D5qIXtI3gnP5RbUdhvdicbRDw/640?wx_fmt=png&from=appmsg" alt="浴缸山景十里画廊">
+        </div>
+    </div>
+
+    <div class="divider">· · ·</div>
+
+    <!-- 早餐与总结 -->
+    <div class="section fade-up">
+        <div class="section__label">晨光</div>
+        <h2>鸡公碗里的桂林米粉</h2>
+        <p>早餐由管家安排在庭院处，端来用广东传统鸡公风格餐具，盛着当地特色的桂林米粉、枸杞白粥、和一些糯玉米、散养鸡蛋和叉烧小笼包。</p>
+        <div class="photo-grid">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8HiajibF6RIWfE4FEZ6jOvD5OEMvGPaaBSBPeBwiaia77fRzSRauvEtFVBic2kVggtZ5pnSpAmia3rWsGa7vGOT2vPtyb9YXWB3aKjOq1oY/640?wx_fmt=jpeg&from=appmsg" alt="庭院早餐桂林米粉">
+            <img src="https://mmbiz.qpic.cn/mmbiz_jpg/ibciaGoL8HiajicLjp1ROBXuzdTqretaLOJyeqKIhoU0PicHZy03TVcibiaFiaiavwx0RYQ6Y0F6ibRSPPqK1MbqKUjzFFHgXq9WN2V5ITEBYyiaYmtdiaY/640?wx_fmt=jpeg&from=appmsg" alt="庭院茶座猫咪">
+        </div>
+        <p>在阳朔，我们找到了一处既装得下喀斯特地貌群峰的开阔，又藏得住岭南老宅韵味的栖息地。这里有满洲窗的斑斓、青砖墙的沧桑，还有清晨一碗特色桂林米粉配白粥。不用刻意去寻找风景，就坐在庭院里看看山水，逗一逗猫，一抬头，阳朔的山就在眼前。</p>
+        <div class="photo photo--rounded">
+            <img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/ibciaGoL8Hiajibsa6vnj2D2HSGtNjBhrticDF0I5DAYu0FEYiaYuEzNbRgTJse9rBVylnBLrSux628nEaZMJp6yE0Nb7rjfMfRNsNNFCcVJMytNU/640?wx_fmt=jpeg&from=appmsg" alt="庭院山水猫咪">
+        </div>
+        <div class="quote">
+            <i class="fas fa-quote-left"></i>体验过这种"粤式雅致"里的"山水慢生活"，大概就是这趟旅行惬意的时刻了。
+        </div>
+    </div>
+
+    <!-- 信息卡片 -->
+    <div class="info-card fade-up">
+        <h3><i class="fas fa-map-marked-alt"></i> 旅行信息</h3>
+        <ul>
+            <li><i class="fas fa-map-marker-alt"></i> <span><strong>坐标：</strong>广西桂林 · 阳朔县骥马村委铁岭81-1号</span></li>
+            <li><i class="fas fa-bed"></i> <span><strong>下榻：</strong>清晖会馆</span></li>
+            <li><i class="fas fa-camera"></i> <span><strong>特色：</strong>岭南园林、满洲窗、青砖古墙、十里画廊山景</span></li>
+            <li><i class="fas fa-utensils"></i> <span><strong>美食：</strong>桂林米粉、阳朔啤酒鱼、叉烧小笼包</span></li>
+        </ul>
+    </div>
+
+</article>
+
+<!-- ========== 页脚 ========== -->
+<footer class="article-footer">
+    <p>阳朔山水为景，粤式雅致为居 · 2026年7月 · George Zhang</p>
+    <a href="index.html#about" class="btn-back">
+        <i class="fas fa-arrow-left"></i> 返回 ATLAS
+    </a>
+</footer>
+
+<script>
+    window.addEventListener('scroll', () => {
+        const bar = document.getElementById('progressBar');
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (scrollTop / docHeight) * 100;
+        bar.style.width = progress + '%';
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

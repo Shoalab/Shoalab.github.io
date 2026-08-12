@@ -1,1183 +1,1248 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FutureTech Co. | 机密档案 — Classified</title>
+    <title>Shoalab</title>
 
-    <meta name="author" content="Classified Manager">
-    <meta name="description" content="FutureTech Corporation — Internal Personnel File. Clearance Level Required.">
-    <meta name="keywords" content="FutureTech, Red Alert, 科技, 机密">
+    <meta name="author" content="George Zhang">
+    <meta name="description" content="游戏测试工程师个人主页 — 功能测试 / 性能测试 / 安全测试">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Orbitron:wght@400;700;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-    :root, [data-theme='light'] {
-        --primary-color: #00aaff;
-        --primary-color-alt: #0088dd;
-        --highlight-color: #00ffff;
-        --accent-color: #ff4444;
-        --title-color: #1a1a2e;
-        --text-color: #333344;
-        --text-color-light: #666677;
-        --body-bg-color: #e8e8e8;
-        --container-bg-color: rgba(255, 255, 255, 0.9);
-        --border-color: #bbccee;
-        --box-shadow: 0 5px 20px rgba(0, 50, 100, 0.1);
-        --bg-overlay-color: rgba(255, 255, 255, 0.55);
-        --nav-bg: rgba(255, 255, 255, 0.85);
-        --tag-hover-bg: #e0f0ff;
-        --classified-color: #ff4444;
-        --terminal-bg: rgba(240, 240, 245, 0.95);
-        --terminal-text: #1a1a2e;
+    /* ========== CSS 变量 ========== */
+    :root {
+        --primary-color: #007bff;
+        --primary-light: #4da3ff;
+        --primary-dark: #0056b3;
+
+        --bg-overlay: rgba(255, 255, 255, 0.15);
+        --card-bg: rgba(255, 255, 255, 0.65);
+        --card-border: rgba(255, 255, 255, 0.5);
+        --card-hover: rgba(255, 255, 255, 0.82);
+        --text-primary: #1a1a2e;
+        --text-secondary: #333;
+        --text-muted: #666;
+        --nav-bg: rgba(255, 255, 255, 0.75);
+        --tag-bg: rgba(0, 123, 255, 0.08);
+        --tag-border: rgba(0, 123, 255, 0.25);
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 12px 40px rgba(0, 123, 255, 0.15);
+        --quote-bg: rgba(0, 123, 255, 0.06);
     }
 
-    [data-theme='dark'] {
-        --primary-color: #00aaff;
-        --primary-color-alt: #0099ee;
-        --highlight-color: #00ffff;
-        --accent-color: #ff4444;
-        --title-color: #e0e8ff;
-        --text-color: #99aabb;
-        --text-color-light: #667788;
-        --body-bg-color: #0a0a14;
-        --container-bg-color: rgba(15, 20, 35, 0.82);
-        --border-color: #223344;
-        --box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-        --bg-overlay-color: rgba(5, 10, 20, 0.72);
-        --nav-bg: rgba(10, 15, 25, 0.88);
-        --tag-hover-bg: rgba(0, 170, 255, 0.12);
-        --classified-color: #ff5555;
-        --terminal-bg: rgba(8, 12, 22, 0.95);
-        --terminal-text: #00ff88;
+    [data-theme="dark"] {
+        --bg-overlay: rgba(0, 0, 0, 0.6);
+        --card-bg: rgba(30, 30, 46, 0.6);
+        --card-border: rgba(255, 255, 255, 0.1);
+        --card-hover: rgba(40, 40, 60, 0.78);
+        --text-primary: #e8e8f0;
+        --text-secondary: #c0c0d0;
+        --text-muted: #8888a0;
+        --nav-bg: rgba(20, 20, 35, 0.75);
+        --tag-bg: rgba(77, 163, 255, 0.12);
+        --tag-border: rgba(77, 163, 255, 0.3);
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 12px 40px rgba(77, 163, 255, 0.15);
+        --quote-bg: rgba(77, 163, 255, 0.08);
     }
 
-    *, *::before, *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
+    /* ========== 全局 ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html { scroll-behavior: smooth; }
 
     body {
         font-family: 'Poppins', 'Noto Sans SC', sans-serif;
-        font-size: 1rem;
-        background-color: var(--body-bg-color);
-        color: var(--text-color);
-        line-height: 1.6;
-        padding-top: 4.5rem;
-        transition: background-color 0.3s, color 0.3s;
-        background-image: linear-gradient(135deg, #0a0a1a 0%, #0d1b2a 30%, #1b2838 60%, #0a0a1a 100%);
-        background-size: cover;
-        background-position: center center;
-        background-attachment: fixed;
-        position: relative;
-        z-index: 0;
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+        background: linear-gradient(135deg, #a8d8ff 0%, #d4ecff 50%, #e8f4ff 100%) fixed;
+        transition: color 0.3s ease;
     }
 
     body::before {
         content: '';
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: var(--bg-overlay-color);
+        inset: 0;
+        background: var(--bg-overlay);
         z-index: -1;
-        transition: all 0.3s ease-in-out;
+        transition: background 0.4s ease;
     }
 
-    h1, h2, h3 {
-        color: var(--title-color);
-        font-weight: 700;
-    }
+    a { color: var(--primary-color); text-decoration: none; transition: color 0.3s; }
+    a:hover { color: var(--primary-light); }
 
-    ul { list-style: none; }
-    a {
-        text-decoration: none;
-        color: var(--primary-color);
-        transition: all 0.3s ease-in-out;
-    }
-    a:hover { color: var(--highlight-color); }
-    img { max-width: 100%; height: auto; }
+    ::selection { background: var(--primary-color); color: #fff; }
 
-    .section { padding: 5rem 0; }
+    /* ========== 滚动条 ========== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; opacity: 0.6; }
 
-    .section__title {
-        font-size: 2.25rem;
-        text-align: center;
-        margin-bottom: 1rem;
-        position: relative;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
-        letter-spacing: 0.05em;
-    }
-    .section__title::after {
-        content: '';
-        position: absolute;
-        bottom: -0.5rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary-color), var(--highlight-color));
-        border-radius: 2px;
-    }
-
-    .section__subtitle {
-        text-align: center;
-        color: var(--classified-color);
-        font-size: 0.85rem;
-        font-weight: 600;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        margin-bottom: 3rem;
-        font-family: 'Orbitron', monospace;
-    }
-
-    .container {
-        max-width: 1120px;
-        margin-inline: auto;
-        padding-inline: 1.5rem;
-    }
-
-    .grid { display: grid; gap: 1.5rem; }
-
-    .button {
-        display: inline-block;
-        background: var(--primary-color);
-        color: #fff;
-        padding: 0.9rem 2rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        border: 2px solid transparent;
-        transition: all 0.3s ease-in-out;
-        cursor: pointer;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
-        letter-spacing: 0.03em;
-    }
-    .button:hover {
-        background: var(--primary-color-alt);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 170, 255, 0.3);
-    }
-    .button--ghost {
-        background: transparent;
-        color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-    .button--ghost:hover {
-        background: var(--primary-color);
-        color: #fff;
-        box-shadow: 0 4px 20px rgba(0, 170, 255, 0.2);
-    }
-    .button--danger {
-        background: transparent;
-        color: var(--classified-color);
-        border-color: var(--classified-color);
-    }
-    .button--danger:hover {
-        background: var(--classified-color);
-        color: #fff;
-    }
-
-    .header {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%;
-        height: 4.5rem;
-        background: var(--nav-bg);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border-bottom: 1px solid var(--border-color);
-        z-index: 100;
-        transition: all 0.3s ease-in-out;
-    }
+    /* ========== 导航栏 ========== */
     .nav {
-        max-width: 1120px;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 1000;
+        background: var(--nav-bg);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+    }
+
+    .nav__inner {
+        max-width: 1200px;
         margin: 0 auto;
-        padding: 0 1.5rem;
-        height: 100%;
+        padding: 0 2rem;
+        height: 64px;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
+
     .nav__logo {
-        font-size: 1.3rem;
-        font-weight: 900;
-        color: var(--primary-color);
-        font-family: 'Orbitron', sans-serif;
-        letter-spacing: 0.05em;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .nav__logo i { font-size: 1.2rem; }
-    .nav__list {
-        display: flex;
-        gap: 2rem;
-    }
-    .nav__link {
-        color: var(--text-color);
-        font-weight: 600;
-        font-size: 0.95rem;
-        position: relative;
-        transition: all 0.3s ease-in-out;
-    }
-    .nav__link:hover, .nav__link.active {
-        color: var(--primary-color);
-    }
-    .nav__link.active::after {
-        content: '';
-        position: absolute;
-        bottom: -0.5rem;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: var(--primary-color);
-        border-radius: 2px;
-        box-shadow: 0 0 8px var(--primary-color);
-    }
-    .nav__actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .theme-switcher {
         font-size: 1.25rem;
-        color: var(--text-color);
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-    }
-    .theme-switcher:hover { color: var(--primary-color); }
-    .nav__toggle {
-        display: none;
-        font-size: 1.5rem;
-        color: var(--text-color);
-        cursor: pointer;
+        font-weight: 700;
+        color: var(--primary-color) !important;
+        letter-spacing: 0.5px;
     }
 
-    .hero { padding: 4rem 0 3rem; }
-    .hero__container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+    .nav__links {
+        display: flex;
         align-items: center;
-        gap: 3rem;
+        gap: 2rem;
+        list-style: none;
     }
-    .hero__content h1 {
-        font-size: 3rem;
-        line-height: 1.2;
-        margin-bottom: 0.5rem;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
-        letter-spacing: 0.03em;
-    }
-    .hero__badge {
-        display: inline-block;
-        background: rgba(255, 68, 68, 0.15);
-        color: var(--classified-color);
-        border: 1px solid var(--classified-color);
-        padding: 0.25rem 0.8rem;
-        border-radius: 0.3rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        margin-bottom: 1rem;
-        font-family: 'Orbitron', monospace;
-    }
-    .hero__subtitle {
-        font-size: 1.3rem;
-        color: var(--primary-color);
-        margin-bottom: 1.5rem;
-        font-weight: 600;
-    }
-    .hero__description {
-        margin-bottom: 2.5rem;
-        font-style: italic;
-        color: var(--text-color-light);
+
+    .nav__links a {
+        color: var(--text-secondary) !important;
+        font-size: 0.95rem;
+        font-weight: 500;
         position: relative;
-        padding-left: 1.5rem;
-        border-left: 3px solid var(--primary-color);
+        padding: 0.3rem 0;
     }
-    .hero__buttons {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
+
+    .nav__links a::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 0; height: 2px;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
     }
-    .hero__image {
+
+    .nav__links a:hover::after,
+    .nav__links a.active::after { width: 100%; }
+
+    .nav__actions { display: flex; align-items: center; gap: 1rem; }
+
+    .theme-toggle {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: transform 0.3s, color 0.3s;
+    }
+
+    .theme-toggle:hover { transform: rotate(20deg); color: var(--primary-color); }
+
+    .nav__burger {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        cursor: pointer;
+        color: var(--text-primary);
+    }
+
+    /* ========== 通用区块 ========== */
+    .section {
+        padding: 6rem 2rem 4rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section__title {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .section__title span { color: var(--primary-color); }
+
+    .section__subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 3rem;
+        letter-spacing: 1px;
+    }
+
+    /* ========== Hero ========== */
+    .hero {
+        min-height: 100vh;
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
+        padding: 2rem;
     }
-    .hero__avatar {
-        width: 280px;
-        height: 280px;
-        border-radius: 50%;
-        background: radial-gradient(circle at 30% 30%, #1a2a3a, #0a0a14);
+
+    .hero__inner {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 4rem;
+        max-width: 1000px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .hero__text { flex: 1; min-width: 300px; }
+
+    .hero__text h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 1rem;
+    }
+
+    .hero__text h1 span { color: var(--primary-color); }
+
+    .hero__subtitle {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .hero__description {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        max-width: 480px;
+        font-style: italic;
+    }
+
+    .hero__buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.8rem;
+        border-radius: 50px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn--primary {
+        background: var(--primary-color);
+        color: #fff !important;
+    }
+
+    .btn--primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 123, 255, 0.35);
+    }
+
+    .btn--secondary {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--text-primary) !important;
+        border: 1px solid var(--card-border);
+    }
+
+    .btn--secondary:hover {
+        background: var(--card-hover);
+        transform: translateY(-2px);
+    }
+
+    .hero__avatar {
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        display: flex;
         align-items: center;
         justify-content: center;
         font-size: 5rem;
-        color: var(--primary-color);
-        border: 3px solid var(--primary-color);
-        box-shadow: 0 0 40px rgba(0, 170, 255, 0.3), inset 0 0 30px rgba(0, 170, 255, 0.1);
-        position: relative;
-    }
-    .hero__avatar::before {
-        content: 'CLASSIFIED';
-        position: absolute;
-        bottom: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--classified-color);
         color: #fff;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.2em;
-        padding: 0.25rem 0.8rem;
-        border-radius: 0.25rem;
-        font-family: 'Orbitron', monospace;
-        white-space: nowrap;
-    }
-    .hero__avatar i {
-        text-shadow: 0 0 20px var(--primary-color);
+        box-shadow: 0 12px 40px rgba(0, 123, 255, 0.3);
+        border: 4px solid var(--card-border);
+        flex-shrink: 0;
+        animation: float 4s ease-in-out infinite;
     }
 
-    .about__container {
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+    }
+
+    /* ========== ATLAS ========== */
+    .about__grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr 1fr;
         gap: 3rem;
-        align-items: flex-start;
-    }
-    .about__left, .about__right {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
+        align-items: start;
     }
 
-    .glass-card {
-        background-color: var(--container-bg-color);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 0.5rem;
-        box-shadow: var(--box-shadow);
-        padding: 1.5rem;
-        border: 1px solid var(--border-color);
-        position: relative;
-        overflow: hidden;
-    }
-    .glass-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(180deg, var(--primary-color), transparent);
-    }
+    .about__text p { margin-bottom: 1rem; color: var(--text-secondary); }
+    .about__text strong { color: var(--primary-color); }
 
-    .classified-stamp {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 0.7rem;
-        color: var(--classified-color);
-        border: 2px solid var(--classified-color);
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.25rem;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        font-family: 'Orbitron', monospace;
-        opacity: 0.7;
-        transform: rotate(8deg);
-    }
-
-    .musings__title, .about__right h3:first-child {
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
-    }
-    .musings blockquote {
-        border-left: 4px solid var(--primary-color);
-        padding-left: 1.5rem;
+    .about__quote {
+        margin-top: 1.5rem;
+        padding: 1rem 1.5rem;
+        border-left: 3px solid var(--primary-color);
+        background: var(--quote-bg);
+        border-radius: 0 12px 12px 0;
+        color: var(--text-secondary);
         font-style: italic;
-        color: var(--text-color-light);
+        font-size: 0.95rem;
     }
-    .about__right p { margin-bottom: 1rem; }
 
-    .skills__tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-top: 1rem;
+    .skills__category { margin-bottom: 1.5rem; }
+
+    .skills__category h4 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
     }
+
+    .skills__tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
     .skill-tag {
-        background-color: var(--container-bg-color);
-        color: var(--primary-color);
-        padding: 0.4rem 1rem;
-        border-radius: 2rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        border: 1px solid var(--primary-color);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        transition: all 0.3s ease-in-out;
-        cursor: default;
+        padding: 0.4rem 1rem;
+        background: var(--tag-bg);
+        border: 1px solid var(--tag-border);
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
     }
+
     .skill-tag:hover {
         background: var(--primary-color);
         color: #fff;
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 170, 255, 0.25);
-    }
-    .skill-tag i { font-size: 1rem; }
-
-    .skill-category {
-        margin-bottom: 1.5rem;
-    }
-    .skill-category h4 {
-        font-size: 1rem;
-        color: var(--title-color);
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
-    }
-    .skill-category h4 i { color: var(--primary-color); }
-
-    .terminal {
-        background: var(--terminal-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        padding: 1rem 1.5rem;
-        margin-top: 1rem;
-        font-family: 'Courier New', monospace;
-        font-size: 0.85rem;
-        color: var(--terminal-text);
-        line-height: 1.8;
-    }
-    .terminal__line::before {
-        content: '> ';
-        color: var(--primary-color);
-    }
-    .terminal__cursor {
-        display: inline-block;
-        animation: blink 1s step-end infinite;
-    }
-    @keyframes blink {
-        50% { opacity: 0; }
     }
 
-    .projects__filters {
+    .skill-tag i { color: var(--primary-color); transition: color 0.3s; }
+    .skill-tag:hover i { color: #fff; }
+
+    /* ========== 项目展示 ========== */
+    .projects__filter {
         display: flex;
         justify-content: center;
         gap: 1rem;
-        margin-bottom: 3rem;
+        margin-bottom: 2.5rem;
         flex-wrap: wrap;
     }
-    .filter-button {
-        background: transparent;
-        border: 1px solid var(--border-color);
-        color: var(--text-color);
-        font-weight: 600;
-        font-size: 0.95rem;
+
+    .filter-btn {
+        padding: 0.5rem 1.5rem;
+        border: 1px solid var(--card-border);
+        border-radius: 50px;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--text-secondary) !important;
+        font-size: 0.9rem;
+        font-weight: 500;
         cursor: pointer;
-        padding: 0.5rem 1.25rem;
-        border-radius: 0.5rem;
-        transition: all 0.3s ease-in-out;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
+        transition: all 0.3s ease;
     }
-    .filter-button:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-    }
-    .filter-button.active {
-        background-color: var(--primary-color);
-        color: #fff;
-        border-color: var(--primary-color);
-    }
+
+    .filter-btn:hover { border-color: var(--primary-color); color: var(--primary-color) !important; }
+    .filter-btn.active { background: var(--primary-color); color: #fff !important; border-color: var(--primary-color); }
+
     .projects__grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 2rem;
     }
+
     .project-card {
-        background-color: var(--container-bg-color);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 0.5rem;
-        box-shadow: var(--box-shadow);
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
         overflow: hidden;
-        transition: all 0.3s ease-in-out;
-        display: flex;
-        flex-direction: column;
-        border: 1px solid var(--border-color);
-        position: relative;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
     }
+
     .project-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 170, 255, 0.15);
-        border-color: var(--primary-color);
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        background: var(--card-hover);
     }
+
     .project-card__banner {
-        width: 100%;
-        height: 160px;
+        height: 120px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 3rem;
         color: #fff;
-        position: relative;
     }
-    .project-card__banner::after {
-        content: '';
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 40px;
-        background: linear-gradient(180deg, transparent, rgba(0,0,0,0.4));
-    }
-    .project-card__clearance {
-        position: absolute;
-        top: 0.8rem;
-        right: 0.8rem;
-        background: rgba(0, 0, 0, 0.6);
-        color: var(--classified-color);
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.25rem;
-        font-family: 'Orbitron', monospace;
-        letter-spacing: 0.1em;
-        border: 1px solid var(--classified-color);
-    }
-    .project-card__content {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
+
+    .project-card__content { padding: 1.5rem; }
+
     .project-card__title {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-        font-family: 'Orbitron', 'Poppins', sans-serif;
-    }
-    .project-card__description {
-        margin-bottom: 1.5rem;
-        flex-grow: 1;
-        font-size: 0.92rem;
-    }
-    .project-card__tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-    .project-card__tag {
-        font-size: 0.72rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 1rem;
-        background: var(--tag-hover-bg);
-        color: var(--primary-color);
+        font-size: 1.15rem;
         font-weight: 600;
-        font-family: 'Orbitron', monospace;
-        letter-spacing: 0.03em;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
     }
-    .project-card__actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
+
+    .project-card__description {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        line-height: 1.6;
     }
+
+    .project-card__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+
+    .project-card__tag {
+        padding: 0.2rem 0.7rem;
+        background: var(--tag-bg);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        border: 1px solid var(--tag-border);
+    }
+
+    .project-card__actions { display: flex; gap: 0.75rem; }
+
     .project-card__action {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        padding: 0.55rem 1rem;
-        border-radius: 0.4rem;
-        border: 2px solid var(--primary-color);
-        color: var(--primary-color);
-        font-weight: 600;
         font-size: 0.85rem;
-        transition: all 0.3s ease-in-out;
+        font-weight: 500;
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
     }
-    .project-card__action:hover {
-        background: var(--primary-color);
-        color: #fff;
-    }
+
     .project-card__action--primary {
         background: var(--primary-color);
-        color: #fff;
+        color: #fff !important;
     }
-    .project-card__action--primary:hover {
-        background: var(--primary-color-alt);
-        border-color: var(--primary-color-alt);
-    }
-    .project-hidden { display: none !important; }
 
-    .contact__container {
-        max-width: 600px;
-        margin: 0 auto;
-        text-align: center;
+    .project-card__action--primary:hover { background: var(--primary-dark); }
+
+    .project-card__action--ghost {
+        border: 1px solid var(--card-border);
+        color: var(--text-secondary) !important;
     }
-    .contact__links {
+
+    .project-card__action--ghost:hover { border-color: var(--primary-color); color: var(--primary-color) !important; }
+
+    /* ========== 联系我 ========== */
+    .contact__grid {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
-        margin-top: 2rem;
+        gap: 2rem;
         flex-wrap: wrap;
     }
-    .contact__link {
+
+    .contact__card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 2rem 2.5rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        min-width: 160px;
+    }
+
+    .contact__card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        background: var(--card-hover);
+    }
+
+    .contact__icon {
         width: 56px;
         height: 56px;
         border-radius: 50%;
-        background: var(--container-bg-color);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 2px solid var(--border-color);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.4rem;
-        color: var(--text-color);
-        transition: all 0.3s ease-in-out;
-    }
-    .contact__link:hover {
-        border-color: var(--primary-color);
-        color: var(--primary-color);
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0, 170, 255, 0.2);
+        color: #fff;
     }
 
-    .footer {
-        text-align: center;
-        padding: 2rem 0;
-        color: var(--text-color-light);
-        font-size: 0.8rem;
-        border-top: 1px solid var(--border-color);
-        background: var(--container-bg-color);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        font-family: 'Orbitron', monospace;
-        letter-spacing: 0.05em;
-    }
-    .footer__classified {
-        color: var(--classified-color);
-        font-size: 0.7rem;
-        margin-top: 0.3rem;
-    }
+    .contact__label { font-weight: 600; color: var(--text-primary); }
+    .contact__value { font-size: 0.85rem; color: var(--text-muted); }
 
+    /* ========== 模态框 ========== */
     .modal {
+        display: none;
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
+        inset: 0;
+        z-index: 2000;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         align-items: center;
         justify-content: center;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease-in-out;
-        backdrop-filter: blur(5px);
     }
-    .modal.active {
-        opacity: 1;
-        visibility: visible;
-    }
+
+    .modal.active { display: flex; }
+
     .modal__content {
-        background-color: var(--container-bg-color);
+        background: var(--card-bg);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        padding: 2.5rem;
-        border-radius: 0.5rem;
-        box-shadow: var(--box-shadow);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        padding: 2rem;
         text-align: center;
-        position: relative;
-        transform: scale(0.9);
-        transition: all 0.3s ease-in-out;
         max-width: 340px;
-        border: 1px solid var(--primary-color);
+        animation: modalIn 0.3s ease;
     }
-    .modal.active .modal__content {
-        transform: scale(1);
+
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
     }
-    .modal__close {
-        position: absolute;
-        top: 1rem;
-        right: 1.5rem;
-        font-size: 1.5rem;
-        color: var(--text-color-light);
-        cursor: pointer;
-    }
-    .modal__content h3 {
-        margin-bottom: 1rem;
-        font-family: 'Orbitron', sans-serif;
-    }
-    .modal__content p {
-        margin-bottom: 1rem;
-        color: var(--text-color);
-    }
+
+    .modal__title { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-primary); }
     .modal__qr {
         width: 200px;
         height: 200px;
         margin: 0 auto 1rem;
-        background: radial-gradient(circle at 30% 30%, #1a2a3a, #0a0a14);
-        border-radius: 0.5rem;
+        background: #fff;
+        border-radius: 0.75rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--primary-color);
-        font-size: 4rem;
-        border: 2px solid var(--primary-color);
+        font-size: 3rem;
+        color: var(--text-muted);
     }
 
-    @media screen and (max-width: 992px) {
-        .hero__container, .about__container {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-        .hero__image { order: -1; margin-bottom: 2rem; }
-        .hero__buttons { justify-content: center; }
-        .hero__description { text-align: left; }
-        .nav__menu {
-            position: fixed;
-            top: 4.5rem;
-            left: 0;
-            width: 100%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            transform: translateY(-150%);
-            transition: transform 0.3s ease-in-out;
-        }
-        .nav__menu.show { transform: translateY(0); }
-        .nav__list {
-            flex-direction: column;
-            gap: 1.2rem;
-        }
-        .nav__toggle { display: block; }
-        .skills__tags { justify-content: center; }
+    .modal__close {
+        background: var(--primary-color);
+        color: #fff !important;
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background 0.3s;
     }
 
-    @media screen and (max-width: 576px) {
-        .hero__content h1 { font-size: 2.2rem; }
-        .hero__avatar { width: 220px; height: 220px; font-size: 4rem; }
-        .section__title { font-size: 1.6rem; }
-        .hero__buttons { flex-direction: column; align-items: center; }
-        .hero__buttons .button { width: 100%; max-width: 280px; text-align: center; }
+    .modal__close:hover { background: var(--primary-dark); }
+
+    /* ========== 页脚 ========== */
+    .footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
     }
 
+    /* ========== Paper 卡片风格 ========== */
+    .paper-section {
+        background: #faf8f5;
+        background-image:
+            linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+        background-size: 28px 28px;
+        width: 100%;
+    }
+
+    .paper-section .section {
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+
+    .paper-section__header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section__pill {
+        display: inline-block;
+        padding: 0.35rem 1.1rem;
+        border: 1px solid #d8d4ce;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        color: #7a7570;
+        background: #fff;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .paper-section .section__title {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 2.4rem;
+        font-weight: 900;
+        margin-bottom: 0.4rem;
+        color: #1a1a2e;
+    }
+
+    .paper-section .section__title span { color: var(--primary-color); }
+
+    .paper-section .section__subtitle {
+        color: #8a8580;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 0;
+    }
+
+    .paper-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .paper-card {
+        background: #fff;
+        border-radius: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .paper-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 12px 36px rgba(0,0,0,0.08);
+    }
+
+    .paper-card__img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+    }
+
+    .paper-card__body {
+        padding: 1.4rem 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .paper-card__title {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+    }
+
+    .paper-card__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.65rem;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.7rem;
+        align-self: flex-start;
+        letter-spacing: 0.3px;
+    }
+
+    .paper-card__venue {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #a09b95;
+        margin-bottom: 0.7rem;
+    }
+
+    .paper-card__desc {
+        font-size: 0.88rem;
+        color: #5a5550;
+        line-height: 1.7;
+        margin-bottom: 0.7rem;
+    }
+
+    .paper-card__authors {
+        font-size: 0.78rem;
+        color: #9a9590;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .paper-card__authors strong {
+        color: #1a1a2e;
+        font-weight: 600;
+    }
+
+    .paper-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .paper-card__tag {
+        padding: 0.2rem 0.7rem;
+        border: 1px solid #e8e4de;
+        border-radius: 50px;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #8a8580;
+        font-weight: 500;
+    }
+
+    .paper-card__actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .paper-card__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        border: 1px solid #e0dcd5;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #5a5550;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+
+    .paper-card__btn:hover {
+        border-color: #1a1a2e;
+        color: #1a1a2e;
+    }
+
+    /* ========== 淡入动画 ========== */
     .fade-in {
         opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.6s ease, transform 0.6s ease;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
     }
+
     .fade-in.visible {
         opacity: 1;
         transform: translateY(0);
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 768px) {
+        .nav__links { display: none; }
+        .nav__burger { display: block; }
+
+        .nav__links.active {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 64px;
+            left: 0; right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 2rem;
+            gap: 1.5rem;
+        }
+
+        .hero__text h1 { font-size: 2.2rem; }
+        .hero__subtitle { font-size: 1.1rem; }
+        .hero__avatar { width: 160px; height: 160px; font-size: 3.5rem; }
+
+        .about__grid { grid-template-columns: 1fr; gap: 2rem; }
+
+        .paper-grid { grid-template-columns: 1fr; }
+        .paper-section .section__title { font-size: 1.8rem; }
+
+        .section { padding: 4rem 1.5rem 3rem; }
+        .section__title { font-size: 1.6rem; }
+    }
+
+    @media (min-width: 641px) and (max-width: 992px) {
+        .paper-grid { grid-template-columns: repeat(2, 1fr); }
     }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <nav class="nav">
-            <a href="#hero" class="nav__logo"><i class="fas fa-atom"></i> FutureTech Co.</a>
-            <div class="nav__menu" id="nav-menu">
-                <ul class="nav__list">
-                    <li><a href="#hero" class="nav__link active">首页</a></li>
-                    <li><a href="#about" class="nav__link">档案</a></li>
-                    <li><a href="#projects" class="nav__link">机密项目</a></li>
-                    <li><a href="#contact" class="nav__link">联络</a></li>
-                </ul>
-            </div>
+    <!-- ========== 导航栏 ========== -->
+    <nav class="nav">
+        <div class="nav__inner">
+            <a href="#hero" class="nav__logo">George Zhang</a>
+            <ul class="nav__links" id="navLinks">
+                <li><a href="#hero" class="active">首页</a></li>
+                <li><a href="#about">ATLAS</a></li>
+                <li><a href="#projects">ORION</a></li>
+                <li><a href="#contact">联系我</a></li>
+            </ul>
             <div class="nav__actions">
-                <i class="fas fa-moon theme-switcher" id="theme-button"></i>
-                <div class="nav__toggle" id="nav-toggle">
+                <button class="theme-toggle" id="themeToggle" title="切换主题">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="nav__burger" id="navBurger" title="菜单">
                     <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== Hero ========== -->
+    <section class="hero" id="hero">
+        <div class="hero__inner">
+            <div class="hero__text">
+                <h1>George Zhang</h1>
+                <p class="hero__subtitle">FutureTech Co. &amp; 工程师</p>
+                <p class="hero__description">"前沿技术探索"</p>
+                <div class="hero__buttons">
+                    <a href="#projects" class="btn btn--primary">
+                        <i class="fas fa-folder-open"></i> 查看项目
+                    </a>
+                    <a href="#contact" class="btn btn--secondary">
+                        <i class="fas fa-envelope"></i> Say Hi
+                    </a>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <main>
-        <section id="hero" class="hero section">
-            <div class="hero__container container">
-                <div class="hero__content">
-                    <span class="hero__badge">CLASSIFIED — LEVEL 9 CLEARANCE</span>
-                    <h1>FutureTech Co.</h1>
-                    <p class="hero__subtitle">机密项目经理 / Classified Manager</p>
-                    <p class="hero__description">"科技塑造未来，而未来属于 FutureTech。你看到的每一项尖端武器背后，都有我们不可公开的努力。"</p>
-                    <div class="hero__buttons">
-                        <a href="#projects" class="button">查看机密项目</a>
-                        <a href="#about" class="button button--ghost">人员档案</a>
-                        <a href="#contact" class="button button--danger">加密联络</a>
-                    </div>
-                </div>
-                <div class="hero__image">
-                    <div class="hero__avatar">
-                        <i class="fas fa-user-secret"></i>
-                    </div>
-                </div>
+            <div class="hero__avatar">
+                <i class="fas fa-user-astronaut"></i>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="about" class="section">
-            <h2 class="section__title">人员档案</h2>
-            <p class="section__subtitle">Personnel File — Restricted Access</p>
-            <div class="about__container container">
-                <div class="about__left">
-                    <div class="glass-card">
-                        <div class="classified-stamp">CONFIDENTIAL</div>
-                        <p style="margin-bottom: 1rem;">姓名：<strong style="color: var(--classified-color);">[已编辑]</strong></p>
-                        <p style="margin-bottom: 1rem;">职务：<strong>FutureTech Co. 机密项目经理</strong></p>
-                        <p style="margin-bottom: 1rem;">权限等级：<strong>Level 9 — 最高机密</strong></p>
-                        <p style="margin-bottom: 1rem;">负责统筹 FutureTech 旗下多线尖端科技武器化项目的测试与质量保障工作，包括但不限于冷冻技术、光谱武器、质子对撞机及时空传送系统的实战验证。</p>
-                        <p>因涉及盟军最高军事机密，个人身份信息已根据《FutureTech 信息安全条例》第 7 条予以屏蔽。</p>
-                    </div>
-                    <div class="glass-card">
-                        <div class="musings">
-                            <h3 class="musings__title">内部备忘录</h3>
-                            <blockquote>
-                                "我们不是在制造武器，我们是在定义下一场战争的规则。每一项测试通过的产品，都将改变战场的形态。这是 FutureTech 的使命，也是我的使命。"
-                            </blockquote>
-                        </div>
-                    </div>
-                </div>
+    <!-- ========== ATLAS ========== -->
+    <div class="paper-section">
+    <section class="section" id="about">
+        <div class="paper-section__header">
+            <h2 class="section__title">ATLAS</h2>
+            <p class="section__subtitle">旅程、探索、足迹</p>
+        </div>
 
-                <div class="about__right">
-                    <div class="glass-card">
-                        <h3>核心能力</h3>
-
-                        <div class="skill-category">
-                            <h4><i class="fas fa-microchip"></i> 武器系统测试</h4>
-                            <div class="skills__tags">
-                                <span class="skill-tag"><i class="fas fa-snowflake"></i> 冷冻技术验证</span>
-                                <span class="skill-tag"><i class="fas fa-bolt"></i> 光谱武器测试</span>
-                                <span class="skill-tag"><i class="fas fa-atom"></i> 质子对撞系统</span>
-                                <span class="skill-tag"><i class="fas fa-clock"></i> 时空传送验证</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-category">
-                            <h4><i class="fas fa-shield-alt"></i> 质量保障</h4>
-                            <div class="skills__tags">
-                                <span class="skill-tag"><i class="fas fa-clipboard-check"></i> 实战场景模拟</span>
-                                <span class="skill-tag"><i class="fas fa-vials"></i> 武器稳定性测试</span>
-                                <span class="skill-tag"><i class="fas fa-bug"></i> 系统缺陷追踪</span>
-                                <span class="skill-tag"><i class="fas fa-file-alt"></i> 机密报告撰写</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-category">
-                            <h4><i class="fas fa-users-cog"></i> 管理能力</h4>
-                            <div class="skills__tags">
-                                <span class="skill-tag"><i class="fas fa-project-diagram"></i> 跨部门协调</span>
-                                <span class="skill-tag"><i class="fas fa-lock"></i> 机密信息管控</span>
-                                <span class="skill-tag"><i class="fas fa-handshake"></i> 盟军联络对接</span>
-                            </div>
-                        </div>
-
-                        <div class="skill-category" style="margin-bottom: 0;">
-                            <h4><i class="fas fa-flask"></i> 研究领域</h4>
-                            <div class="skills__tags">
-                                <span class="skill-tag"><i class="fas fa-radiation"></i> 超武器研发支持</span>
-                                <span class="skill-tag"><i class="fas fa-satellite-dish"></i> 防御系统验证</span>
-                                <span class="skill-tag"><i class="fas fa-robot"></i> 无人机战斗系统</span>
-                            </div>
-                        </div>
-
-                        <div class="terminal">
-                            <div class="terminal__line">SYSTEM: FutureTech Internal Network</div>
-                            <div class="terminal__line">STATUS: Connection encrypted [AES-256]</div>
-                            <div class="terminal__line">CLEARANCE: Level 9 — VERIFIED</div>
-                            <div class="terminal__line">ACCESS LOG: 847 classified operations<span class="terminal__cursor">_</span></div>
-                        </div>
+        <div class="paper-grid">
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="images/heyuan_factory.jpg" alt="河源工厂">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">河源工厂</h3>
+                    <span class="paper-card__badge" style="background:#2ed573;"><i class="fa-solid fa-industry"></i> 广东 · 河源</span>
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">参观农夫山泉河源工厂</p>
+                    <p class="paper-card__authors">地点：<strong>源城区西环路108号 农夫山泉河源工厂</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <section id="projects" class="section">
-            <h2 class="section__title">机密项目</h2>
-            <p class="section__subtitle">Classified Projects — Need To Know Basis Only</p>
-            <div class="container">
-                <div class="projects__filters">
-                    <button class="filter-button active" data-filter="all">全部</button>
-                    <button class="filter-button" data-filter="weapon">武器系统</button>
-                    <button class="filter-button" data-filter="defense">防御工程</button>
-                </div>
-
-                <div class="projects__grid">
-                    <div class="project-card" data-category="weapon">
-                        <div class="project-card__banner" style="background: linear-gradient(135deg, #0d1b2a, #1b4f72);">
-                            <i class="fas fa-snowflake"></i>
-                            <span class="project-card__clearance">LEVEL 7</span>
-                        </div>
-                        <div class="project-card__content">
-                            <h3 class="project-card__title">冷冻直升机 — Cryocopter</h3>
-                            <p class="project-card__description">负责冷冻直升机武器系统的实战测试，验证冷冻光束对各类目标的冻结效果、持续时间及连锁冻结机制，确保战场可靠性。</p>
-                            <div class="project-card__tags">
-                                <span class="project-card__tag">冷冻技术</span>
-                                <span class="project-card__tag">实战验证</span>
-                                <span class="project-card__tag">武器系统</span>
-                            </div>
-                            <div class="project-card__actions">
-                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="project-card" data-category="weapon">
-                        <div class="project-card__banner" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                            <i class="fas fa-bolt"></i>
-                            <span class="project-card__clearance">LEVEL 8</span>
-                        </div>
-                        <div class="project-card__content">
-                            <h3 class="project-card__title">光谱塔 — Spectrum Tower</h3>
-                            <p class="project-card__description">主导光谱塔防御系统的全流程测试，验证光束折射杀伤链、多塔协同攻击逻辑及能量消耗曲线，优化目标锁定算法。</p>
-                            <div class="project-card__tags">
-                                <span class="project-card__tag">光谱技术</span>
-                                <span class="project-card__tag">防御系统</span>
-                                <span class="project-card__tag">协同攻击</span>
-                            </div>
-                            <div class="project-card__actions">
-                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="project-card" data-category="weapon">
-                        <div class="project-card__banner" style="background: linear-gradient(135deg, #0f0f23, #2d3436);">
-                            <i class="fas fa-atom"></i>
-                            <span class="project-card__clearance">LEVEL 9</span>
-                        </div>
-                        <div class="project-card__content">
-                            <h3 class="project-card__title">质子对撞机 — Proton Collider</h3>
-                            <p class="project-card__description">参与盟军最高机密武器"质子对撞机"的终极测试阶段，验证多弹头分导系统、抛物线弹道精度及区域毁灭半径，测试数据直接汇报盟军最高指挥部。</p>
-                            <div class="project-card__tags">
-                                <span class="project-card__tag">超武器</span>
-                                <span class="project-card__tag">最高机密</span>
-                                <span class="project-card__tag">弹道系统</span>
-                            </div>
-                            <div class="project-card__actions">
-                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="project-card" data-category="defense">
-                        <div class="project-card__banner" style="background: linear-gradient(135deg, #1b2838, #0a3d62);">
-                            <i class="fas fa-clock"></i>
-                            <span class="project-card__clearance">LEVEL 8</span>
-                        </div>
-                        <div class="project-card__content">
-                            <h3 class="project-card__title">时空传送仪 — Chronosphere</h3>
-                            <p class="project-card__description">负责时空传送仪的安全性测试与边界验证，确保传送精度、冷却周期及异常回溯机制的可靠性，防止时空悖论等灾难性事故。</p>
-                            <div class="project-card__tags">
-                                <span class="project-card__tag">时空技术</span>
-                                <span class="project-card__tag">安全验证</span>
-                                <span class="project-card__tag">边界测试</span>
-                            </div>
-                            <div class="project-card__actions">
-                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="project-card" data-category="defense">
-                        <div class="project-card__banner" style="background: linear-gradient(135deg, #1a1a2e, #0f3460);">
-                            <i class="fas fa-shield-alt"></i>
-                            <span class="project-card__clearance">LEVEL 7</span>
-                        </div>
-                        <div class="project-card__content">
-                            <h3 class="project-card__title">超时空交换器 — Gap Generator</h3>
-                            <p class="project-card__description">主导超时空交换器的隐蔽性测试，验证战场迷雾覆盖范围、持续时间及对敌方雷达的干扰效率，确保盟军基地防御体系安全。</p>
-                            <div class="project-card__tags">
-                                <span class="project-card__tag">隐蔽系统</span>
-                                <span class="project-card__tag">雷达干扰</span>
-                                <span class="project-card__tag">防御工程</span>
-                            </div>
-                            <div class="project-card__actions">
-                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="project-card" data-category="weapon">
-                        <div class="project-card__banner" style="background: linear-gradient(135deg, #0d1b2a, #1a237e);">
-                            <i class="fas fa-robot"></i>
-                            <span class="project-card__clearance">LEVEL 8</span>
-                        </div>
-                        <div class="project-card__content">
-                            <h3 class="project-card__title">无人机战斗系统 — Harbinger</h3>
-                            <p class="project-card__description">负责 FutureTech 旗舰级无人作战系统的全套测试，包括自主作战AI验证、武器挂载稳定性测试及远程操控延迟评估。</p>
-                            <div class="project-card__tags">
-                                <span class="project-card__tag">无人机</span>
-                                <span class="project-card__tag">AI验证</span>
-                                <span class="project-card__tag">远程操控</span>
-                            </div>
-                            <div class="project-card__actions">
-                                <a href="#" class="project-card__action project-card__action--primary"><i class="fas fa-lock"></i> 查阅档案</a>
-                            </div>
-                        </div>
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas素材/ganzhou.jpg" alt="中书书院">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">中书书院</h3>
+                    <span class="paper-card__badge" style="background:#8a8580;"><i class="fa-solid fa-book"></i> 江西 · 赣州</span>
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">下榻中书书院酒店</p>
+                    <p class="paper-card__authors">地点：<strong>章贡区仓背岭路 新旅中书书院酒店</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <section id="contact" class="section">
-            <h2 class="section__title">加密联络</h2>
-            <p class="section__subtitle">Encrypted Communication Channel</p>
-            <div class="contact__container container">
-                <div class="glass-card" style="text-align: center;">
-                    <p style="margin-bottom: 0.5rem; font-size: 1.1rem;">需要建立加密通讯？</p>
-                    <p style="color: var(--text-color-light);">所有联络均通过 FutureTech 内部加密通道进行，请确认你的身份权限后再建立连接。</p>
-                    <div class="contact__links">
-                        <a href="mailto:classified@futuretech.ra" class="contact__link" title="加密邮件">
-                            <i class="fas fa-envelope"></i>
-                        </a>
-                        <a href="#" class="contact__link" title="加密频道" onclick="openModal(event)">
-                            <i class="fas fa-satellite-dish"></i>
-                        </a>
-                        <a href="#" class="contact__link" title="内部网络">
-                            <i class="fas fa-network-wired"></i>
-                        </a>
-                        <a href="#" class="contact__link" title="安全线路">
-                            <i class="fas fa-phone-alt"></i>
-                        </a>
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas素材/chenzhou.jpg" alt="湖边野院">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">湖边野院</h3>
+                    <span class="paper-card__badge" style="background:#1e90ff;"><i class="fa-solid fa-water"></i> 湖南 · 郴州</span>    
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">东江湖湖边</p>
+                    <p class="paper-card__authors">地点：<strong>白廊镇石角头村 野小院</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="hubian-yeyuan.html" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
 
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas素材/yangshuo.jpg" alt="清晖会馆">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">清晖会馆</h3>
+                    <span class="paper-card__badge" style="background:#ffa502;"><i class="fa-solid fa-panorama"></i> 广西 · 阳朔</span>
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">甲天下桂林山水中的粤式雅致</p>
+                    <p class="paper-card__authors">地点：<strong>骥马村委铁岭81-1号 清晖会馆</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="qinghui-huiguan.html" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=vast%20desert%20sand%20dunes%20sunset%20warm%20orange%20tones%20photorealistic&image_size=landscape_4_3" alt="大漠孤烟">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">大漠孤烟</h3>
+                    <span class="paper-card__badge" style="background:#a55eea;"><i class="fas fa-fire"></i> 磨砺</span>
+                    <div class="paper-card__venue">2024 · 挑战</div>
+                    <p class="paper-card__desc">广袤沙漠中，孤独与坚韧并存。在极限环境里磨砺意志，风沙过后是更坚定的脚步。</p>
+                    <p class="paper-card__authors">地点：<strong>甘肃 · 敦煌</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=aurora%20borealis%20northern%20lights%20snowy%20mountains%20starry%20night%20lake&image_size=landscape_4_3" alt="极光之夜">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">极光之夜</h3>
+                    <span class="paper-card__badge" style="background:#1abc9c;"><i class="fas fa-star"></i> 里程碑</span>
+                    <div class="paper-card__venue">2025 · 突破</div>
+                    <p class="paper-card__desc">极光照亮夜空的那一刻，所有等待都值得。突破自我的高光时刻，是下一段旅程的起点。</p>
+                    <p class="paper-card__authors">地点：<strong>冰岛 · 雷克雅未克</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+
+    <!-- ========== ORION ========== -->
+    <div class="paper-section">
+    <section class="section" id="projects">
+        <div class="paper-section__header">
+            <h2 class="section__title">ORION</h2>
+            <p class="section__subtitle">项目、作品、构想</p>
+        </div>
+
+        <div class="paper-grid">
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cherry%20blossom%20trees%20in%20full%20bloom%20along%20peaceful%20river%20spring%20soft%20pink%20petals&image_size=landscape_4_3" alt="项目一">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Alpha</h3>
+                    <span class="paper-card__badge" style="background:#2ed573;"><i class="fas fa-check-circle"></i> 已上线</span>
+                    <div class="paper-card__venue">Game · 2024</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>主测 / 负责人</strong></p>
+                    <div class="paper-card__tags">
+                        <span class="paper-card__tag">FPS</span>
+                        <span class="paper-card__tag">功能</span>
+                    </div>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-file-alt"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-external-link-alt"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=crystal%20clear%20alpine%20lake%20reflection%20snow%20mountains%20summer%20blue%20sky%20landscape&image_size=landscape_4_3" alt="项目二">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Beta</h3>
+                    <span class="paper-card__badge" style="background:#1e90ff;"><i class="fas fa-spinner"></i> 进行中</span>
+                    <div class="paper-card__venue">Perf · 2025</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>性能测试</strong></p>
+                    <div class="paper-card__tags">
+                        <span class="paper-card__tag">性能</span>
+                        <span class="paper-card__tag">优化</span>
+                    </div>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-file-alt"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-external-link-alt"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=rolling%20green%20hills%20and%20valley%20at%20foggy%20morning%20cinematic%20nature%20landscape&image_size=landscape_4_3" alt="项目三">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Gamma</h3>
+                    <span class="paper-card__badge" style="background:#ff4757;"><i class="fas fa-shield-alt"></i> 安全</span>
+                    <div class="paper-card__venue">Security · 2024</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>安全测试</strong></p>
+                    <div class="paper-card__tags">
+                        <span class="paper-card__tag">反作弊</span>
+                        <span class="paper-card__tag">安全</span>
+                    </div>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-file-alt"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-external-link-alt"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tropical%20waterfall%20in%20lush%20green%20rainforest%20long%20exposure%20nature%20photography&image_size=landscape_4_3" alt="项目四">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Delta</h3>
+                    <span class="paper-card__badge" style="background:#ffa502;"><i class="fas fa-code-branch"></i> 流程</span>
+                    <div class="paper-card__venue">Process · 2023</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>版本管理</strong></p>
+                    <div class="paper-card__tags">
+                        <span class="paper-card__tag">包体</span>
+                        <span class="paper-card__tag">流程</span>
+                    </div>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-file-alt"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-external-link-alt"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20stone%20bridge%20over%20river%20in%20misty%20bamboo%20forest%20zen%20atmosphere&image_size=landscape_4_3" alt="项目五">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Epsilon</h3>
+                    <span class="paper-card__badge" style="background:#a55eea;"><i class="fas fa-file-alt"></i> 文档</span>
+                    <div class="paper-card__venue">Docs · 2023</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>文档体系</strong></p>
+                    <div class="paper-card__tags">
+                        <span class="paper-card__tag">文档</span>
+                        <span class="paper-card__tag">标准化</span>
+                    </div>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-file-alt"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-external-link-alt"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=vast%20lavender%20fields%20in%20provence%20sunset%20purple%20flowers%20rolling%20landscape&image_size=landscape_4_3" alt="项目六">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Zeta</h3>
+                    <span class="paper-card__badge" style="background:#1abc9c;"><i class="fas fa-tools"></i> 工具</span>
+                    <div class="paper-card__venue">Tool · 2022</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>工具开发</strong></p>
+                    <div class="paper-card__tags">
+                        <span class="paper-card__tag">自动化</span>
+                        <span class="paper-card__tag">脚本</span>
+                    </div>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-file-alt"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-external-link-alt"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+
+    <!-- ========== Say Hi ========== -->
+    <section class="section" id="contact">
+        <h2 class="section__title">联系<span>我</span></h2>
+        <p class="section__subtitle">GET IN TOUCH</p>
+
+        <div class="contact__grid">
+            <a href="mailto:your@email.com" class="contact__card" title="邮箱">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <span class="contact__label">邮箱</span>
+                <span class="contact__value">your@email.com</span>
+            </a>
+
+            <a href="#" class="contact__card" id="wechatBtn" title="微信">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                    <i class="fab fa-weixin"></i>
+                </div>
+                <span class="contact__label">微信</span>
+                <span class="contact__value">扫码添加</span>
+            </a>
+
+            <a href="#" class="contact__card" title="GitHub">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fab fa-github"></i>
+                </div>
+                <span class="contact__label">GitHub</span>
+                <span class="contact__value">关注项目</span>
+            </a>
+
+            <a href="#" class="contact__card" title="B站">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                    <i class="fab fa-bilibili"></i>
+                </div>
+                <span class="contact__label">B站</span>
+                <span class="contact__value">关注动态</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ========== 页脚 ========== -->
     <footer class="footer">
-        <p>&copy; 2026 FutureTech Corporation. All Rights Reserved.</p>
-        <p class="footer__classified">UNAUTHORIZED ACCESS IS A VIOLATION OF FUTURE TECH SECURITY PROTOCOL — violators will be prosecuted.</p>
+        <p>&copy; 2026 George Zhang. All rights reserved.</p>
     </footer>
 
-    <div class="modal" id="wechat-modal">
+    <!-- ========== 微信二维码模态框 ========== -->
+    <div class="modal" id="wechatModal">
         <div class="modal__content">
-            <i class="fas fa-times modal__close" onclick="closeModal()"></i>
-            <h3>加密频道验证</h3>
+            <h3 class="modal__title">微信二维码</h3>
             <div class="modal__qr">
-                <i class="fas fa-fingerprint"></i>
+                <i class="fas fa-qrcode"></i>
             </div>
-            <p>扫描验证身份</p>
-            <p style="font-size: 0.8rem; color: var(--text-color-light);">请使用 FutureTech 内部安全应用扫描</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">扫描二维码添加微信</p>
+            <button class="modal__close" id="modalClose">关闭</button>
         </div>
     </div>
 
+    <!-- ========== JavaScript ========== -->
     <script>
-    const themeButton = document.getElementById('theme-button');
-    const html = document.documentElement;
+    // 主题切换
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    const savedTheme = localStorage.getItem('theme') || 'light';
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        html.setAttribute('data-theme', savedTheme);
-        themeButton.className = savedTheme === 'dark' ? 'fas fa-sun theme-switcher' : 'fas fa-moon theme-switcher';
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
     }
 
-    themeButton.addEventListener('click', () => {
-        const currentTheme = html.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', newTheme);
-        themeButton.className = newTheme === 'dark' ? 'fas fa-sun theme-switcher' : 'fas fa-moon theme-switcher';
-        localStorage.setItem('theme', newTheme);
+    themeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        if (current === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-moon';
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fas fa-sun';
+            localStorage.setItem('theme', 'dark');
+        }
     });
 
-    const navToggle = document.getElementById('nav-toggle');
-    const navMenu = document.getElementById('nav-menu');
+    // 移动端菜单
+    const navBurger = document.getElementById('navBurger');
+    const navLinks = document.getElementById('navLinks');
 
-    navToggle.addEventListener('click', () => {
-        navMenu.classList.toggle('show');
+    navBurger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
     });
 
-    document.querySelectorAll('.nav__link').forEach(link => {
+    navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
-            navMenu.classList.remove('show');
+            navLinks.classList.remove('active');
         });
     });
 
+    // 导航高亮
     const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav__link');
+    const navItems = document.querySelectorAll('.nav__links a');
 
     window.addEventListener('scroll', () => {
         let current = '';
         sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            if (window.scrollY >= sectionTop) {
+            const top = section.offsetTop - 100;
+            if (window.scrollY >= top) {
                 current = section.getAttribute('id');
             }
         });
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('active');
+
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href') === '#' + current) {
+                item.classList.add('active');
             }
         });
     });
 
-    const filterButtons = document.querySelectorAll('.filter-button');
+    // 项目筛选
+    const filterBtns = document.querySelectorAll('.filter-btn');
     const projectCards = document.querySelectorAll('.project-card');
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
 
-            const filter = button.getAttribute('data-filter');
+            const filter = btn.getAttribute('data-filter');
             projectCards.forEach(card => {
                 if (filter === 'all' || card.getAttribute('data-category') === filter) {
-                    card.classList.remove('project-hidden');
+                    card.style.display = '';
                 } else {
-                    card.classList.add('project-hidden');
+                    card.style.display = 'none';
                 }
             });
         });
     });
 
-    function openModal(e) {
+    // 微信模态框
+    const wechatBtn = document.getElementById('wechatBtn');
+    const wechatModal = document.getElementById('wechatModal');
+    const modalClose = document.getElementById('modalClose');
+
+    wechatBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        document.getElementById('wechat-modal').classList.add('active');
-    }
+        wechatModal.classList.add('active');
+    });
 
-    function closeModal() {
-        document.getElementById('wechat-modal').classList.remove('active');
-    }
+    modalClose.addEventListener('click', () => {
+        wechatModal.classList.remove('active');
+    });
 
-    document.getElementById('wechat-modal').addEventListener('click', (e) => {
-        if (e.target.id === 'wechat-modal') {
-            closeModal();
+    wechatModal.addEventListener('click', (e) => {
+        if (e.target === wechatModal) {
+            wechatModal.classList.remove('active');
         }
     });
 
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
+    // 滚动淡入
+    const fadeElements = document.querySelectorAll('.fade-in');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
             }
         });
-    }, observerOptions);
+    }, { threshold: 0.15 });
 
-    document.querySelectorAll('.glass-card, .project-card, .section__title').forEach(el => {
-        el.classList.add('fade-in');
-        observer.observe(el);
-    });
+    fadeElements.forEach(el => observer.observe(el));
     </script>
-
 </body>
 </html>

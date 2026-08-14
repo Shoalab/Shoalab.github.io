@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoalab</title>
+
+    <meta name="author" content="George Zhang">
+    <meta name="description" content="游戏测试工程师个人主页 — 功能测试 / 性能测试 / 安全测试">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+    /* ========== CSS 变量 ========== */
+    :root {
+        --primary-color: #007bff;
+        --primary-light: #4da3ff;
+        --primary-dark: #0056b3;
+
+        --bg-overlay: rgba(255, 255, 255, 0.15);
+        --card-bg: rgba(255, 255, 255, 0.65);
+        --card-border: rgba(255, 255, 255, 0.5);
+        --card-hover: rgba(255, 255, 255, 0.82);
+        --text-primary: #1a1a2e;
+        --text-secondary: #333;
+        --text-muted: #666;
+        --nav-bg: rgba(255, 255, 255, 0.75);
+        --tag-bg: rgba(0, 123, 255, 0.08);
+        --tag-border: rgba(0, 123, 255, 0.25);
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 12px 40px rgba(0, 123, 255, 0.15);
+        --quote-bg: rgba(0, 123, 255, 0.06);
+    }
+
+    [data-theme="dark"] {
+        --bg-overlay: rgba(0, 0, 0, 0.6);
+        --card-bg: rgba(30, 30, 46, 0.6);
+        --card-border: rgba(255, 255, 255, 0.1);
+        --card-hover: rgba(40, 40, 60, 0.78);
+        --text-primary: #e8e8f0;
+        --text-secondary: #c0c0d0;
+        --text-muted: #8888a0;
+        --nav-bg: rgba(20, 20, 35, 0.75);
+        --tag-bg: rgba(77, 163, 255, 0.12);
+        --tag-border: rgba(77, 163, 255, 0.3);
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 12px 40px rgba(77, 163, 255, 0.15);
+        --quote-bg: rgba(77, 163, 255, 0.08);
+    }
+
+    /* ========== 全局 ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+        background: linear-gradient(135deg, #a8d8ff 0%, #d4ecff 50%, #e8f4ff 100%) fixed;
+        transition: color 0.3s ease;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: var(--bg-overlay);
+        z-index: -1;
+        transition: background 0.4s ease;
+    }
+
+    a { color: var(--primary-color); text-decoration: none; transition: color 0.3s; }
+    a:hover { color: var(--primary-light); }
+
+    ::selection { background: var(--primary-color); color: #fff; }
+
+    /* ========== 滚动条 ========== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; opacity: 0.6; }
+
+    /* ========== 导航栏 ========== */
+    .nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 1000;
+        background: var(--nav-bg);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--card-border);
+        transition: all 0.3s ease;
+    }
+
+    .nav__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .nav__logo {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color) !important;
+        letter-spacing: 0.5px;
+    }
+
+    .nav__links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+    }
+
+    .nav__links a {
+        color: var(--text-secondary) !important;
+        font-size: 0.95rem;
+        font-weight: 500;
+        position: relative;
+        padding: 0.3rem 0;
+    }
+
+    .nav__links a::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 0; height: 2px;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+    }
+
+    .nav__links a:hover::after,
+    .nav__links a.active::after { width: 100%; }
+
+    .nav__actions { display: flex; align-items: center; gap: 1rem; }
+
+    .theme-toggle {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: transform 0.3s, color 0.3s;
+    }
+
+    .theme-toggle:hover { transform: rotate(20deg); color: var(--primary-color); }
+
+    .nav__burger {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        cursor: pointer;
+        color: var(--text-primary);
+    }
+
+    /* ========== 通用区块 ========== */
+    .section {
+        padding: 6rem 2rem 4rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section__title {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .section__title span { color: var(--primary-color); }
+
+    .section__subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 3rem;
+        letter-spacing: 1px;
+    }
+
+    /* ========== Hero ========== */
+    .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .hero__inner {
+        display: flex;
+        align-items: center;
+        gap: 4rem;
+        max-width: 1000px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .hero__text { flex: 1; min-width: 300px; }
+
+    .hero__text h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 1rem;
+    }
+
+    .hero__text h1 span { color: var(--primary-color); }
+
+    .hero__subtitle {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .hero__description {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        max-width: 480px;
+        font-style: italic;
+    }
+
+    .hero__buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.8rem;
+        border-radius: 50px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn--primary {
+        background: var(--primary-color);
+        color: #fff !important;
+    }
+
+    .btn--primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 123, 255, 0.35);
+    }
+
+    .btn--secondary {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--text-primary) !important;
+        border: 1px solid var(--card-border);
+    }
+
+    .btn--secondary:hover {
+        background: var(--card-hover);
+        transform: translateY(-2px);
+    }
+
+    .hero__avatar {
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        color: #fff;
+        box-shadow: 0 12px 40px rgba(0, 123, 255, 0.3);
+        border: 4px solid var(--card-border);
+        flex-shrink: 0;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-12px); }
+    }
+
+    /* ========== ATLAS ========== */
+    .about__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: start;
+    }
+
+    .about__text p { margin-bottom: 1rem; color: var(--text-secondary); }
+    .about__text strong { color: var(--primary-color); }
+
+    .about__quote {
+        margin-top: 1.5rem;
+        padding: 1rem 1.5rem;
+        border-left: 3px solid var(--primary-color);
+        background: var(--quote-bg);
+        border-radius: 0 12px 12px 0;
+        color: var(--text-secondary);
+        font-style: italic;
+        font-size: 0.95rem;
+    }
+
+    .skills__category { margin-bottom: 1.5rem; }
+
+    .skills__category h4 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+
+    .skills__tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+    .skill-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
+        background: var(--tag-bg);
+        border: 1px solid var(--tag-border);
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        transition: all 0.3s ease;
+    }
+
+    .skill-tag:hover {
+        background: var(--primary-color);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .skill-tag i { color: var(--primary-color); transition: color 0.3s; }
+    .skill-tag:hover i { color: #fff; }
+
+    /* ========== 项目展示 ========== */
+    .projects__filter {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1.5rem;
+        border: 1px solid var(--card-border);
+        border-radius: 50px;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--text-secondary) !important;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-btn:hover { border-color: var(--primary-color); color: var(--primary-color) !important; }
+    .filter-btn.active { background: var(--primary-color); color: #fff !important; border-color: var(--primary-color); }
+
+    .projects__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    .project-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        background: var(--card-hover);
+    }
+
+    .project-card__banner {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #fff;
+    }
+
+    .project-card__content { padding: 1.5rem; }
+
+    .project-card__title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .project-card__description {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .project-card__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+
+    .project-card__tag {
+        padding: 0.2rem 0.7rem;
+        background: var(--tag-bg);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        border: 1px solid var(--tag-border);
+    }
+
+    .project-card__actions { display: flex; gap: 0.75rem; }
+
+    .project-card__action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .project-card__action--primary {
+        background: var(--primary-color);
+        color: #fff !important;
+    }
+
+    .project-card__action--primary:hover { background: var(--primary-dark); }
+
+    .project-card__action--ghost {
+        border: 1px solid var(--card-border);
+        color: var(--text-secondary) !important;
+    }
+
+    .project-card__action--ghost:hover { border-color: var(--primary-color); color: var(--primary-color) !important; }
+
+    /* ========== 联系我 ========== */
+    .contact__grid {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .contact__card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 2rem 2.5rem;
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        min-width: 160px;
+    }
+
+    .contact__card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        background: var(--card-hover);
+    }
+
+    .contact__icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #fff;
+    }
+
+    .contact__label { font-weight: 600; color: var(--text-primary); }
+    .contact__value { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* ========== 模态框 ========== */
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal__content {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        max-width: 340px;
+        animation: modalIn 0.3s ease;
+    }
+
+    @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal__title { font-size: 1.2rem; margin-bottom: 1rem; color: var(--text-primary); }
+    .modal__qr {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 1rem;
+        background: #fff;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: var(--text-muted);
+    }
+
+    .modal__close {
+        background: var(--primary-color);
+        color: #fff !important;
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+
+    .modal__close:hover { background: var(--primary-dark); }
+
+    /* ========== 页脚 ========== */
+    .footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    /* ========== Paper 卡片风格 ========== */
+    .paper-section {
+        background: #faf8f5;
+        background-image:
+            linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+        background-size: 28px 28px;
+        width: 100%;
+    }
+
+    .paper-section .section {
+        padding-top: 5rem;
+        padding-bottom: 5rem;
+    }
+
+    .paper-section__header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section__pill {
+        display: inline-block;
+        padding: 0.35rem 1.1rem;
+        border: 1px solid #d8d4ce;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        color: #7a7570;
+        background: #fff;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .paper-section .section__title {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 2.4rem;
+        font-weight: 900;
+        margin-bottom: 0.4rem;
+        color: #1a1a2e;
+    }
+
+    .paper-section .section__title span { color: var(--primary-color); }
+
+    .paper-section .section__subtitle {
+        color: #8a8580;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 0;
+    }
+
+    .paper-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+
+    .paper-card {
+        background: #fff;
+        border-radius: 1.1rem;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .paper-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 12px 36px rgba(0,0,0,0.08);
+    }
+
+    .paper-card__img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+    }
+
+    .paper-card__body {
+        padding: 1.4rem 1.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .paper-card__title {
+        font-family: 'Noto Serif SC', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+    }
+
+    .paper-card__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.65rem;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.7rem;
+        align-self: flex-start;
+        letter-spacing: 0.3px;
+    }
+
+    .paper-card__venue {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #a09b95;
+        margin-bottom: 0.7rem;
+    }
+
+    .paper-card__desc {
+        font-size: 0.88rem;
+        color: #5a5550;
+        line-height: 1.7;
+        margin-bottom: 0.7rem;
+    }
+
+    .paper-card__authors {
+        font-size: 0.78rem;
+        color: #9a9590;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .paper-card__authors strong {
+        color: #1a1a2e;
+        font-weight: 600;
+    }
+
+    .paper-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1.1rem;
+    }
+
+    .paper-card__tag {
+        padding: 0.2rem 0.7rem;
+        border: 1px solid #e8e4de;
+        border-radius: 50px;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #8a8580;
+        font-weight: 500;
+    }
+
+    .paper-card__actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .paper-card__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        border: 1px solid #e0dcd5;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #5a5550;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+
+    .paper-card__btn:hover {
+        border-color: #1a1a2e;
+        color: #1a1a2e;
+    }
+
+    /* ========== 淡入动画 ========== */
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 768px) {
+        .nav__links { display: none; }
+        .nav__burger { display: block; }
+
+        .nav__links.active {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 64px;
+            left: 0; right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 2rem;
+            gap: 1.5rem;
+        }
+
+        .hero__text h1 { font-size: 2.2rem; }
+        .hero__subtitle { font-size: 1.1rem; }
+        .hero__avatar { width: 160px; height: 160px; font-size: 3.5rem; }
+
+        .about__grid { grid-template-columns: 1fr; gap: 2rem; }
+
+        .paper-grid { grid-template-columns: 1fr; }
+        .paper-section .section__title { font-size: 1.8rem; }
+
+        .section { padding: 4rem 1.5rem 3rem; }
+        .section__title { font-size: 1.6rem; }
+    }
+
+    @media (min-width: 641px) and (max-width: 992px) {
+        .paper-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 导航栏 ========== -->
+    <nav class="nav">
+        <div class="nav__inner">
+            <a href="#hero" class="nav__logo">George Zhang</a>
+            <ul class="nav__links" id="navLinks">
+                <li><a href="#hero" class="active">首页</a></li>
+                <li><a href="#about">ATLAS</a></li>
+                <li><a href="#projects">ORION</a></li>
+                <li><a href="#contact">联系我</a></li>
+            </ul>
+            <div class="nav__actions">
+                <button class="theme-toggle" id="themeToggle" title="切换主题">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="nav__burger" id="navBurger" title="菜单">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== Hero ========== -->
+    <section class="hero" id="hero">
+        <div class="hero__inner">
+            <div class="hero__text">
+                <h1>George Zhang</h1>
+                <p class="hero__subtitle">FutureTech Co. &amp; 工程师</p>
+                <p class="hero__description">"前沿技术探索"</p>
+                <div class="hero__buttons">
+                    <a href="#projects" class="btn btn--primary">
+                        <i class="fas fa-folder-open"></i> 查看项目
+                    </a>
+                    <a href="#contact" class="btn btn--secondary">
+                        <i class="fas fa-envelope"></i> Say Hi
+                    </a>
+                </div>
+            </div>
+            <div class="hero__avatar">
+                <i class="fas fa-user-astronaut"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== ATLAS ========== -->
+    <div class="paper-section">
+    <section class="section" id="about">
+        <div class="paper-section__header">
+            <h2 class="section__title">ATLAS</h2>
+            <p class="section__subtitle">旅程、探索、足迹</p>
+        </div>
+
+        <div class="paper-grid">
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas-images/tab_heyuan.jpg" alt="河源工厂">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">河源工厂</h3>
+                    <span class="paper-card__badge" style="background:#2ed573;"><i class="fa-solid fa-industry"></i> 广东 · 河源</span>
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">参观农夫山泉河源工厂</p>
+                    <p class="paper-card__authors">地点：<strong>源城区西环路108号 农夫山泉河源工厂</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="wanlv-lake-paddle.html" class="paper-card__btn"><i class="fas fa-image"></i> 万绿湖桨板</a>
+                        <a href="nongfu-spring-3d (v_1).html" class="paper-card__btn"><i class="fas fa-link"></i> 农夫配送</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas-images/tab_ganzhou.jpg" alt="中书书院">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">中书书院</h3>
+                    <span class="paper-card__badge" style="background:#8a8580;"><i class="fa-solid fa-book"></i> 江西 · 赣州</span>
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">下榻中书书院酒店</p>
+                    <p class="paper-card__authors">地点：<strong>章贡区仓背岭路 新旅中书书院酒店</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas-images/tab_chenzhou.jpg" alt="湖边野院">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">湖边野院</h3>
+                    <span class="paper-card__badge" style="background:#1e90ff;"><i class="fa-solid fa-water"></i> 湖南 · 郴州</span>    
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">东江湖湖边</p>
+                    <p class="paper-card__authors">地点：<strong>白廊镇石角头村 野小院</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="hubian-yeyuan.html" class="paper-card__btn"><i class="fas fa-link"></i> 旅游笔记</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas-images/tab_yangshuo.jpg" alt="清晖会馆">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">清晖会馆</h3>
+                    <span class="paper-card__badge" style="background:#ffa502;"><i class="fa-solid fa-panorama"></i> 广西 · 阳朔</span>
+                    <div class="paper-card__venue">2026 Jul.</div>
+                    <p class="paper-card__desc">甲天下桂林山水中的粤式雅致</p>
+                    <p class="paper-card__authors">地点：<strong>骥马村委铁岭81-1号 清晖会馆</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="qinghui-huiguan.html" class="paper-card__btn"><i class="fas fa-link"></i> 旅游笔记</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas-images/tab_shanghai.jpg" alt="绿茵申花">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">绿茵申花</h3>
+                    <span class="paper-card__badge" style="background:#00b894;"><i class="fa-solid fa-futbol"></i> 上海 · 徐汇</span>
+                    <div class="paper-card__venue">2026 May</div>
+                    <p class="paper-card__desc">观看球赛"上海申花 VS 重庆铜梁龙"</p>
+                    <p class="paper-card__authors">地点：<strong>徐汇区天钥桥路666号 上海体育场</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="atlas-images/tab_huizhou.jpg" alt="荔浦风清">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">荔浦风清</h3>
+                    <span class="paper-card__badge" style="background:#00bcd4;"><i class="fa-solid fa-tree"></i> 广东 · 惠州</span>
+                    <div class="paper-card__venue">2026 Feb.</div>
+                    <p class="paper-card__desc">欣赏西湖</p>
+                    <p class="paper-card__authors">地点：<strong>惠城区环城西二路17号 惠州宾馆</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 查看</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+
+    <!-- ========== ORION ========== -->
+    <div class="paper-section">
+    <section class="section" id="projects">
+        <div class="paper-section__header">
+            <h2 class="section__title">ORION</h2>
+            <p class="section__subtitle">项目、作品、构想</p>
+        </div>
+
+        <div class="paper-grid">
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cherry%20blossom%20trees%20in%20full%20bloom%20along%20peaceful%20river%20spring%20soft%20pink%20petals&image_size=landscape_4_3" alt="项目一">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Alpha</h3>
+                    <span class="paper-card__badge" style="background:#2ed573;"><i class="fas fa-check-circle"></i> 已上线</span>
+                    <div class="paper-card__venue">Game · 2024</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>主测 / 负责人</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=crystal%20clear%20alpine%20lake%20reflection%20snow%20mountains%20summer%20blue%20sky%20landscape&image_size=landscape_4_3" alt="项目二">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Beta</h3>
+                    <span class="paper-card__badge" style="background:#1e90ff;"><i class="fas fa-spinner"></i> 进行中</span>
+                    <div class="paper-card__venue">Perf · 2025</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>性能测试</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=rolling%20green%20hills%20and%20valley%20at%20foggy%20morning%20cinematic%20nature%20landscape&image_size=landscape_4_3" alt="项目三">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Gamma</h3>
+                    <span class="paper-card__badge" style="background:#ff4757;"><i class="fas fa-shield-alt"></i> 安全</span>
+                    <div class="paper-card__venue">Security · 2024</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>安全测试</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tropical%20waterfall%20in%20lush%20green%20rainforest%20long%20exposure%20nature%20photography&image_size=landscape_4_3" alt="项目四">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Delta</h3>
+                    <span class="paper-card__badge" style="background:#ffa502;"><i class="fas fa-code-branch"></i> 流程</span>
+                    <div class="paper-card__venue">Process · 2023</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>版本管理</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20stone%20bridge%20over%20river%20in%20misty%20bamboo%20forest%20zen%20atmosphere&image_size=landscape_4_3" alt="项目五">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Epsilon</h3>
+                    <span class="paper-card__badge" style="background:#a55eea;"><i class="fas fa-file-alt"></i> 文档</span>
+                    <div class="paper-card__venue">Docs · 2023</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>文档体系</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-card fade-in">
+                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=vast%20lavender%20fields%20in%20provence%20sunset%20purple%20flowers%20rolling%20landscape&image_size=landscape_4_3" alt="项目六">
+                <div class="paper-card__body">
+                    <h3 class="paper-card__title">项目代号 Zeta</h3>
+                    <span class="paper-card__badge" style="background:#1abc9c;"><i class="fas fa-tools"></i> 工具</span>
+                    <div class="paper-card__venue">Tool · 2022</div>
+                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
+                    <p class="paper-card__authors">角色：<strong>工具开发</strong></p>
+                    <div class="paper-card__actions">
+                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
+                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </div>
+
+    <!-- ========== Say Hi ========== -->
+    <section class="section" id="contact">
+        <h2 class="section__title">联系<span>我</span></h2>
+        <p class="section__subtitle">GET IN TOUCH</p>
+
+        <div class="contact__grid">
+            <a href="mailto:your@email.com" class="contact__card" title="邮箱">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <span class="contact__label">邮箱</span>
+                <span class="contact__value">your@email.com</span>
+            </a>
+
+            <a href="#" class="contact__card" id="wechatBtn" title="微信">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                    <i class="fab fa-weixin"></i>
+                </div>
+                <span class="contact__label">微信</span>
+                <span class="contact__value">扫码添加</span>
+            </a>
+
+            <a href="#" class="contact__card" title="GitHub">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fab fa-github"></i>
+                </div>
+                <span class="contact__label">GitHub</span>
+                <span class="contact__value">关注项目</span>
+            </a>
+
+            <a href="#" class="contact__card" title="B站">
+                <div class="contact__icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                    <i class="fab fa-bilibili"></i>
+                </div>
+                <span class="contact__label">B站</span>
+                <span class="contact__value">关注动态</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ========== 页脚 ========== -->
+    <footer class="footer">
+        <p>&copy; 2026 George Zhang. All rights reserved.</p>
+    </footer>
+
+    <!-- ========== 微信二维码模态框 ========== -->
+    <div class="modal" id="wechatModal">
+        <div class="modal__content">
+            <h3 class="modal__title">微信二维码</h3>
+            <div class="modal__qr">
+                <i class="fas fa-qrcode"></i>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">扫描二维码添加微信</p>
+            <button class="modal__close" id="modalClose">关闭</button>
+        </div>
+    </div>
+
+    <!-- ========== JavaScript ========== -->
+    <script>
+    // 主题切换
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.className = 'fas fa-sun';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        if (current === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-moon';
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fas fa-sun';
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+
+    // 移动端菜单
+    const navBurger = document.getElementById('navBurger');
+    const navLinks = document.getElementById('navLinks');
+
+    navBurger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+    });
+
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+        });
+    });
+
+    // 导航高亮
+    const sections = document.querySelectorAll('section[id]');
+    const navItems = document.querySelectorAll('.nav__links a');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const top = section.offsetTop - 100;
+            if (window.scrollY >= top) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href') === '#' + current) {
+                item.classList.add('active');
+            }
+        });
+    });
+
+    // 项目筛选
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.getAttribute('data-filter');
+            projectCards.forEach(card => {
+                if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // 微信模态框
+    const wechatBtn = document.getElementById('wechatBtn');
+    const wechatModal = document.getElementById('wechatModal');
+    const modalClose = document.getElementById('modalClose');
+
+    wechatBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        wechatModal.classList.add('active');
+    });
+
+    modalClose.addEventListener('click', () => {
+        wechatModal.classList.remove('active');
+    });
+
+    wechatModal.addEventListener('click', (e) => {
+        if (e.target === wechatModal) {
+            wechatModal.classList.remove('active');
+        }
+    });
+
+    // 滚动淡入
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.15 });
+
+    fadeElements.forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

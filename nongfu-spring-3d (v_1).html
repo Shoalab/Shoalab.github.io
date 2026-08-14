@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>农夫山泉工厂 - 3D配送车</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;font-family:sans-serif;background:#87CEEB}
+canvas{display:block}
+#start{position:fixed;inset:0;background:#1a1a2e;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:100}
+.logo{font-size:52px;font-weight:bold;color:#dd2222;margin-bottom:10px}
+.sub{font-size:18px;color:#aaa;margin-bottom:40px}
+.ctrl{background:rgba(255,255,255,.06);border:1px solid rgba(221,34,34,.3);border-radius:12px;padding:25px 45px;margin-bottom:30px}
+.ctrl h3{color:#dd2222;margin-bottom:14px;text-align:center}
+.row{display:flex;align-items:center;margin:10px 0;color:#ccc;font-size:14px}
+.k{background:#333;border:1px solid #555;border-radius:6px;padding:7px 14px;margin-right:14px;min-width:48px;text-align:center;font-weight:700;color:#fff}
+#btn{background:#dd2222;color:#fff;border:none;padding:14px 55px;font-size:20px;border-radius:50px;cursor:pointer;font-weight:700}
+#hud{position:fixed;top:20px;left:20px;z-index:10;color:#fff;display:none}
+.panel{background:rgba(0,0,0,.6);border-radius:10px;padding:14px 18px}
+.sp{font-size:30px;font-weight:700;color:#dd2222}
+#hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.65);font-size:12px;z-index:10;background:rgba(0,0,0,.45);padding:8px 22px;border-radius:20px;display:none}
+#planBtn{position:fixed;top:20px;right:20px;z-index:20;background:rgba(0,0,0,.7);color:#fff;border:2px solid #dd2222;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px}
+#planBtn:hover{background:#dd2222}
+#planView{position:fixed;inset:0;z-index:50;background:#f5f5f0;display:none;overflow:auto}
+#planView h2{text-align:center;color:#333;margin:20px 0 10px;font-size:24px}
+#planView .legend{max-width:900px;margin:0 auto 20px;padding:15px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+#planView .legend-title{font-weight:700;margin-bottom:10px;color:#333}
+#planView .legend-items{display:flex;flex-wrap:wrap;gap:15px}
+#planView .legend-item{display:flex;align-items:center;font-size:13px;color:#555}
+#planView .legend-color{width:20px;height:14px;margin-right:6px;border-radius:3px;border:1px solid #ccc}
+#planView svg{display:block;margin:0 auto;max-width:95vw;height:auto;border:2px solid #333;border-radius:8px;background:#f0ead6}
+#planView .close-btn{display:block;margin:10px auto 30px;background:#dd2222;color:#fff;border:none;padding:10px 40px;border-radius:8px;font-size:16px;cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<canvas id="c" data-engine="three.js r160" width="634" height="582" style="width: 634px; height: 582px;"></canvas>
+<div id="start">
+<div class="logo">农夫山泉</div>
+<div class="sub">NONGFU SPRING 3D</div>
+<div class="ctrl">
+<h3>操作指南</h3>
+<div class="row"><span class="k">W</span><span>前进</span></div>
+<div class="row"><span class="k">S</span><span>倒车</span></div>
+<div class="row"><span class="k">A</span><span>左转</span></div>
+<div class="row"><span class="k">D</span><span>右转</span></div>
+</div>
+<button id="btn">开始配送</button>
+</div>
+<div id="hud"><div class="panel"><div class="sp" id="sp">0</div><div>KM/H</div></div></div>
+<button id="planBtn">📐 平面图</button>
+<div id="planView">
+<h2>🏭 农夫山泉河源工厂 - 总平面图</h2>
+<div class="legend">
+<div class="legend-title">图例 Legend</div>
+<div class="legend-items">
+<div class="legend-item"><div class="legend-color" style="background:#6fb3c7"></div>主厂房</div>
+<div class="legend-item"><div class="legend-color" style="background:#eeeeee"></div>办公楼</div>
+<div class="legend-item"><div class="legend-color" style="background:#ddaa55"></div>仓库</div>
+<div class="legend-item"><div class="legend-color" style="background:#3d8bcc"></div>人工湖/喷泉</div>
+<div class="legend-item"><div class="legend-color" style="background:#3a3a3a"></div>道路</div>
+<div class="legend-item"><div class="legend-color" style="background:#4a7c3f"></div>草地</div>
+<div class="legend-item"><div class="legend-color" style="background:#2d8a4e"></div>树木</div>
+<div class="legend-item"><div class="legend-color" style="background:#888888"></div>建筑设施</div>
+</div>
+</div>
+<svg viewBox="-180 -160 360 320" xmlns="http://www.w3.org/2000/svg" width="900" height="800">
+<rect x="-180" y="-160" width="360" height="320" fill="#f0ead6" stroke="#333" stroke-width="2"/>
+<text x="0" y="-150" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">↑ 北</text>
+<!-- 草地背景 -->
+<rect x="-170" y="-150" width="340" height="300" fill="#4a7c3f" opacity="0.3"/>
+<!-- 主道路 -->
+<rect x="-82" y="-150" width="24" height="300" fill="#3a3a3a"/>
+<line x1="-70" y1="-140" x2="-70" y2="140" stroke="#ffdd00" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="-70" y="155" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">主道路</text>
+<!-- 厂区内道路 -->
+<rect x="-27" y="-60" width="14" height="120" fill="#3a3a3a"/>
+<text x="-20" y="75" text-anchor="middle" font-size="9" fill="#fff">厂区路</text>
+<!-- 停车场 -->
+<rect x="-50" y="-55" width="30" height="50" fill="#555"/>
+<text x="-35" y="-28" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">停车场</text>
+<!-- 停车线 -->
+<g stroke="#fff" stroke-width="0.5">
+<line x1="-45" y1="-22" x2="-25" y2="-22"/>
+<line x1="-45" y1="-30" x2="-25" y2="-30"/>
+<line x1="-45" y1="-38" x2="-25" y2="-38"/>
+<line x1="-45" y1="-46" x2="-25" y2="-46"/>
+<line x1="-45" y1="-16" x2="-25" y2="-16"/>
+</g>
+<!-- 人工湖（厂房与入口之间） -->
+<rect x="-22" y="-42" width="28" height="20" fill="#aaaaaa" rx="2"/>
+<rect x="-20" y="-40" width="24" height="16" fill="#4db8e8" opacity="0.7"/>
+<ellipse cx="-12" cy="-34" rx="3" ry="2" fill="#6b8e4a"/>
+<ellipse cx="-2" cy="-30" rx="2.5" ry="1.5" fill="#7a9e5a"/>
+<text x="-8" y="-16" text-anchor="middle" font-size="9" fill="#1a4a6a" font-weight="bold">🌊 人工湖</text>
+<!-- 湖边石头 -->
+<g fill="#888" opacity="0.7">
+<circle cx="-22" cy="-38" r="0.8"/><circle cx="-18" cy="-32" r="0.6"/><circle cx="-14" cy="-28" r="0.7"/>
+<circle cx="-10" cy="-26" r="0.6"/><circle cx="-6" cy="-28" r="0.7"/><circle cx="-2" cy="-30" r="0.6"/>
+<circle cx="2" cy="-32" r="0.7"/><circle cx="6" cy="-36" r="0.6"/>
+<circle cx="4" cy="-40" r="0.7"/><circle cx="-2" cy="-42" r="0.6"/>
+<circle cx="-8" cy="-44" r="0.7"/><circle cx="-14" cy="-44" r="0.6"/>
+<circle cx="-20" cy="-42" r="0.7"/><circle cx="-24" cy="-36" r="0.6"/>
+</g>
+<!-- 入口标志区 -->
+<rect x="-54" y="43" width="18" height="15" fill="#aaaaaa"/>
+<rect x="-58" y="44" width="26" height="14" fill="#888888"/>
+<rect x="-56" y="45" width="22" height="10" fill="#5ca8d6" opacity="0.8"/>
+<rect x="-50" y="44" width="10" height="2" fill="#666"/>
+<rect x="-50.5" y="42.5" width="9" height="3" fill="#dd2222"/>
+<text x="-45" y="48" text-anchor="middle" font-size="5" fill="#fff" font-weight="bold">农夫山泉</text>
+<!-- 树木 -->
+<g fill="#2d8a4e" stroke="#1a5e2a" stroke-width="0.3">
+<circle cx="-58" cy="-8" r="2.5"/><circle cx="-50" cy="-8" r="2.5"/>
+<circle cx="-82" cy="-8" r="2.5"/><circle cx="-82" cy="-18" r="2"/>
+<circle cx="-58" cy="-18" r="2"/><circle cx="-82" cy="-28" r="2"/>
+<circle cx="-58" cy="-28" r="2"/><circle cx="-82" cy="-38" r="2"/>
+<circle cx="-58" cy="-38" r="2"/><circle cx="-82" cy="-48" r="2"/>
+<circle cx="-58" cy="-58" r="2"/><circle cx="-58" cy="33" r="2.5"/>
+<circle cx="-50" cy="33" r="2.5"/><circle cx="-58" cy="28" r="2"/>
+<circle cx="-50" cy="28" r="2"/>
+<circle cx="0" cy="-46" r="2"/><circle cx="5" cy="-46" r="2"/>
+<circle cx="10" cy="-46" r="2"/><circle cx="15" cy="-46" r="2"/>
+<circle cx="0" cy="-38" r="2"/><circle cx="5" cy="-38" r="2"/>
+<circle cx="10" cy="-38" r="2"/><circle cx="15" cy="-38" r="2"/>
+<circle cx="0" cy="-30" r="2"/><circle cx="5" cy="-30" r="2"/>
+<circle cx="10" cy="-30" r="2"/><circle cx="15" cy="-30" r="2"/>
+<circle cx="0" cy="-22" r="2"/><circle cx="5" cy="-22" r="2"/>
+<circle cx="10" cy="-22" r="2"/><circle cx="15" cy="-22" r="2"/>
+</g>
+<!-- 主厂房 -->
+<rect x="-10" y="-32.5" width="80" height="45" fill="#6fb3c7" stroke="#4a9db5" stroke-width="2"/>
+<rect x="-10" y="-27" width="80" height="3" fill="#4a9db5"/>
+<rect x="-10" y="-18" width="80" height="3" fill="#4a9db5"/>
+<rect x="-10" y="-9" width="80" height="3" fill="#4a9db5"/>
+<rect x="-10" y="0" width="80" height="3" fill="#4a9db5"/>
+<rect x="26" y="10" width="8" height="2" fill="#2a4a5a"/>
+<text x="30" y="-5" text-anchor="middle" font-size="10" fill="#1a4a6a" font-weight="bold">主厂房</text>
+<!-- 马赛克装饰 -->
+<rect x="-10" y="-22" width="2" height="20" fill="#2d8a4e"/>
+<rect x="-10" y="-18" width="2" height="16" fill="#4da3ff"/>
+<rect x="-10" y="-14" width="2" height="12" fill="#2ed573"/>
+<!-- 办公楼 -->
+<rect x="-22.5" y="-45" width="25" height="20" fill="#eeeeee" stroke="#bbbbbb" stroke-width="1.5"/>
+<text x="-10" y="-33" text-anchor="middle" font-size="9" fill="#555" font-weight="bold">办公楼</text>
+<!-- 办公楼窗户 -->
+<g fill="#87ceeb" opacity="0.8">
+<rect x="-19" y="-42" width="3" height="2"/><rect x="-14" y="-42" width="3" height="2"/>
+<rect x="-9" y="-42" width="3" height="2"/><rect x="-4" y="-42" width="3" height="2"/>
+<rect x="-19" y="-38" width="3" height="2"/><rect x="-14" y="-38" width="3" height="2"/>
+<rect x="-9" y="-38" width="3" height="2"/><rect x="-4" y="-38" width="3" height="2"/>
+<rect x="-19" y="-34" width="3" height="2"/><rect x="-14" y="-34" width="3" height="2"/>
+<rect x="-9" y="-34" width="3" height="2"/><rect x="-4" y="-34" width="3" height="2"/>
+<rect x="-19" y="-30" width="3" height="2"/><rect x="-14" y="-30" width="3" height="2"/>
+<rect x="-9" y="-30" width="3" height="2"/><rect x="-4" y="-30" width="3" height="2"/>
+</g>
+<!-- 仓库 -->
+<rect x="40" y="-45" width="30" height="20" fill="#ddaa55" stroke="#bb8833" stroke-width="1.5"/>
+<polygon points="40,-45 55,-55 70,-45" fill="#cc8833"/>
+<text x="55" y="-33" text-anchor="middle" font-size="9" fill="#555" font-weight="bold">仓库</text>
+<!-- 烟囱 -->
+<circle cx="60" cy="15" r="3" fill="#555"/>
+<circle cx="60" cy="10" r="3.5" fill="#444"/>
+<text x="60" y="20" text-anchor="middle" font-size="7" fill="#333">烟囱</text>
+<!-- 冷却塔 -->
+<ellipse cx="-5" cy="-40" rx="6" ry="6" fill="#777"/>
+<ellipse cx="-5" cy="-44" rx="5" ry="3" fill="#666"/>
+<text x="-5" y="-40" text-anchor="middle" font-size="7" fill="#333">冷却塔</text>
+<!-- 工业管道 -->
+<rect x="54" y="-22" width="16" height="1.2" fill="#aa6644"/>
+<rect x="69" y="-28" width="1" height="12" fill="#aa6644"/>
+<!-- 围栏 -->
+<g stroke="#888" stroke-width="0.8" fill="none">
+<line x1="-45" y1="-50" x2="90" y2="-50"/>
+<line x1="-45" y1="25" x2="90" y2="25"/>
+<line x1="-45" y1="-50" x2="-45" y2="25"/>
+<line x1="90" y1="-50" x2="90" y2="25"/>
+</g>
+<!-- 车辆起点 -->
+<rect x="-72" y="33" width="4" height="6" fill="#dd2222" opacity="0.8"/>
+<text x="-70" y="43" text-anchor="middle" font-size="8" fill="#dd2222" font-weight="bold">🚚 起点</text>
+<!-- 尺寸标注 -->
+<g font-size="8" fill="#333" text-anchor="middle">
+<text x="-70" y="-152" text-anchor="middle">← 300米 →</text>
+<line x1="-82" y1="-155" x2="-58" y2="-155" stroke="#333" stroke-width="0.8"/>
+<line x1="-70" y1="-158" x2="-70" y2="-145" stroke="#333" stroke-width="0.8"/>
+<text x="-160" y="0" transform="rotate(-90,-160,0)">← 约300米 →</text>
+</g>
+<!-- 标题和指南针 -->
+<g>
+<circle cx="160" cy="-135" r="15" fill="#fff" stroke="#333" stroke-width="1.5"/>
+<polygon points="160,-148 157,-135 160,-130 163,-135" fill="#dd2222"/>
+<polygon points="160,-122 157,-135 160,-140 163,-135" fill="#333"/>
+<text x="160" y="-145" text-anchor="middle" font-size="8" fill="#dd2222" font-weight="bold">N</text>
+</g>
+<!-- 分区说明 -->
+<g font-size="7" fill="#666">
+<text x="-8" y="-14" text-anchor="middle">A区：人工湖</text>
+<text x="-45" y="62" text-anchor="middle">B区：入口标志</text>
+<text x="30" y="-50" text-anchor="middle">C区：生产厂区</text>
+<text x="-35" y="0" text-anchor="middle">D区：停车场</text>
+</g>
+<!-- 比例尺 -->
+<g>
+<rect x="140" y="140" width="60" height="8" fill="#fff" stroke="#333" stroke-width="1"/>
+<line x1="140" y1="140" x2="140" y2="148" stroke="#333" stroke-width="1"/>
+<line x1="200" y1="140" x2="200" y2="148" stroke="#333" stroke-width="1"/>
+<text x="170" y="152" text-anchor="middle" font-size="8" fill="#333">50米</text>
+</g>
+</svg>
+<button class="close-btn" onclick="document.getElementById('planView').style.display='none'">✕ 关闭平面图</button>
+</div>
+<div id="hint">WASD 控制配送车</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script><script>
+var scene,camera,renderer,car,fw=[],rw=[];
+var keys={},spd=0,rot=0,wrot=0,sang=0,started=true,obs=[];
+
+function mkLogo(txt,w,h,fz){
+  var cv=document.createElement("canvas");cv.width=w;cv.height=h;
+  var cx=cv.getContext("2d");cx.fillStyle="#dd2222";cx.textAlign="center";cx.textBaseline="middle";
+  cx.font="bold "+fz+"px Arial";cx.fillText(txt,w/2,h/2);
+  return new THREE.CanvasTexture(cv);
+}
+var logoTex=mkLogo("农夫山泉",512,256,100);
+
+var redM=new THREE.MeshStandardMaterial({color:0xdd2222});
+var drkM=new THREE.MeshStandardMaterial({color:0x1a1a1a});
+
+function mkWheel(){
+  var g=new THREE.Group();
+  var t=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.5,12),new THREE.MeshStandardMaterial({color:0x111}));
+  t.rotation.z=Math.PI/2;g.add(t);return g;
+}
+
+function mkTruck(){
+  var tr=new THREE.Group();var fW=[],rW=[];
+  var ch=new THREE.Mesh(new THREE.BoxGeometry(2.4,0.5,9),drkM);ch.position.y=0.6;tr.add(ch);
+  var cab=new THREE.Mesh(new THREE.BoxGeometry(2.3,2.5,2.5),redM);cab.position.set(0,2.0,2.8);tr.add(cab);
+  var cg=new THREE.Mesh(new THREE.BoxGeometry(2.5,3.5,6),redM);cg.position.set(0,2.7,-2);tr.add(cg);
+  var cnM=new THREE.MeshBasicMaterial({map:logoTex,transparent:true});
+  for(var s=-1;s<=1;s+=2){var lg=new THREE.Mesh(new THREE.PlaneGeometry(1.2,2.5),cnM);lg.position.set(s*1.28,3,-2);lg.rotation.y=s*Math.PI/2;tr.add(lg);}
+  var fp=[{x:1.2,z:3},{x:-1.2,z:3}];
+  var rp2=[{x:1.2,z:-3},{x:-1.2,z:-3},{x:1.2,z:-4},{x:-1.2,z:-4}];
+  fp.forEach(function(p){var pv=new THREE.Group();pv.position.set(p.x,0.6,p.z);tr.add(pv);var w=mkWheel();pv.add(w);fW.push({w:w,pv:pv});});
+  rp2.forEach(function(p){var w=mkWheel();w.position.set(p.x,0.6,p.z);tr.add(w);rW.push(w);});
+  return{m:tr,fw:fW,rw:rW};
+}
+
+scene=new THREE.Scene();scene.background=new THREE.Color(0x87CEEB);
+scene.fog=new THREE.FogExp2(0x9dc4e0,0.004);
+camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,500);camera.position.set(-70,15,-18);
+renderer=new THREE.WebGLRenderer({canvas:document.getElementById("c"),antialias:true});
+renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;
+scene.add(new THREE.AmbientLight(0xffeedd,0.6));
+var sun=new THREE.DirectionalLight(0xfff4e0,1.2);sun.position.set(60,100,60);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-150;sun.shadow.camera.right=150;sun.shadow.camera.top=150;sun.shadow.camera.bottom=-150;scene.add(sun);
+
+// 地面
+var ground=new THREE.Mesh(new THREE.PlaneGeometry(400,400),new THREE.MeshStandardMaterial({color:0x4a7c3f}));
+ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+
+// 道路系统
+var mainRd=new THREE.Mesh(new THREE.PlaneGeometry(24,300),new THREE.MeshStandardMaterial({color:0x3a3a3a}));
+mainRd.rotation.x=-Math.PI/2;mainRd.position.set(-70,0.01,0);scene.add(mainRd);
+var rdLine=new THREE.Mesh(new THREE.PlaneGeometry(0.3,280),new THREE.MeshStandardMaterial({color:0xffff66}));
+rdLine.rotation.x=-Math.PI/2;rdLine.position.set(-70,0.02,0);scene.add(rdLine);
+// 厂区内部道路
+var innerRd=new THREE.Mesh(new THREE.PlaneGeometry(14,120),new THREE.MeshStandardMaterial({color:0x3a3a3a}));
+innerRd.rotation.x=-Math.PI/2;innerRd.position.set(20,0.01,0);scene.add(innerRd);
+var parkRd=new THREE.Mesh(new THREE.PlaneGeometry(10,80),new THREE.MeshStandardMaterial({color:0x4a4a4a}));
+parkRd.rotation.x=-Math.PI/2;parkRd.position.set(-35,0.01,-30);scene.add(parkRd);
+
+// ====== 入口标志区（道路右侧） ======
+var signX=-45;
+// 入口广场地面
+var plaza=new THREE.Mesh(new THREE.BoxGeometry(18,0.15,15),new THREE.MeshStandardMaterial({color:0xaaaaaa}));
+plaza.position.set(signX,0.08,58);scene.add(plaza);
+// 水池石砌边缘
+var poolEdge=new THREE.Mesh(new THREE.BoxGeometry(26,0.6,14),new THREE.MeshStandardMaterial({color:0x888888}));
+poolEdge.position.set(signX,0.3,58);scene.add(poolEdge);
+// 喷泉水池底
+var pool=new THREE.Mesh(new THREE.BoxGeometry(24,0.3,12),new THREE.MeshStandardMaterial({color:0x3d8bcc,transparent:true,opacity:0.8}));
+pool.position.set(signX,0.15,58);scene.add(pool);
+// 水面反光
+var poolWater=new THREE.Mesh(new THREE.PlaneGeometry(22,10),new THREE.MeshPhongMaterial({color:0x5ca8d6,transparent:true,opacity:0.6,shininess:100}));
+poolWater.rotation.x=-Math.PI/2;poolWater.position.set(signX,0.32,58);scene.add(poolWater);
+// 红色"农夫山泉"立体字底座
+var signBase=new THREE.Mesh(new THREE.BoxGeometry(10,1,2),new THREE.MeshStandardMaterial({color:0x666666}));
+signBase.position.set(signX,0.5,58);scene.add(signBase);
+// 文字贴图
+var signCv=document.createElement("canvas");signCv.width=512;signCv.height=200;
+var scx=signCv.getContext("2d");scx.fillStyle="#dd2222";scx.fillRect(0,0,512,200);
+scx.fillStyle="#ffffff";scx.font="bold 80px Arial";scx.textAlign="center";scx.textBaseline="middle";
+scx.fillText("农夫山泉",256,65);
+scx.font="bold 36px Arial";scx.fillText("NONGFU SPRING",256,135);
+var signTex=new THREE.CanvasTexture(signCv);
+var signGeo=new THREE.BoxGeometry(9,2,0.6);
+var signMat=new THREE.MeshStandardMaterial({map:signTex});
+var sign=new THREE.Mesh(signGeo,signMat);
+sign.position.set(signX,1.6,58);scene.add(sign);obs.push({x:signX,z:58,w:10,d:3});
+
+// ====== 人工湖（厂房与入口之间，保持间距≥5米） ======
+var lakeX=20;var lakeZ=40;
+// 湖岸浅色石头，比湖大一圈）
+var lakeBank=new THREE.Mesh(new THREE.BoxGeometry(28,0.4,20),new THREE.MeshStandardMaterial({color:0xaaaaaa}));
+lakeBank.position.set(lakeX,0.2,lakeZ);scene.add(lakeBank);
+// 湖底
+var lakeBottom=new THREE.Mesh(new THREE.BoxGeometry(24,0.3,16),new THREE.MeshStandardMaterial({color:0x85c1e2}));
+lakeBottom.position.set(lakeX,0.15,lakeZ);scene.add(lakeBottom);
+// 清澈半透明蓝色水面带高光
+var lakeWater=new THREE.Mesh(new THREE.PlaneGeometry(24,16),new THREE.MeshPhongMaterial({color:0x5dade2,transparent:true,opacity:0.65,shininess:150,specular:0xaaddff,side:THREE.DoubleSide}));
+lakeWater.rotation.x=-Math.PI/2;lakeWater.position.set(lakeX,0.35,lakeZ);scene.add(lakeWater);
+// 湖心小岛
+var island=new THREE.Mesh(new THREE.CylinderGeometry(2,3,0.6,6),new THREE.MeshStandardMaterial({color:0x6b8e4a}));
+island.position.set(lakeX-4,0.45,lakeZ-2);scene.add(island);
+var islandTree=new THREE.Mesh(new THREE.SphereGeometry(1.5,6,5),new THREE.MeshStandardMaterial({color:0x2d8a4e,flatShading:true}));
+islandTree.position.set(lakeX-4,1.85,lakeZ-2);scene.add(islandTree);
+// 第二个小岛
+var island2=new THREE.Mesh(new THREE.CylinderGeometry(1.5,2.5,0.5,6),new THREE.MeshStandardMaterial({color:0x7a9e5a}));
+island2.position.set(lakeX+6,0.4,lakeZ+2);scene.add(island2);
+var islandTree2=new THREE.Mesh(new THREE.SphereGeometry(1.2,6,5),new THREE.MeshStandardMaterial({color:0x3a9a5e,flatShading:true}));
+islandTree2.position.set(lakeX+6,1.55,lakeZ+2);scene.add(islandTree2);
+// 湖边石头
+for(var ri=0;ri<14;ri++){
+  var rang=(ri/14)*Math.PI*2;
+  var rx=lakeX+Math.cos(rang)*15;
+  var rz=lakeZ+Math.sin(rang)*11;
+  if(rx>=-24&&rx<=8&&rz>=19&&rz<=45){
+    var rock=new THREE.Mesh(new THREE.DodecahedronGeometry(0.5+Math.random()*0.4,0),new THREE.MeshStandardMaterial({color:0x888888,flatShading:true}));
+    rock.position.set(rx,0.3,rz);rock.rotation.y=Math.random()*Math.PI;scene.add(rock);
+  }
+}
+
+// ====== 主厂房建筑群 ======
+// 大型主厂房（浅蓝色带彩色装饰）
+var mainFac=new THREE.Mesh(new THREE.BoxGeometry(80,22,45),new THREE.MeshStandardMaterial({color:0x6fb3c7}));
+mainFac.position.set(30,11,-10);mainFac.castShadow=true;scene.add(mainFac);obs.push({x:30,z:-10,w:80,d:45});
+// 厂房顶部装饰条纹
+var stripeMat=new THREE.MeshStandardMaterial({color:0x4a9db5});
+for(var si=0;si<5;si++){
+  var st=new THREE.Mesh(new THREE.BoxGeometry(80,1.5,2),stripeMat);
+  st.position.set(30,15+si*3,-10);scene.add(st);
+}
+// 厂房彩色马赛克装饰（侧面）
+var mosaicCv=document.createElement("canvas");mosaicCv.width=512;mosaicCv.height=256;
+var mcx=mosaicCv.getContext("2d");
+for(var my=0;my<8;my++)for(var mx=0;mx<16;mx++){
+  var colors=["#2d8a4e","#4da3ff","#2ed573","#6fb3c7","#1e5f8b"];
+  mcx.fillStyle=colors[Math.floor(Math.random()*colors.length)];
+  mcx.fillRect(mx*32,my*32,32,32);
+}
+var mosaicTex=new THREE.CanvasTexture(mosaicCv);
+var mosaic=new THREE.Mesh(new THREE.BoxGeometry(0.5,8,40),new THREE.MeshStandardMaterial({map:mosaicTex}));
+mosaic.position.set(-10,14,-10);scene.add(mosaic);
+// 厂房大门
+var gate=new THREE.Mesh(new THREE.BoxGeometry(8,6,0.5),new THREE.MeshStandardMaterial({color:0x2a4a5a}));
+gate.position.set(30,3,12.25);scene.add(gate);
+// 办公楼
+var office=new THREE.Mesh(new THREE.BoxGeometry(25,16,20),new THREE.MeshStandardMaterial({color:0xeeeeee}));
+office.position.set(-10,8,-25);office.castShadow=true;scene.add(office);obs.push({x:-10,z:-25,w:25,d:20});
+// 办公楼窗户
+var winMat=new THREE.MeshStandardMaterial({color:0x87ceeb,emissive:0x224466,emissiveIntensity:0.3});
+for(var wr=0;wr<4;wr++)for(var wc=0;wc<5;wc++){
+  var win=new THREE.Mesh(new THREE.BoxGeometry(3,2.5,0.3),winMat);
+  win.position.set(-22+wc*5,3+wr*3,-15);scene.add(win);
+}
+// 仓库
+var warehouse=new THREE.Mesh(new THREE.BoxGeometry(30,10,20),new THREE.MeshStandardMaterial({color:0xddaa55}));
+warehouse.position.set(55,5,-35);scene.add(warehouse);obs.push({x:55,z:-35,w:30,d:20});
+// 仓库屋顶
+var whRoof=new THREE.Mesh(new THREE.ConeGeometry(22,6,4),new THREE.MeshStandardMaterial({color:0xcc8833}));
+whRoof.rotation.y=Math.PI/4;whRoof.position.set(55,13,-35);scene.add(whRoof);
+// 烟囱
+var stack=new THREE.Mesh(new THREE.CylinderGeometry(3,3,35,8),new THREE.MeshStandardMaterial({color:0x555555}));
+stack.position.set(60,17.5,15);scene.add(stack);obs.push({x:60,z:15,w:8,d:8});
+var stackTop=new THREE.Mesh(new THREE.CylinderGeometry(4,3,4,8),new THREE.MeshStandardMaterial({color:0x444444}));
+stackTop.position.set(60,37,15);scene.add(stackTop);
+// 冷却塔
+var cooling=new THREE.Mesh(new THREE.CylinderGeometry(6,8,25,8),new THREE.MeshStandardMaterial({color:0x777777}));
+cooling.position.set(-5,12.5,-40);scene.add(cooling);obs.push({x:-5,z:-40,w:12,d:12});
+var coolingTop=new THREE.Mesh(new THREE.CylinderGeometry(5,6,3,8),new THREE.MeshStandardMaterial({color:0x666666}));
+coolingTop.position.set(-5,26.5,-40);scene.add(coolingTop);
+// 工业管道
+var pipeMat=new THREE.MeshStandardMaterial({color:0xaa6644,metalness:0.6,roughness:0.4});
+var pipe1=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,30,8),pipeMat);
+pipe1.position.set(55,8,-20);pipe1.rotation.z=Math.PI/2;scene.add(pipe1);
+var pipe2=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,12,8),pipeMat);
+pipe2.position.set(70,14,-20);pipe2.rotation.z=Math.PI/2;scene.add(pipe2);
+
+// ====== 绿化系统 ======
+function mkTree(x,z,h){
+  var trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.4,h*0.4,6),new THREE.MeshStandardMaterial({color:0x8b5a2b}));
+  trunk.position.set(x,h*0.2,z);trunk.castShadow=true;scene.add(trunk);
+  var crown=new THREE.Mesh(new THREE.SphereGeometry(h*0.4,6,5),new THREE.MeshStandardMaterial({color:0x2d8a4e,flatShading:true}));
+  crown.position.set(x,h*0.55,z);crown.castShadow=true;scene.add(crown);
+}
+// 入口两侧大树（避开人工湖区域）
+mkTree(-58,52,10);mkTree(-50,52,10);mkTree(-58,48,8);mkTree(-50,48,8);
+// 道路两旁行道树
+for(var ti=0;ti<8;ti++){
+  var tz=30-ti*10;
+  if(tz>=-30){
+    mkTree(-58,tz,6+Math.random()*2);
+    mkTree(-82,tz,6+Math.random()*2);
+  }
+}
+// 厂区绿化带
+for(var gi=0;gi<6;gi++){
+  mkTree(0,-50+gi*8,5+Math.random()*3);
+  mkTree(10,-50+gi*8,5+Math.random()*3);
+}
+// 灌木丛
+function mkBush(x,z){
+  var b=new THREE.Mesh(new THREE.SphereGeometry(0.8,5,4),new THREE.MeshStandardMaterial({color:0x3a7a3a,flatShading:true}));
+  b.position.set(x,0.5,z);scene.add(b);
+}
+for(var bi=0;bi<20;bi++){
+  var bx=-20+Math.random()*80;
+  var bz=-45+Math.random()*5;
+  mkBush(bx,bz);
+}
+
+// ====== 基础设施 ======
+// 围栏
+var fenceMat=new THREE.MeshStandardMaterial({color:0x888888});
+for(var fi=0;fi<15;fi++){
+  var fx=-45+fi*5;
+  if(fx<-30||fx>60){
+    var post1=new THREE.Mesh(new THREE.BoxGeometry(0.2,2,0.2),fenceMat);
+    post1.position.set(fx,1,-50);scene.add(post1);
+    var post2=new THREE.Mesh(new THREE.BoxGeometry(0.2,2,0.2),fenceMat);
+    post2.position.set(fx,1,25);scene.add(post2);
+  }
+}
+// 停车场
+var parkGeo=new THREE.PlaneGeometry(30,50);
+var parkLot=new THREE.Mesh(parkGeo,new THREE.MeshStandardMaterial({color:0x555555}));
+parkLot.rotation.x=-Math.PI/2;parkLot.position.set(-35,0.02,-30);scene.add(parkLot);
+// 停车线
+var lineMat=new THREE.MeshStandardMaterial({color:0xffffff});
+for(var pki=0;pki<6;pki++){
+  for(var pkj=0;pkj<3;pkj++){
+    var sl=new THREE.Mesh(new THREE.PlaneGeometry(0.1,3),lineMat);
+    sl.rotation.x=-Math.PI/2;sl.position.set(-50+pki*5,0.03,-15-pkj*8);scene.add(sl);
+    var sl2=new THREE.Mesh(new THREE.PlaneGeometry(5,0.1),lineMat);
+    sl2.rotation.x=-Math.PI/2;sl2.position.set(-50+pki*5,0.03,-15-pkj*8);scene.add(sl2);
+  }
+}
+
+// ====== 背景山脉 ======
+for(var mi=0;mi<8;mi++){
+  var mx=-180+mi*45+Math.random()*10;
+  var mz=-160+Math.random()*30;
+  var mh=25+Math.random()*40;
+  var mr=30+Math.random()*20;
+  var mt=new THREE.Mesh(new THREE.ConeGeometry(mr,mh,5),new THREE.MeshStandardMaterial({color:0x5a7a6a,flatShading:true}));
+  mt.position.set(mx,mh/2,mz);scene.add(mt);
+}
+
+// 车辆
+var pd=mkTruck();car=pd.m;fw=pd.fw;rw=pd.rw;car.position.set(-70,0,35);scene.add(car);
+
+window.addEventListener("keydown",function(e){keys[e.key.toLowerCase()]=true;});
+window.addEventListener("keyup",function(e){keys[e.key.toLowerCase()]=false;});
+document.getElementById("btn").addEventListener("click",function(){document.getElementById("start").style.display="none";document.getElementById("hud").style.display="block";document.getElementById("hint").style.display="block";started=true;});
+document.getElementById("planBtn").addEventListener("click",function(){document.getElementById("planView").style.display="block";});
+window.addEventListener("resize",function(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+function hit(nx,nz){for(var i=0;i<obs.length;i++){var o=obs[i];if(Math.abs(nx-o.x)<o.w/2+1.5&&Math.abs(nz-o.z)<o.d/2+5)return true;}if(nx<-90||nx>90||nz<-90||nz>90)return true;return false;}
+
+function loop(){
+  requestAnimationFrame(loop);
+  if(started){
+    if(keys["w"])spd=Math.min(spd+0.008,0.5);
+    else if(keys["s"])spd=Math.max(spd-0.008,-0.25);
+    else spd*=0.98;
+    if(keys["a"])sang=Math.min(sang+0.025,0.4);
+    else if(keys["d"])sang=Math.max(sang-0.025,-0.4);
+    else sang*=0.95;
+    if(Math.abs(sang)>0.01&&Math.abs(spd)>0.01)rot+=spd/(6/Math.tan(sang));
+    var mx=Math.sin(rot)*spd,mz=Math.cos(rot)*spd;
+    if(!hit(car.position.x+mx,car.position.z))car.position.x+=mx;
+    if(!hit(car.position.x,car.position.z+mz))car.position.z+=mz;
+    car.rotation.y=rot;
+    fw.forEach(function(f){f.pv.rotation.y=sang;});wrot+=spd*2;
+    fw.forEach(function(f){f.w.rotation.x=wrot;});rw.forEach(function(w){w.rotation.x=wrot;});
+    document.getElementById("sp").textContent=Math.abs(Math.round(spd*130));
+    var dist=18,hgt=12;
+    camera.position.x+=(car.position.x-Math.sin(rot)*dist-camera.position.x)*0.08;
+    camera.position.y+=(hgt-camera.position.y)*0.05;
+    camera.position.z+=(car.position.z-Math.cos(rot)*dist-camera.position.z)*0.08;
+    camera.lookAt(car.position.x+Math.sin(rot)*2,car.position.y+2,car.position.z+Math.cos(rot)*2);
+  }
+  renderer.render(scene,camera);
+}
+loop();
+</script>
+
+<div class="xl-chrome-ext-bar_4DB361DE-01F7-4376-B494-639E489D19ED" id="xl_chrome_ext_4DB361DE-01F7-4376-B494-639E489D19ED" data-v-app="" style="display: block; position: fixed; z-index: 2147483647;"><div class=""><!----><!----><div style="display: none;"></div><div style="display: none;"></div><div class="_container_wq4mj_4"><!----></div></div></div><div id="xl-source-list-shadow-host" style="position: fixed; top: 0px; right: 0px; width: 0px; height: 0px; overflow: visible; contain: style; z-index: 2147483647 !important;"></div><div id="xl_chrome_ext_video_tag_wrapper_4DB361DE-01F7-4376-B494-639E489D19ED" style="position: fixed; left: 0px; top: 0px; width: 0px; height: 0px; display: none; overflow: visible; contain: style; z-index: 2147483647 !important;"></div><div id="link-badge-shadow-host-4DB361DE-01F7-4376-B494-639E489D19ED" style="position: fixed; left: 0px; top: 0px; width: 0px; height: 0px; overflow: visible; contain: style; z-index: 2147483647 !important;"></div><div id="xl-install-thunder-prompt-shadow-host" style="position: fixed; top: 0px; left: 0px; width: 0px; height: 0px; overflow: visible; contain: style; z-index: 2147483647 !important;"></div></body></html>

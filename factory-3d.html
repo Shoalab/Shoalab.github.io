@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>农夫山泉 · 河源工厂 | REALISTIC 3D DIORAMA</title>
+<style>
+    :root {
+        --bg-deep: #070d0a;
+        --bg-mid: #0d1a14;
+        --leaf: #b8d4c0;
+        --leaf-dim: #6f8f7c;
+        --gold: #c9a96a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+        width: 100%; height: 100%;
+        background: radial-gradient(ellipse at 50% 38%, #102018 0%, #060b08 70%, #030604 100%);
+        overflow: hidden;
+        font-family: "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: var(--leaf);
+        -webkit-font-smoothing: antialiased;
+    }
+    #c { display: block; width: 100vw; height: 100vh; touch-action: none; }
+
+    /* 顶部标题 */
+    .ui-top {
+        position: fixed; top: 26px; left: 50%; transform: translateX(-50%);
+        text-align: center; pointer-events: none; z-index: 10;
+        text-shadow: 0 2px 18px rgba(0,0,0,.7);
+    }
+    .ui-top .en {
+        font-size: 11px; letter-spacing: 7px; color: var(--gold);
+        font-weight: 300; margin-bottom: 8px; opacity: .85;
+    }
+    .ui-top .cn {
+        font-size: 22px; letter-spacing: 8px; color: #e8f1ea;
+        font-weight: 300; margin-bottom: 7px;
+    }
+    .ui-top .sub {
+        font-size: 10px; letter-spacing: 5px; color: var(--leaf-dim);
+        text-transform: uppercase;
+    }
+
+    /* 底部提示 */
+    .ui-bottom {
+        position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+        font-size: 11px; letter-spacing: 3px; color: var(--leaf-dim);
+        pointer-events: none; z-index: 10; opacity: .75;
+    }
+    .ui-bottom span { margin: 0 10px; }
+
+    /* 暗角 */
+    .vignette {
+        position: fixed; inset: 0; pointer-events: none; z-index: 5;
+        box-shadow: inset 0 0 220px 60px rgba(0,0,0,.75);
+    }
+
+    /* 驾驶模式按钮 */
+    .drive-btn {
+        position: fixed; top: 26px; right: 28px; z-index: 20;
+        display: flex; align-items: center; gap: 9px;
+        padding: 10px 18px; border-radius: 999px;
+        background: rgba(209,11,30,0.92); color: #fff;
+        border: 1px solid rgba(255,255,255,0.18);
+        font-size: 12px; letter-spacing: 3px; font-weight: 600;
+        cursor: pointer; backdrop-filter: blur(8px);
+        box-shadow: 0 6px 22px rgba(209,11,30,0.35);
+        transition: transform .15s ease, background .2s ease;
+        font-family: inherit;
+    }
+    .drive-btn:hover { transform: translateY(-1px); background: #e81129; }
+    .drive-btn svg { width: 16px; height: 16px; }
+    .drive-btn.driving { background: rgba(30,40,34,0.9); box-shadow: 0 6px 22px rgba(0,0,0,0.4); }
+    .drive-btn.driving:hover { background: rgba(45,58,50,0.95); }
+
+    /* 驾驶 HUD */
+    .drive-hud {
+        position: fixed; bottom: 22px; left: 28px; z-index: 15;
+        color: var(--leaf-dim); font-size: 11px; letter-spacing: 2px;
+        line-height: 1.9; opacity: 0; transition: opacity .3s ease;
+        pointer-events: none; text-shadow: 0 1px 8px rgba(0,0,0,.8);
+    }
+    .drive-hud.show { opacity: .9; }
+    .drive-hud b { color: var(--gold); font-weight: 600; }
+    .speedo {
+        position: fixed; bottom: 22px; right: 28px; z-index: 15;
+        color: #e8f1ea; font-size: 34px; font-weight: 200; letter-spacing: 1px;
+        opacity: 0; transition: opacity .3s ease; pointer-events: none;
+        text-shadow: 0 2px 14px rgba(0,0,0,.8); font-variant-numeric: tabular-nums;
+    }
+    .speedo.show { opacity: .95; }
+    .speedo small { font-size: 12px; color: var(--leaf-dim); letter-spacing: 3px; margin-left: 4px; }
+
+    /* 移动端触控 */
+    .touch-pad {
+        position: fixed; z-index: 18; display: none;
+        user-select: none; -webkit-user-select: none; touch-action: none;
+    }
+    .touch-steer { left: 22px; bottom: 22px; width: 140px; height: 140px; }
+    .touch-gas { right: 22px; bottom: 22px; width: 96px; height: 96px; }
+    .touch-brake { right: 130px; bottom: 22px; width: 80px; height: 80px; }
+    .touch-pad .knob {
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+        width: 56px; height: 56px; border-radius: 50%;
+        background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.7); font-size: 22px;
+    }
+    .touch-steer .ring {
+        position: absolute; inset: 0; border-radius: 50%;
+        border: 1px solid rgba(255,255,255,0.15);
+    }
+    .touch-gas .knob { width: 80px; height: 80px; background: rgba(209,11,30,0.55); }
+    .touch-brake .knob { width: 68px; height: 68px; background: rgba(40,50,44,0.7); }
+    @media (hover: none) and (pointer: coarse) {
+        .drive-hud { display: none; }
+    }
+
+    /* 加载 */
+    #loader {
+        position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+        background: var(--bg-deep); z-index: 100; transition: opacity .8s ease;
+        flex-direction: column; gap: 18px;
+    }
+    #loader .ring {
+        width: 38px; height: 38px; border: 2px solid rgba(201,169,106,.2);
+        border-top-color: var(--gold); border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    #loader .txt { font-size: 11px; letter-spacing: 5px; color: var(--leaf-dim); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vignette"></div>
+
+<div class="ui-top">
+    <div class="en">NONGFU SPRING · HEYUAN</div>
+    <div class="cn">农夫山泉 · 河源工厂</div>
+    <div class="sub">Realistic 3D Diorama</div>
+</div>
+<div class="ui-bottom">
+    <span>拖拽旋转</span>·<span>滚轮缩放</span>·<span>右键平移</span>
+</div>
+
+<button class="drive-btn" id="driveBtn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 0 1-2-2v-3.5A2.5 2.5 0 0 1 5.5 9h13A2.5 2.5 0 0 1 21 11.5V15a2 2 0 0 1-2 2M5 17v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1M16 17v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1"/><circle cx="7.5" cy="13.5" r="1"/><circle cx="16.5" cy="13.5" r="1"/></svg>
+    <span id="driveBtnText">驾驶模式</span>
+</button>
+
+<div class="drive-hud" id="driveHud">
+    <div><b>W / ↑</b> 前进 &nbsp; <b>S / ↓</b> 倒车</div>
+    <div><b>A D / ← →</b> 转向 &nbsp; <b>Shift</b> 加速</div>
+    <div><b>空格</b> 刹车 &nbsp; <b>R</b> 复位 &nbsp; <b>Esc</b> 退出</div>
+</div>
+<div class="speedo" id="speedo">0<small>KM/H</small></div>
+
+<div class="touch-pad touch-steer" id="touchSteer">
+    <div class="ring"></div>
+    <div class="knob">◉</div>
+</div>
+<div class="touch-pad touch-gas" id="touchGas"><div class="knob">▲</div></div>
+<div class="touch-pad touch-brake" id="touchBrake"><div class="knob">▼</div></div>
+
+<div id="loader"><div class="ring"></div><div class="txt">LOADING DIORAMA</div></div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ===================================================================
+   一、渲染器 / 场景 / 相机 / 后期
+   =================================================================== */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({
+    canvas, antialias: true, powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a1410);
+scene.fog = new THREE.FogExp2(0x0c1812, 0.0065);
+
+const camera = new THREE.PerspectiveCamera(34, window.innerWidth / window.innerHeight, 0.1, 400);
+camera.position.set(64, 46, 78);
+
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 4, 2);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 18;
+controls.maxDistance = 150;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.minPolarAngle = Math.PI * 0.12;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.35;
+controls.update();
+
+// 灯光：半球光 + 暖色主阳光 + 冷色补光
+const hemi = new THREE.HemisphereLight(0xcfe6ff, 0x3a3326, 0.55);
+scene.add(hemi);
+
+const sun = new THREE.DirectionalLight(0xfff1d4, 2.4);
+sun.position.set(48, 72, 38);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 220;
+sun.shadow.camera.left = -75;
+sun.shadow.camera.right = 75;
+sun.shadow.camera.top = 75;
+sun.shadow.camera.bottom = -75;
+sun.shadow.bias = -0.00035;
+sun.shadow.normalBias = 0.04;
+scene.add(sun);
+
+const fill = new THREE.DirectionalLight(0x9ec3ff, 0.35);
+fill.position.set(-40, 35, -25);
+scene.add(fill);
+
+/* ===================================================================
+   二、程序化 PBR 纹理
+   =================================================================== */
+function makeCanvas(w = 512, h = 512) {
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    return { c, ctx: c.getContext('2d') };
+}
+function canvasTex(c, rx = 1, ry = 1) {
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(rx, ry);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    return t;
+}
+function noiseFill(ctx, w, h, base, variation) {
+    const img = ctx.createImageData(w, h);
+    for (let i = 0; i < w * h; i++) {
+        const n = (Math.random() - 0.5) * variation;
+        img.data[i*4]   = Math.max(0, Math.min(255, base[0] + n));
+        img.data[i*4+1] = Math.max(0, Math.min(255, base[1] + n));
+        img.data[i*4+2] = Math.max(0, Math.min(255, base[2] + n));
+        img.data[i*4+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+}
+
+// 金属外墙板（竖向肋条 + 噪点）
+function makeSidingTexture(baseColor) {
+    const { c, ctx } = makeCanvas(512, 512);
+    noiseFill(ctx, 512, 512, baseColor, 10);
+    // 竖向拼接缝
+    for (let x = 0; x < 512; x += 64) {
+        ctx.fillStyle = 'rgba(0,0,0,0.18)';
+        ctx.fillRect(x, 0, 2, 512);
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        ctx.fillRect(x + 2, 0, 1, 512);
+    }
+    // 横向肋条
+    for (let y = 0; y < 512; y += 32) {
+        ctx.fillStyle = 'rgba(0,0,0,0.06)';
+        ctx.fillRect(0, y, 512, 1);
+    }
+    return canvasTex(c, 4, 2);
+}
+
+// 屋顶：金属板 + 采光带
+function makeRoofTexture() {
+    const { c, ctx } = makeCanvas(512, 512);
+    noiseFill(ctx, 512, 512, [168, 173, 178], 8);
+    for (let x = 0; x < 512; x += 16) {
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        ctx.fillRect(x, 0, 1, 512);
+        ctx.fillStyle = 'rgba(255,255,255,0.07)';
+        ctx.fillRect(x + 1, 0, 1, 512);
+    }
+    // 半透明采光带
+    for (let x = 200; x < 232; x++) {
+        ctx.fillStyle = 'rgba(220,235,245,0.35)';
+        ctx.fillRect(x, 0, 1, 512);
+    }
+    return canvasTex(c, 6, 4);
+}
+
+// 混凝土/铺装
+function makeConcreteTexture() {
+    const { c, ctx } = makeCanvas(512, 512);
+    noiseFill(ctx, 512, 512, [168, 170, 168], 14);
+    // 伸缩缝
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ctx.lineWidth = 2;
+    for (let i = 0; i <= 512; i += 128) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 512); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(512, i); ctx.stroke();
+    }
+    return canvasTex(c, 8, 8);
+}
+
+// 沥青路面
+function makeAsphaltTexture() {
+    const { c, ctx } = makeCanvas(512, 512);
+    noiseFill(ctx, 512, 512, [58, 60, 62], 18);
+    return canvasTex(c, 6, 20);
+}
+
+// 草坪
+function makeGrassTexture() {
+    const { c, ctx } = makeCanvas(512, 512);
+    noiseFill(ctx, 512, 512, [96, 138, 74], 22);
+    // 草叶细节
+    for (let i = 0; i < 4000; i++) {
+        const x = Math.random() * 512, y = Math.random() * 512;
+        const g = 110 + Math.random() * 50;
+        ctx.fillStyle = `rgba(${50+Math.random()*30},${g},${40+Math.random()*25},0.5)`;
+        ctx.fillRect(x, y, 1, 1 + Math.random() * 2);
+    }
+    return canvasTex(c, 25, 25);
+}
+
+// 木纹（长椅）
+function makeWoodTexture() {
+    const { c, ctx } = makeCanvas(256, 256);
+    noiseFill(ctx, 256, 256, [120, 82, 45], 12);
+    for (let i = 0; i < 14; i++) {
+        ctx.strokeStyle = `rgba(60,38,18,${0.1 + Math.random()*0.15})`;
+        ctx.lineWidth = 1 + Math.random();
+        ctx.beginPath();
+        const y = Math.random() * 256;
+        ctx.moveTo(0, y);
+        for (let x = 0; x <= 256; x += 16) ctx.lineTo(x, y + Math.sin(x*0.05+i)*3);
+        ctx.stroke();
+    }
+    return canvasTex(c, 2, 1);
+}
+
+// 墙面品牌文字（农夫山泉）
+function makeBrandWallTexture() {
+    const { c, ctx } = makeCanvas(1024, 512);
+    ctx.clearRect(0, 0, 1024, 512);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = '#d10b1e';
+    ctx.font = 'bold 250px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('农夫山泉', 512, 210);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#3a3a3a';
+    ctx.font = '600 90px Arial, sans-serif';
+    ctx.letterSpacing = '8px';
+    ctx.fillText('N O N G F U   S P R I N G', 512, 360);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    return t;
+}
+
+/* ===================================================================
+   三、材质库
+   =================================================================== */
+const M = {
+    siding:   new THREE.MeshStandardMaterial({ map: makeSidingTexture([228,232,234]), roughness: 0.55, metalness: 0.18 }),
+    sidingDk: new THREE.MeshStandardMaterial({ map: makeSidingTexture([200,205,210]), roughness: 0.6,  metalness: 0.2 }),
+    roof:     new THREE.MeshStandardMaterial({ map: makeRoofTexture(), roughness: 0.5, metalness: 0.25 }),
+    roofDk:   new THREE.MeshStandardMaterial({ color: 0x8b9298, roughness: 0.6, metalness: 0.2 }),
+    concrete: new THREE.MeshStandardMaterial({ map: makeConcreteTexture(), roughness: 0.92 }),
+    asphalt:  new THREE.MeshStandardMaterial({ map: makeAsphaltTexture(), roughness: 0.95 }),
+    grass:    new THREE.MeshStandardMaterial({ map: makeGrassTexture(), roughness: 0.95 }),
+    roadLine: new THREE.MeshStandardMaterial({ color: 0xe8e8e4, roughness: 0.5 }),
+    water:    new THREE.MeshStandardMaterial({ color: 0x2f7d8f, roughness: 0.12, metalness: 0.45, transparent: true, opacity: 0.86 }),
+    waterDeep:new THREE.MeshStandardMaterial({ color: 0x1c5a6a, roughness: 0.4, transparent: true, opacity: 0.95 }),
+    glass:    new THREE.MeshPhysicalMaterial({ color: 0x9fd2e0, roughness: 0.05, metalness: 0.1, transmission: 0.5, thickness: 0.5, transparent: true, opacity: 0.55 }),
+    stone:    new THREE.MeshStandardMaterial({ color: 0xb8b4ad, roughness: 0.92 }),
+    stoneDk:  new THREE.MeshStandardMaterial({ color: 0x87847f, roughness: 0.95 }),
+    red:      new THREE.MeshStandardMaterial({ color: 0xd10b1e, roughness: 0.35, metalness: 0.2 }),
+    white:    new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: 0.55 }),
+    trunk:    new THREE.MeshStandardMaterial({ color: 0x5a3d24, roughness: 0.9 }),
+    wood:     new THREE.MeshStandardMaterial({ map: makeWoodTexture(), roughness: 0.8 }),
+    metal:    new THREE.MeshStandardMaterial({ color: 0x9aa1a6, roughness: 0.4, metalness: 0.7 }),
+    metalDk:  new THREE.MeshStandardMaterial({ color: 0x3a3f44, roughness: 0.5, metalness: 0.6 }),
+    tank:     new THREE.MeshStandardMaterial({ color: 0xc8ccd0, roughness: 0.35, metalness: 0.7 }),
+    dark:     new THREE.MeshStandardMaterial({ color: 0x22262a, roughness: 0.6 }),
+};
+
+/* ===================================================================
+   四、工具函数
+   =================================================================== */
+function box(w, h, d, mat, x=0, y=0, z=0, cast=true) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+    m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true;
+    return m;
+}
+function cyl(rt, rb, h, seg, mat, x=0, y=0, z=0, cast=true) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+    m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true;
+    return m;
+}
+function sphere(r, seg, mat, x=0, y=0, z=0, cast=true) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, seg, Math.max(6, seg-2)), mat);
+    m.position.set(x, y, z); m.castShadow = cast; m.receiveShadow = true;
+    return m;
+}
+
+/* ===================================================================
+   五、地形与道路
+   =================================================================== */
+const diorama = new THREE.Group();
+scene.add(diorama);
+
+// 圆形底盘
+const ground = new THREE.Mesh(new THREE.CircleGeometry(85, 96), M.grass);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = 0;
+ground.receiveShadow = true;
+diorama.add(ground);
+
+// 沥青道路系统
+function road(w, d, x, z, rot=0) {
+    const r = box(w, 0.08, d, M.asphalt, x, 0.06, z, false);
+    r.rotation.y = rot; r.receiveShadow = true;
+    diorama.add(r); return r;
+}
+road(10, 46, -42, 26);            // 入口大道
+road(70, 9, 0, 14);               // 厂区前横路
+road(9, 60, 48, -8);              // 东侧路
+road(40, 8, 24, -34);             // 北侧路
+
+// 道路标线
+for (let z = 6; z < 46; z += 5) diorama.add(box(0.3, 0.1, 2.2, M.roadLine, -42, 0.12, z, false));
+
+/* ===================================================================
+   六、厂房建筑群
+   =================================================================== */
+const factory = new THREE.Group();
+diorama.add(factory);
+
+// 通用：屋顶设备（空调外机/通风管）
+function rooftopUnits(w, d, count) {
+    const g = new THREE.Group();
+    for (let i = 0; i < count; i++) {
+        const uw = 1.2 + Math.random()*1.2, ud = 1.2 + Math.random()*1.2;
+        const unit = box(uw, 0.8, ud, M.metalDk,
+            (Math.random()-0.5)*(w-3), 0.5, (Math.random()-0.5)*(d-3));
+        g.add(unit);
+        g.add(box(uw+0.1, 0.1, ud+0.1, M.metal, unit.position.x, 0.95, unit.position.z, false));
+    }
+    return g;
+}
+
+// 主厂房
+const mainW = 62, mainD = 30, mainH = 17;
+const mainBuilding = new THREE.Mesh(
+    new THREE.BoxGeometry(mainW, mainH, mainD),
+    [M.sidingDk, M.sidingDk, M.roof, M.sidingDk, M.siding, M.siding]
+);
+mainBuilding.position.set(0, mainH/2, -20);
+mainBuilding.castShadow = true; mainBuilding.receiveShadow = true;
+factory.add(mainBuilding);
+
+// 屋顶肋条 + 采光带
+for (let x = -mainW/2; x <= mainW/2; x += 3.5) {
+    factory.add(box(0.25, 0.35, mainD, M.roofDk, x, mainH+0.18, -20, false));
+}
+// 采光带（几条半透明玻璃带）
+for (let x = -20; x <= 20; x += 13) {
+    factory.add(box(1.2, 0.25, mainD-2, M.glass, x, mainH+0.22, -20, false));
+}
+// 屋顶女儿墙
+factory.add(box(mainW, 0.8, 0.5, M.sidingDk, 0, mainH+0.4, -20+mainD/2));
+factory.add(box(mainW, 0.8, 0.5, M.sidingDk, 0, mainH+0.4, -20-mainD/2));
+factory.add(box(0.5, 0.8, mainD, M.sidingDk, -mainW/2, mainH+0.4, -20));
+factory.add(box(0.5, 0.8, mainD, M.sidingDk, mainW/2, mainH+0.4, -20));
+
+// 正面品牌喷涂（墙面上的大字，位于入口上方）
+const brandTex = makeBrandWallTexture();
+const brandMat = new THREE.MeshStandardMaterial({ map: brandTex, transparent: true, roughness: 0.4, metalness: 0.1 });
+const brandPlane = new THREE.Mesh(new THREE.PlaneGeometry(28, 6.5), brandMat);
+brandPlane.position.set(0, 13.2, -20 + mainD/2 + 0.08);
+factory.add(brandPlane);
+
+// 主入口玻璃幕墙
+factory.add(box(16, 8, 0.25, M.glass, 0, 5, -20+mainD/2+0.15, false));
+factory.add(box(16.4, 0.5, 0.6, M.sidingDk, 0, 9.2, -20+mainD/2+0.3, false));
+factory.add(box(0.5, 8, 0.6, M.sidingDk, -8.2, 5, -20+mainD/2+0.3, false));
+factory.add(box(0.5, 8, 0.6, M.sidingDk, 8.2, 5, -20+mainD/2+0.3, false));
+factory.add(box(20, 0.6, 4.5, M.roof, 0, 9.6, -20+mainD/2+2.2)); // 挑檐
+
+// 入口两侧竖条窗
+for (let side of [-1, 1]) {
+    for (let row of [6, 11]) {
+        factory.add(box(14, 1.3, 0.2, M.glass, side*23, row, -20+mainD/2+0.12, false));
+    }
+}
+
+// 屋顶设备
+const rooftop1 = rooftopUnits(mainW-6, mainD-6, 9);
+rooftop1.position.set(0, mainH+0.6, -20);
+factory.add(rooftop1);
+
+// 副厂房（左后，略矮）
+const subW = 38, subD = 22, subH = 12;
+const sub = new THREE.Mesh(new THREE.BoxGeometry(subW, subH, subD),
+    [M.sidingDk, M.sidingDk, M.roof, M.sidingDk, M.siding, M.siding]);
+sub.position.set(-30, subH/2, -30);
+sub.castShadow = true; sub.receiveShadow = true;
+factory.add(sub);
+for (let x = -subW/2; x <= subW/2; x += 3) factory.add(box(0.2, 0.3, subD, M.roofDk, -30+x, subH+0.15, -30, false));
+const rooftop2 = rooftopUnits(subW-4, subD-4, 5);
+rooftop2.position.set(-30, subH+0.5, -30);
+factory.add(rooftop2);
+
+// 后方小厂房
+const b3 = box(26, 9, 16, M.sidingDk, 18, 4.5, -40);
+factory.add(b3);
+for (let x = -12; x <= 12; x += 3) factory.add(box(0.2, 0.25, 16, M.roofDk, 18+x, 9.15, -40, false));
+
+// 装卸货区（右侧带雨棚）
+const dockBase = box(16, 5, 10, M.siding, 40, 2.5, 4);
+factory.add(dockBase);
+factory.add(box(17, 0.4, 11, M.roof, 40, 5.4, 4, false));
+for (let i = -2; i <= 2; i++) factory.add(box(0.3, 5, 0.3, M.metalDk, 40 + i*4, 2.5, 8.5));
+// 装卸平台
+factory.add(box(16, 1.2, 3, M.concrete, 40, 0.6, 9.2, false));
+
+// 工业储罐（生产区）
+for (let i = 0; i < 3; i++) {
+    const tx = -50 + i*5;
+    factory.add(cyl(2.2, 2.4, 9, 20, M.tank, tx, 4.5, -28));
+    factory.add(cyl(2.3, 2.3, 0.6, 20, M.metalDk, tx, 9.2, -28, false));
+    // 环形加强筋
+    for (let y = 2; y <= 8; y += 2) {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(2.35, 0.08, 6, 24), M.metalDk);
+        ring.rotation.x = Math.PI/2; ring.position.set(tx, y, -28);
+        factory.add(ring);
+    }
+}
+// 储罐间横向连接管道
+const pipe1 = cyl(0.28, 0.28, 5, 8, M.metal, -47.5, 7.5, -28, false);
+pipe1.rotation.z = Math.PI / 2; factory.add(pipe1);
+const pipe2 = cyl(0.28, 0.28, 5, 8, M.metal, -42.5, 7.5, -28, false);
+pipe2.rotation.z = Math.PI / 2; factory.add(pipe2);
+
+/* ===================================================================
+   七、水景：人工湖 + 长条喷泉 + 石桥
+   =================================================================== */
+const LAKE_X = -34, LAKE_Z = 8, LAKE_R = 14;
+
+const lakeBed = new THREE.Mesh(new THREE.CircleGeometry(LAKE_R+1, 56), M.waterDeep);
+lakeBed.rotation.x = -Math.PI/2; lakeBed.position.set(LAKE_X, 0.12, LAKE_Z);
+lakeBed.receiveShadow = true; diorama.add(lakeBed);
+
+const lakeGeo = new THREE.CircleGeometry(LAKE_R, 56);
+lakeGeo.rotateX(-Math.PI/2);
+const lakePos = lakeGeo.attributes.position;
+const lakeBase = [];
+for (let i = 0; i < lakePos.count; i++) lakeBase.push(lakePos.getY(i));
+const lake = new THREE.Mesh(lakeGeo, M.water);
+lake.position.set(LAKE_X, 0.22, LAKE_Z);
+lake.receiveShadow = true; diorama.add(lake);
+
+// 湖岸石
+for (let i = 0; i < 44; i++) {
+    const a = (i/44)*Math.PI*2;
+    const r = LAKE_R + 0.5 + Math.random()*1.1;
+    const rock = sphere(0.55+Math.random()*0.45, 6,
+        new THREE.MeshStandardMaterial({ color: 0x8d938a, roughness: 0.95 }),
+        LAKE_X+Math.cos(a)*r, 0.3, LAKE_Z+Math.sin(a)*r);
+    rock.scale.y = 0.6; diorama.add(rock);
+}
+// 岸边灌木
+function shrub(x, z, s=1) {
+    const g = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(0.28+Math.random()*0.05, 0.5, 0.28+Math.random()*0.08), roughness: 0.9
+    });
+    for (let i = 0; i < 3; i++) {
+        const s2 = sphere(0.5*s*(0.8+Math.random()*0.4), 7, mat,
+            (Math.random()-0.5)*0.6*s, 0.3*s, (Math.random()-0.5)*0.6*s);
+        g.add(s2);
+    }
+    g.position.set(x, 0, z);
+    return g;
+}
+for (let i = 0; i < 26; i++) {
+    const a = Math.random()*Math.PI*2, r = LAKE_R+1.5+Math.random()*2.5;
+    diorama.add(shrub(LAKE_X+Math.cos(a)*r, LAKE_Z+Math.sin(a)*r, 0.7+Math.random()*0.5));
+}
+
+// 长条喷泉池（厂房正前方）
+const POOL_X = 0, POOL_Z = 8, POOL_W = 40, POOL_D = 7;
+diorama.add(box(POOL_W, 0.7, 0.35, M.stone, POOL_X, 0.45, POOL_Z-POOL_D/2));
+diorama.add(box(POOL_W, 0.7, 0.35, M.stone, POOL_X, 0.45, POOL_Z+POOL_D/2));
+diorama.add(box(0.35, 0.7, POOL_D, M.stone, POOL_X-POOL_W/2, 0.45, POOL_Z));
+diorama.add(box(0.35, 0.7, POOL_D, M.stone, POOL_X+POOL_W/2, 0.45, POOL_Z));
+const poolWater = box(POOL_W-0.8, 0.08, POOL_D-0.8, M.water, POOL_X, 0.72, POOL_Z, false);
+diorama.add(poolWater);
+
+// 石台（深浅石块交错）
+const PLAT_W = 24, PLAT_D = 3.2, PLAT_H = 1.0;
+const nStone = 14, sW = PLAT_W/nStone;
+for (let i = 0; i < nStone; i++) {
+    diorama.add(box(sW-0.1, PLAT_H, PLAT_D, i%2?M.stoneDk:M.stone,
+        POOL_X-PLAT_W/2+sW/2+i*sW, 0.5+PLAT_H/2, POOL_Z+POOL_D/2+PLAT_D/2+0.25));
+}
+diorama.add(box(PLAT_W+0.3, 0.2, PLAT_D+0.3, M.stone, POOL_X, 0.5+PLAT_H+0.1, POOL_Z+POOL_D/2+PLAT_D/2+0.25, false));
+
+// 立体红色品牌标识
+const signGroup = new THREE.Group();
+const signCn = (() => {
+    const { c, ctx } = makeCanvas(1024, 320);
+    ctx.clearRect(0,0,1024,320);
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+    ctx.fillStyle='#d10b1e'; ctx.font='bold 230px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('农夫山泉', 512, 170);
+    const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t;
+})();
+const signEn = (() => {
+    const { c, ctx } = makeCanvas(1024, 120);
+    ctx.clearRect(0,0,1024,120);
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#d10b1e'; ctx.font='bold 80px Arial,sans-serif';
+    ctx.fillText('N O N G F U   S P R I N G', 512, 60);
+    const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+})();
+const cnBox = new THREE.Mesh(new THREE.BoxGeometry(18, 4, 0.5),
+    [M.red,M.red,M.red,M.red, new THREE.MeshStandardMaterial({map:signCn, transparent:true, roughness:0.35, metalness:0.15}), new THREE.MeshStandardMaterial({map:signCn, transparent:true})]);
+cnBox.position.y = 4.2; cnBox.castShadow = true; signGroup.add(cnBox);
+const enBox = new THREE.Mesh(new THREE.BoxGeometry(15, 1.4, 0.4),
+    [M.red,M.red,M.red,M.red, new THREE.MeshStandardMaterial({map:signEn, transparent:true, roughness:0.35, metalness:0.15}), new THREE.MeshStandardMaterial({map:signEn, transparent:true})]);
+enBox.position.y = 1.6; signGroup.add(enBox);
+signGroup.position.set(POOL_X, 0.5+PLAT_H+0.2, POOL_Z+POOL_D/2+PLAT_D/2+0.25);
+diorama.add(signGroup);
+
+// 喷泉水粒子
+const jetGroup = new THREE.Group(); diorama.add(jetGroup);
+function makeJet(count, baseX, baseZ, height, spread, color, size) {
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count*3);
+    const vel = new Float32Array(count);
+    const ox = new Float32Array(count), oz = new Float32Array(count);
+    for (let i=0;i<count;i++){
+        ox[i]=baseX+(Math.random()-0.5)*spread;
+        oz[i]=baseZ+(Math.random()-0.5)*spread;
+        pos[i*3]=ox[i]; pos[i*3+1]=0.8+Math.random()*height; pos[i*3+2]=oz[i];
+        vel[i]=0.15+Math.random()*0.12;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    const pts = new THREE.Points(geo, new THREE.PointsMaterial({color, size, transparent:true, opacity:0.88, depthWrite:false}));
+    jetGroup.add(pts);
+    return { pts, count, vel, ox, oz, height };
+}
+const centerJet = makeJet(45, POOL_X, POOL_Z-1, 6, 0.8, 0xffffff, 0.32);
+const sideJets = [];
+for (let s=-1; s<=1; s+=2) {
+    for (let i=0;i<11;i++){
+        sideJets.push(makeJet(10, POOL_X-16+i*3.2, POOL_Z+s*(POOL_D/2-0.9), 2.2, 0.35, 0xd4f0ff, 0.2));
+    }
+}
+
+/* ===================================================================
+   八、入口与品牌门
+   =================================================================== */
+// 精神堡垒
+const tow = (() => {
+    const { c, ctx } = makeCanvas(256,1024);
+    const g = ctx.createLinearGradient(0,0,0,1024);
+    g.addColorStop(0,'#f2f2ee'); g.addColorStop(1,'#c9ccc9');
+    ctx.fillStyle=g; ctx.fillRect(0,0,256,1024);
+    ctx.fillStyle='#d10b1e'; ctx.textAlign='center';
+    ctx.font='bold 90px "PingFang SC",sans-serif';
+    const chars='农夫山泉';
+    for (let i=0;i<4;i++) ctx.fillText(chars[i], 128, 200+i*120);
+    ctx.fillStyle='#444'; ctx.font='26px Arial';
+    ctx.fillText('NONGFU',128,720); ctx.fillText('SPRING',128,758);
+    const t = new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+})();
+const towerMat = new THREE.MeshStandardMaterial({ map: tow, roughness: 0.5 });
+const tower = new THREE.Mesh(new THREE.BoxGeometry(2.2,18,2.2),
+    [towerMat,towerMat,M.white,M.white,towerMat,towerMat]);
+tower.position.set(-52, 9.3, 30); tower.castShadow=true; diorama.add(tower);
+diorama.add(cyl(1.3,1.5,0.6,8,M.red,-52,18.6,30));
+
+// 拱门
+diorama.add(box(1.4,7,1.4,M.white,-40,3.5,34));
+diorama.add(box(1.4,7,1.4,M.white,-52,3.5,34));
+const arch = new THREE.Mesh(new THREE.TorusGeometry(6.6,0.6,12,28,Math.PI), M.white);
+arch.position.set(-46,7,34); arch.castShadow=true; diorama.add(arch);
+
+// 门卫亭
+diorama.add(box(4,3.4,4,M.siding,-56,1.8,30));
+diorama.add(box(4.4,0.4,4.4,M.roof,-56,3.8,30,false));
+
+/* ===================================================================
+   九、树木 / 绿化
+   =================================================================== */
+function makeTree(scale=1) {
+    const g = new THREE.Group();
+    const trunkH = 2.2*scale;
+    g.add(cyl(0.2*scale, 0.32*scale, trunkH, 7, M.trunk, 0, trunkH/2, 0));
+    const hue = 0.27 + Math.random()*0.06;
+    const leafMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(hue, 0.55, 0.32+Math.random()*0.08), roughness: 0.85
+    });
+    const c1 = sphere(1.5*scale, 9, leafMat, 0, trunkH+1.2*scale, 0);
+    const c2 = sphere(1.1*scale, 8, leafMat, 0.6*scale, trunkH+1.8*scale, 0.3*scale);
+    const c3 = sphere(1.0*scale, 8, leafMat, -0.5*scale, trunkH+1.6*scale, -0.3*scale);
+    g.add(c1,c2,c3);
+    return g;
+}
+// 湖边树
+[[-46,0],[-46,8],[-46,16],[-48,22],[-22,-4],[-20,22],[-26,26],[-40,-6],[-18,26]].forEach(([x,z])=>{
+    const t = makeTree(0.9+Math.random()*0.3); t.position.set(x,0,z); diorama.add(t);
+});
+// 厂区前树
+for (let i=0;i<7;i++){
+    const t1=makeTree(0.8); t1.position.set(-24+i*8,0,20); diorama.add(t1);
+}
+// 入口路树
+for (let z=14;z<42;z+=5){
+    const a=makeTree(0.75); a.position.set(-51,0,z); diorama.add(a);
+    const b=makeTree(0.75); b.position.set(-40,0,z); diorama.add(b);
+}
+// 东侧林
+for (let i=0;i<20;i++){
+    const t=makeTree(0.8+Math.random()*0.5);
+    t.position.set(55+Math.random()*20, 0, -30+Math.random()*60); diorama.add(t);
+}
+// 外圈森林
+for (let i=0;i<110;i++){
+    const a=(i/110)*Math.PI*2+Math.random()*0.04;
+    const r=66+Math.random()*14;
+    const x=Math.cos(a)*r, z=Math.sin(a)*r;
+    if (z>44) continue;
+    const t=makeTree(1+Math.random()*0.9);
+    t.position.set(x,0,z); diorama.add(t);
+}
+
+/* ===================================================================
+   十、微缩细节：车辆 / 路灯 / 围栏 / 指示牌
+   =================================================================== */
+function makeTruck(x,z,rot=0,color=0xd10b1e){
+    const g=new THREE.Group();
+    const cabMat=new THREE.MeshStandardMaterial({color:0xf0f0ee,roughness:0.5});
+    g.add(box(2.2,1.8,2.3,cabMat,-1.7,1.3,0));
+    g.add(box(4.2,2.5,2.4,new THREE.MeshStandardMaterial({color,roughness:0.45,metalness:0.15}),2,1.65,0));
+    const wheelMat=new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:0.8});
+    [[-2.4,1.2],[-2.4,-1.2],[2.8,1.2],[2.8,-1.2]].forEach(([wx,wz])=>{
+        const w=cyl(0.5,0.5,0.3,10,wheelMat,wx,0.5,wz); w.rotation.x=Math.PI/2; g.add(w);
+    });
+    g.position.set(x,0.05,z); g.rotation.y=rot;
+    return g;
+}
+function makeCar(x,z,rot=0,color=0x2a4a7a){
+    const g=new THREE.Group();
+    const body=new THREE.MeshStandardMaterial({color,roughness:0.35,metalness:0.4});
+    g.add(box(3.8,1,1.8,body,0,0.9,0));
+    g.add(box(2,0.8,1.6,new THREE.MeshStandardMaterial({color:0x9fd2e0,roughness:0.1,metalness:0.3,transparent:true,opacity:0.7}),0.1,1.5,0));
+    const wm=new THREE.MeshStandardMaterial({color:0x1a1a1a});
+    [[-1.2,0.9],[-1.2,-0.9],[1.2,0.9],[1.2,-0.9]].forEach(([wx,wz])=>{
+        const w=cyl(0.35,0.35,0.2,10,wm,wx,0.35,wz); w.rotation.x=Math.PI/2; g.add(w);
+    });
+    g.position.set(x,0.05,z); g.rotation.y=rot;
+    return g;
+}
+diorama.add(makeTruck(40,8,0));
+diorama.add(makeTruck(48,-10,-Math.PI/2,0x2a5a8a));
+diorama.add(makeCar(-42,22,0,0xc0392b));
+diorama.add(makeCar(-42,30,0,0x2c3e50));
+diorama.add(makeCar(10,14,Math.PI/2,0x27ae60));
+diorama.add(makeCar(20,14,Math.PI/2,0xecf0f1));
+
+function makeLamp(x,z){
+    const g=new THREE.Group();
+    g.add(cyl(0.08,0.1,3.4,6,M.metalDk,0,1.7,0));
+    g.add(cyl(0.25,0.15,0.25,8,new THREE.MeshStandardMaterial({color:0xfff3c4,emissive:0xffe9a8,emissiveIntensity:0.5}),0,3.35,0));
+    g.position.set(x,0.05,z); return g;
+}
+for (let z=18;z<42;z+=6){ diorama.add(makeLamp(-51,z)); diorama.add(makeLamp(-40,z)); }
+diorama.add(makeLamp(LAKE_X+LAKE_R+2, LAKE_Z+4));
+diorama.add(makeLamp(LAKE_X+LAKE_R, LAKE_Z-5));
+
+// 厂区围栏
+for (let x=-60;x<=55;x+=4){
+    if (x>-48 && x<-36) continue; // 入口留空
+    diorama.add(box(0.1,1.1,0.1,M.metalDk,x,0.6,40));
+}
+diorama.add(box(120,0.08,0.08,M.metalDk,0,1.1,40,false));
+diorama.add(box(120,0.08,0.08,M.metalDk,0,0.5,40,false));
+
+/* ===================================================================
+   十一-B、玩家可驾驶小跑车
+   坐标约定（固定，勿改）：车头朝 -Z；车右为 +X；相机在 +Z 追尾
+   =================================================================== */
+const playerCar = new THREE.Group();
+
+// 车身材质
+const carPaint = new THREE.MeshStandardMaterial({ color: 0xd10b1e, roughness: 0.28, metalness: 0.55 });
+const carPaintDark = new THREE.MeshStandardMaterial({ color: 0x9c0816, roughness: 0.35, metalness: 0.5 });
+const carGlass = new THREE.MeshPhysicalMaterial({ color: 0x1a2838, roughness: 0.05, metalness: 0.3, transmission: 0.3, transparent: true, opacity: 0.7 });
+const tireMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.85 });
+const rimMat = new THREE.MeshStandardMaterial({ color: 0xc8ccd0, roughness: 0.3, metalness: 0.85 });
+
+// 底盘/下车身
+const chassis = box(2.0, 0.5, 4.2, carPaint, 0, 0.55, 0);
+playerCar.add(chassis);
+// 车头上盖（引擎盖斜面，用稍小的盒体）
+const hood = box(1.9, 0.35, 1.5, carPaint, 0, 0.95, -1.2);
+playerCar.add(hood);
+// 后备箱
+const trunk = box(1.9, 0.35, 1.0, carPaint, 0, 0.95, 1.4);
+playerCar.add(trunk);
+// 车舱（驾驶舱）
+const cabin = box(1.7, 0.55, 1.7, carGlass, 0, 1.25, 0.1);
+playerCar.add(cabin);
+// 车顶（红色，玻璃上方）
+const roof = box(1.55, 0.12, 1.4, carPaint, 0, 1.58, 0.1);
+playerCar.add(roof);
+// A柱/B柱（红色细柱模拟框架）
+for (const sx of [-0.85, 0.85]) {
+    playerCar.add(box(0.1, 0.6, 0.1, carPaint, sx, 1.3, -0.7));
+    playerCar.add(box(0.1, 0.55, 0.1, carPaint, sx, 1.28, 0.9));
+}
+// 前保险杠（深色）
+playerCar.add(box(2.0, 0.3, 0.3, carPaintDark, 0, 0.4, -2.05));
+// 后保险杠 + 小尾翼
+playerCar.add(box(2.0, 0.3, 0.3, carPaintDark, 0, 0.4, 2.05));
+playerCar.add(box(1.7, 0.08, 0.4, carPaintDark, 0, 1.15, 1.95));
+playerCar.add(box(0.08, 0.25, 0.4, carPaintDark, -0.7, 1.0, 1.9));
+playerCar.add(box(0.08, 0.25, 0.4, carPaintDark, 0.7, 1.0, 1.9));
+
+// 前大灯（发光）
+const headMat = new THREE.MeshStandardMaterial({ color: 0xfff6d0, emissive: 0xfff0c0, emissiveIntensity: 0.8, roughness: 0.2 });
+playerCar.add(box(0.45, 0.18, 0.1, headMat, -0.6, 0.7, -2.1, false));
+playerCar.add(box(0.45, 0.18, 0.1, headMat, 0.6, 0.7, -2.1, false));
+// 尾灯
+const tailMat = new THREE.MeshStandardMaterial({ color: 0xff2020, emissive: 0xff1010, emissiveIntensity: 0.6 });
+playerCar.add(box(0.4, 0.15, 0.08, tailMat, -0.6, 0.75, 2.12, false));
+playerCar.add(box(0.4, 0.15, 0.08, tailMat, 0.6, 0.75, 2.12, false));
+
+// 车轮（前轮可转向，作为一组）
+function makeWheel() {
+    const w = new THREE.Group();
+    const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 18), tireMat);
+    tire.rotation.z = Math.PI / 2; tire.castShadow = true; w.add(tire);
+    const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.32, 10), rimMat);
+    rim.rotation.z = Math.PI / 2; w.add(rim);
+    // 轮辐
+    for (let i = 0; i < 5; i++) {
+        const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.05, 0.06), rimMat);
+        spoke.rotation.x = (i / 5) * Math.PI;
+        w.add(spoke);
+    }
+    return w;
+}
+const wheelFL = makeWheel(), wheelFR = makeWheel();
+wheelFL.position.set(-0.95, 0.42, -1.25);
+wheelFR.position.set(0.95, 0.42, -1.25);
+playerCar.add(wheelFL); playerCar.add(wheelFR);
+const wheelRL = makeWheel(), wheelRR = makeWheel();
+wheelRL.position.set(-0.95, 0.42, 1.25);
+wheelRR.position.set(0.95, 0.42, 1.25);
+playerCar.add(wheelRL); playerCar.add(wheelRR);
+
+playerCar.visible = false; // 默认隐藏（观赏模式）
+diorama.add(playerCar);
+
+/* ---- 驾驶状态 ---- */
+const driveState = {
+    active: false,
+    speed: 0,            // 沿车头方向的速度（正=前进，负=倒车）
+    steer: 0,            // 当前转向角（弧度）
+    maxSpeed: 38,        // 最大前进速度（单位/秒）
+    reverseSpeed: -14,
+    accel: 18,
+    brakeForce: 32,
+    friction: 6,
+    turnRate: 1.8,       // 转向灵敏度
+    boost: 1,
+};
+const SPAWN = new THREE.Vector3(-42, 0, 30);
+const SPAWN_ROT = 0; // rotation.y=0 时车头朝 -Z（驶入厂区方向）
+const carCamPos = new THREE.Vector3();
+const carCamLook = new THREE.Vector3();
+
+// 输入
+const keys = {};
+window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (driveState.active) {
+        if (e.code === 'KeyR') resetCar();
+        if (e.code === 'Escape') toggleDrive(false);
+        if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)) e.preventDefault();
+    }
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+function resetCar() {
+    playerCar.position.copy(SPAWN);
+    playerCar.rotation.y = SPAWN_ROT;
+    driveState.speed = 0; driveState.steer = 0;
+    wheelFL.rotation.y = 0; wheelFR.rotation.y = 0;
+    // 立即把相机放到车后
+    updateChaseCamera(1);
+}
+
+function updateChaseCamera(alpha) {
+    const back = 7.5, height = 4.2, lookAhead = 4;
+    const sin = Math.sin(playerCar.rotation.y), cos = Math.cos(playerCar.rotation.y);
+    // 车后 = +Z 局部
+    const desiredX = playerCar.position.x + sin * back;
+    const desiredZ = playerCar.position.z + cos * back;
+    const desiredY = playerCar.position.y + height;
+    carCamPos.x += (desiredX - carCamPos.x) * alpha;
+    carCamPos.y += (desiredY - carCamPos.y) * alpha;
+    carCamPos.z += (desiredZ - carCamPos.z) * alpha;
+    // 看向车前方
+    carCamLook.set(
+        playerCar.position.x - sin * lookAhead,
+        playerCar.position.y + 1.2,
+        playerCar.position.z - cos * lookAhead
+    );
+    camera.position.copy(carCamPos);
+    camera.lookAt(carCamLook);
+}
+
+function updateDrive(dt) {
+    if (!driveState.active) return;
+
+    // 输入
+    const fwd = (keys['KeyW'] || keys['ArrowUp']) ? 1 : 0;
+    const back = (keys['KeyS'] || keys['ArrowDown']) ? 1 : 0;
+    const left = (keys['KeyA'] || keys['ArrowLeft']) ? 1 : 0;
+    const right = (keys['KeyD'] || keys['ArrowRight']) ? 1 : 0;
+    const boost = (keys['ShiftLeft'] || keys['ShiftRight']) ? 1.5 : 1;
+    const braking = keys['Space'];
+
+    // 加速 / 刹车
+    if (fwd) {
+        driveState.speed += driveState.accel * boost * dt;
+    } else if (back) {
+        driveState.speed -= driveState.accel * 0.7 * dt;
+    } else {
+        // 自然减速（摩擦）
+        const fr = driveState.friction * dt;
+        if (driveState.speed > 0) driveState.speed = Math.max(0, driveState.speed - fr);
+        else if (driveState.speed < 0) driveState.speed = Math.min(0, driveState.speed + fr);
+    }
+    if (braking) {
+        const br = driveState.brakeForce * dt;
+        if (driveState.speed > 0) driveState.speed = Math.max(0, driveState.speed - br);
+        else if (driveState.speed < 0) driveState.speed = Math.min(0, driveState.speed + br);
+    }
+    const maxSp = driveState.maxSpeed * boost;
+    driveState.speed = Math.max(driveState.reverseSpeed, Math.min(maxSp, driveState.speed));
+
+    // 转向（速度越快转向越小，避免高速甩飞）
+    const speedFactor = Math.min(1, Math.abs(driveState.speed) / 10);
+    const turnInput = (right - left);
+    const targetSteer = turnInput * driveState.turnRate * speedFactor;
+    driveState.steer += (targetSteer - driveState.steer) * Math.min(1, dt * 8);
+    // 倒车时转向反向
+    const dirSign = driveState.speed >= 0 ? 1 : -1;
+    playerCar.rotation.y += driveState.steer * dirSign * dt;
+
+    // 位移：车头朝 -Z，旋转后 forward = (-sin, 0, -cos)
+    const sin = Math.sin(playerCar.rotation.y), cos = Math.cos(playerCar.rotation.y);
+    playerCar.position.x += -sin * driveState.speed * dt;
+    playerCar.position.z += -cos * driveState.speed * dt;
+
+    // 边界（圆形底盘）
+    const dist = Math.hypot(playerCar.position.x, playerCar.position.z);
+    const maxR = 78;
+    if (dist > maxR) {
+        const k = maxR / dist;
+        playerCar.position.x *= k; playerCar.position.z *= k;
+        driveState.speed *= 0.4;
+    }
+
+    // 轮子视觉
+    wheelFL.rotation.y = driveState.steer * 0.6;
+    wheelFR.rotation.y = driveState.steer * 0.6;
+    const wheelSpin = driveState.speed * dt * 2.2;
+    wheelFL.children[0].rotation.x += wheelSpin;
+    wheelFR.children[0].rotation.x += wheelSpin;
+    wheelRL.children[0].rotation.x += wheelSpin;
+    wheelRR.children[0].rotation.x += wheelSpin;
+    // 车身随速度轻微颠簸
+    playerCar.position.y = Math.sin(performance.now() * 0.02 * Math.abs(driveState.speed) * 0.1) * 0.015 * speedFactor;
+
+    // 追尾相机（阻尼）
+    updateChaseCamera(1 - Math.pow(0.001, dt));
+
+    // 速度表
+    const kmh = Math.round(Math.abs(driveState.speed) * 3.6 * 2.2);
+    speedoEl.firstChild.nodeValue = kmh;
+}
+
+/* ---- 模式切换 ---- */
+const driveBtn = document.getElementById('driveBtn');
+const driveBtnText = document.getElementById('driveBtnText');
+const driveHud = document.getElementById('driveHud');
+const speedoEl = document.getElementById('speedo');
+
+function toggleDrive(force) {
+    const next = (typeof force === 'boolean') ? force : !driveState.active;
+    driveState.active = next;
+    if (next) {
+        // 进入驾驶
+        playerCar.visible = true;
+        playerCar.position.copy(SPAWN);
+        playerCar.rotation.y = SPAWN_ROT;
+        controls.enabled = false;
+        controls.autoRotate = false;
+        driveBtn.classList.add('driving');
+        driveBtnText.textContent = '退出驾驶';
+        driveHud.classList.add('show');
+        speedoEl.classList.add('show');
+        document.querySelector('.ui-bottom').style.opacity = '0';
+        // 移动端触控显示
+        touchSteer.style.display = touchGas.style.display = touchBrake.style.display =
+            (matchMedia('(hover: none) and (pointer: coarse)').matches) ? 'block' : 'none';
+        resetCar();
+    } else {
+        // 退出
+        playerCar.visible = false;
+        controls.enabled = true;
+        controls.autoRotate = true;
+        driveBtn.classList.remove('driving');
+        driveBtnText.textContent = '驾驶模式';
+        driveHud.classList.remove('show');
+        speedoEl.classList.remove('show');
+        document.querySelector('.ui-bottom').style.opacity = '';
+        touchSteer.style.display = touchGas.style.display = touchBrake.style.display = 'none';
+        driveState.speed = 0;
+        controls.update();
+    }
+}
+driveBtn.addEventListener('click', () => toggleDrive());
+
+/* ---- 移动端触控 ---- */
+const touchSteer = document.getElementById('touchSteer');
+const touchGas = document.getElementById('touchGas');
+const touchBrake = document.getElementById('touchBrake');
+let touchSteerVal = 0;
+function bindPad(el, onDown, onUp) {
+    const down = e => { e.preventDefault(); onDown(); el.setPointerCapture?.(e.pointerId); };
+    const up = e => { e.preventDefault(); onUp(); };
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('pointerleave', up);
+}
+bindPad(touchGas, () => keys['KeyW'] = true, () => keys['KeyW'] = false);
+bindPad(touchBrake, () => keys['Space'] = true, () => keys['Space'] = false);
+// 转向旋钮
+let steerPointer = null;
+touchSteer.addEventListener('pointerdown', e => {
+    e.preventDefault(); steerPointer = e.pointerId;
+});
+touchSteer.addEventListener('pointermove', e => {
+    if (e.pointerId !== steerPointer) return;
+    const rect = touchSteer.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    let dx = (e.clientX - cx) / (rect.width / 2);
+    dx = Math.max(-1, Math.min(1, dx));
+    touchSteerVal = dx;
+    keys['ArrowLeft'] = dx < -0.25;
+    keys['ArrowRight'] = dx > 0.25;
+    const knob = touchSteer.querySelector('.knob');
+    knob.style.transform = `translate(calc(-50% + ${dx * 28}px), -50%)`;
+});
+const endSteer = e => {
+    if (e.pointerId !== steerPointer) return;
+    steerPointer = null; touchSteerVal = 0;
+    keys['ArrowLeft'] = false; keys['ArrowRight'] = false;
+    touchSteer.querySelector('.knob').style.transform = 'translate(-50%,-50%)';
+};
+touchSteer.addEventListener('pointerup', endSteer);
+touchSteer.addEventListener('pointercancel', endSteer);
+
+/* ===================================================================
+   十一、湖边长椅 + 牵手人偶
+   =================================================================== */
+function makeBench(){
+    const g=new THREE.Group();
+    g.add(box(2.6,0.1,0.65,M.wood,0,0.5,0));
+    g.add(box(2.6,0.55,0.08,M.wood,0,0.82,-0.28));
+    // 椅腿
+    for (const lx of [-1.1,1.1]){
+        g.add(box(0.08,0.5,0.6,M.metalDk,lx,0.25,0));
+        g.add(box(0.08,0.5,0.08,M.metalDk,lx,0.25,-0.28));
+    }
+    return g;
+}
+const bench = makeBench();
+bench.position.set(LAKE_X+3, 0.1, LAKE_Z+LAKE_R+2);
+bench.rotation.y = -0.25;
+diorama.add(bench);
+
+// 人偶（坐姿）
+function makeSeatedPerson({shirt, pants, isGirl, hairColor}){
+    const g=new THREE.Group();
+    const skin=new THREE.MeshStandardMaterial({color:0xf0c8a0,roughness:0.7});
+    const shirtM=new THREE.MeshStandardMaterial({color:shirt,roughness:0.75});
+    const pantsM=new THREE.MeshStandardMaterial({color:pants,roughness:0.8});
+    const hairM=new THREE.MeshStandardMaterial({color:hairColor,roughness:0.9});
+    const shoeM=new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:0.7});
+
+    // 大腿（水平向前）
+    const thighL=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.14,0.55,6),pantsM);
+    thighL.rotation.x=Math.PI/2; thighL.position.set(-0.16,0.5,0.22); g.add(thighL);
+    const thighR=thighL.clone(); thighR.position.x=0.16; g.add(thighR);
+    // 小腿（垂直向下）
+    const calfL=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.12,0.5,6),pantsM);
+    calfL.position.set(-0.16,0.25,0.48); g.add(calfL);
+    const calfR=calfL.clone(); calfR.position.x=0.16; g.add(calfR);
+    // 鞋
+    g.add(box(0.2,0.12,0.3,shoeM,-0.16,0.08,0.6));
+    g.add(box(0.2,0.12,0.3,shoeM,0.16,0.08,0.6));
+    // 躯干（略向后靠）
+    const torso=new THREE.Mesh(new THREE.CylinderGeometry(0.27,0.33,0.85,8),shirtM);
+    torso.position.set(0,1.15,-0.05); torso.rotation.x=0.12; torso.castShadow=true; g.add(torso);
+    // 女生裙子
+    if (isGirl){
+        const skirt=new THREE.Mesh(new THREE.ConeGeometry(0.42,0.55,10,1,true),
+            new THREE.MeshStandardMaterial({color:pants,roughness:0.7,side:THREE.DoubleSide}));
+        skirt.position.set(0,0.68,0); g.add(skirt);
+    }
+    // 手臂
+    const armMat = shirtM;
+    const armL=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.7,6),armMat);
+    armL.position.set(-0.38,1.15,0.05); armL.rotation.z=0.2; armL.rotation.x=0.1; g.add(armL);
+    const armR=armL.clone(); armR.position.x=0.38; armR.rotation.z=-0.2; g.add(armR);
+    const handL=sphere(0.09,6,skin,-0.5,0.85,0.12); g.add(handL);
+    const handR=sphere(0.09,6,skin,0.5,0.85,0.12); g.add(handR);
+    // 脖子 + 头
+    g.add(cyl(0.11,0.13,0.14,6,skin,0,1.62,-0.05,false));
+    const head=sphere(0.24,10,skin,0,1.92,-0.05); g.add(head);
+    // 头发
+    if (isGirl){
+        const hair=sphere(0.26,10,hairM,0,1.98,-0.02);
+        hair.scale.set(1,1.1,1); g.add(hair);
+        // 长发垂肩
+        const longL=sphere(0.12,6,hairM,-0.22,1.7,0.08); longL.scale.y=1.4; g.add(longL);
+        const longR=longL.clone(); longR.position.x=0.22; g.add(longR);
+    } else {
+        const hair=sphere(0.25,10,hairM,0,2.0,-0.02);
+        hair.scale.y=0.8; g.add(hair);
+    }
+    // 眼睛
+    const eyeM=new THREE.MeshStandardMaterial({color:0x222});
+    g.add(sphere(0.03,6,eyeM,-0.08,1.95,0.18,false));
+    g.add(sphere(0.03,6,eyeM,0.08,1.95,0.18,false));
+
+    g.userData={armL,armR,handL,handR};
+    return g;
+}
+
+// 男生（深蓝休闲 + 卡其裤）
+const boy = makeSeatedPerson({shirt:0x2c3e6b, pants:0x6b5a3a, isGirl:false, hairColor:0x2a1a10});
+boy.position.set(bench.position.x-0.75, 0.08, bench.position.z);
+boy.rotation.y = -0.25;
+diorama.add(boy);
+
+// 女生（浅色裙 + 米白上衣）
+const girl = makeSeatedPerson({shirt:0xf4ead8, pants:0xe8d8b8, isGirl:true, hairColor:0x3a2418});
+girl.position.set(bench.position.x+0.75, 0.08, bench.position.z);
+girl.rotation.y = -0.25;
+diorama.add(girl);
+
+// 牵手：两人内侧手臂伸向中间相握
+boy.userData.armR.position.set(-0.1,1.1,0.22);
+boy.userData.armR.rotation.set(-1.0,0,-0.15);
+boy.userData.handR.position.set(0.1,0.82,0.42);
+girl.userData.armL.position.set(0.1,1.1,0.22);
+girl.userData.armL.rotation.set(-1.0,0,0.15);
+girl.userData.handL.position.set(-0.1,0.82,0.42);
+// 相握的小手
+const held=sphere(0.1,8,new THREE.MeshStandardMaterial({color:0xf0c8a0,roughness:0.7}),
+    bench.position.x, 0.95, bench.position.z+0.45);
+diorama.add(held);
+
+// 长椅下铺一块小平台，让人偶更醒目
+diorama.add(box(4, 0.06, 2, M.concrete, bench.position.x, 0.03, bench.position.z+0.3, false));
+
+/* ===================================================================
+   十二、云
+   =================================================================== */
+const cloudMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,transparent:true,opacity:0.8});
+function makeCloud(x,y,z,s=1){
+    const g=new THREE.Group();
+    for (let i=0;i<5;i++){
+        const c=sphere(2*s*(0.7+Math.random()*0.6),8,cloudMat,
+            i*1.8*s-3.6*s, Math.random()*0.4*s, (Math.random()-0.5)*1.5*s, false);
+        c.scale.y=0.7; g.add(c);
+    }
+    g.position.set(x,y,z); return g;
+}
+const clouds=[
+    makeCloud(-50,58,-40,1.4),
+    makeCloud(40,62,-55,1.2),
+    makeCloud(10,60,-70,1.6),
+    makeCloud(-30,64,25,1.1),
+];
+clouds.forEach(c=>diorama.add(c));
+
+/* ===================================================================
+   十三、后期处理（景深 / 辉光）
+   =================================================================== */
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+// 景深：焦点对准厂区中心
+const bokeh = new BokehPass(scene, camera, {
+    focus: 95, aperture: 0.000022, maxblur: 0.008
+});
+composer.addPass(bokeh);
+
+// 轻微 Bloom
+const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.35, 0.5, 0.82);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+/* ===================================================================
+   十四、动画循环
+   =================================================================== */
+const clock = new THREE.Clock();
+function animateJets(jet){
+    const p=jet.pts.geometry.attributes.position;
+    for (let i=0;i<jet.count;i++){
+        let y=p.getY(i)-jet.vel[i];
+        if (y<0.8){
+            y=0.8+Math.random()*0.4;
+            p.setX(i,jet.ox[i]+(Math.random()-0.5)*0.3);
+            p.setZ(i,jet.oz[i]+(Math.random()-0.5)*0.3);
+        }
+        p.setY(i,y);
+    }
+    p.needsUpdate=true;
+}
+function animate(){
+    const t=clock.getElapsedTime();
+    const dt=Math.min(0.05, t-(animate._lt||t)); animate._lt=t;
+
+    // 湖面波动
+    for (let i=0;i<lakePos.count;i++){
+        const x=lakePos.getX(i), z=lakePos.getZ(i);
+        lakePos.setY(i, lakeBase[i] + Math.sin(x*0.6+t*1.2)*0.06 + Math.cos(z*0.7+t)*0.05);
+    }
+    lakePos.needsUpdate=true; lakeGeo.computeVertexNormals();
+
+    // 喷泉水柱
+    animateJets(centerJet);
+    sideJets.forEach(animateJets);
+
+    // 情侣轻微晃动
+    const sw=Math.sin(t*1.1)*0.012;
+    boy.rotation.z=-0.25+sw; girl.rotation.z=-0.25-sw;
+
+    // 云漂移
+    clouds.forEach((c,i)=>{ c.position.x+=Math.sin(t*0.05+i)*0.012; });
+
+    // 驾驶更新（内部会接管相机）
+    if (driveState.active) {
+        updateDrive(dt);
+        // 景深聚焦到车身
+        const focusTarget = new THREE.Vector3(playerCar.position.x, 1, playerCar.position.z);
+        bokeh.uniforms.focus.value = camera.position.distanceTo(focusTarget);
+    } else {
+        controls.update();
+        // 景深焦点跟随相机到厂区中心的距离
+        bokeh.uniforms.focus.value = camera.position.distanceTo(controls.target);
+    }
+
+    composer.render();
+    requestAnimationFrame(animate);
+}
+
+// 隐藏 loader 后启动
+setTimeout(()=>{
+    const l=document.getElementById('loader');
+    l.style.opacity='0';
+    setTimeout(()=>l.remove(), 800);
+    animate();
+}, 600);
+
+/* ===================================================================
+   十五、交互 & 响应式
+   =================================================================== */
+let autoTimer;
+function resetAuto(){
+    controls.autoRotate=false;
+    clearTimeout(autoTimer);
+    autoTimer=setTimeout(()=>{controls.autoRotate=true;}, 4000);
+}
+canvas.addEventListener('pointerdown', resetAuto);
+
+window.addEventListener('resize', ()=>{
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+    bloom.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ===================================================================
+   十六、GLTF 替换接口（未来接入高精度 Blender 模型）
+   ===================================================================
+   使用方法：取消注释并放入 model.glb 路径，即可替换整个程序化模型。
+   -------------------------------------------------------------------
+   const loader = new GLTFLoader();
+   loader.load('model.glb', (gltf) => {
+       diorama.visible = false;            // 隐藏程序生成模型
+       gltf.scene.traverse(o => { if (o.isMesh) { o.castShadow=true; o.receiveShadow=true; }});
+       scene.add(gltf.scene);
+   }, undefined, (err) => console.error('GLTF load error', err));
+   ------------------------------------------------------------------- */
+</script>
+</body>
+</html>

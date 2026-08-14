@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>万绿湖桨板</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a1628;font-family:sans-serif;}
+#app{position:fixed;inset:0;}
+canvas{display:block;}
+#hud{position:fixed;top:20px;left:20px;color:#e8f4ff;font-size:13px;pointer-events:none;z-index:10;}
+#hud .panel{background:rgba(10,22,40,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 18px;line-height:1.8;}
+#hud h1{font-size:15px;font-weight:600;margin-bottom:8px;color:#7ec8ff;}
+#hud .key{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:1px 8px;margin:0 2px;font-family:monospace;font-size:12px;}
+#speedo{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#e8f4ff;font-size:14px;z-index:10;background:rgba(10,22,40,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px 20px;}
+#speedo .bar{display:inline-block;width:120px;height:6px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden;vertical-align:middle;margin:0 8px;}
+#speedo .bar-fill{display:block;height:100%;background:linear-gradient(90deg,#4da3ff,#2ed573);border-radius:3px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="hud">
+<div class="panel">
+<h1>万绿湖 · 桨板</h1>
+<div><span class="key">↑</span> 加速 &nbsp; <span class="key">↓</span> 减速</div>
+<div><span class="key">←</span> 左转 &nbsp; <span class="key">→</span> 右转</div>
+</div>
+</div>
+<div id="speedo">速度 <span class="bar"><span class="bar-fill" id="bar"></span></span> <span id="spd">0.0</span></div>
+
+<script src="./three.min.js"></script>
+<script>
+var container = document.getElementById('app');
+var renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setClearColor(0x0a1628);
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
+
+var scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x3a6b8a, 0.008);
+
+var camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
+camera.position.set(0, 5, -10);
+
+scene.add(new THREE.HemisphereLight(0x88bbdd, 0x2d5a3d, 0.7));
+var sun = new THREE.DirectionalLight(0xffe9b0, 1.2);
+sun.position.set(60, 80, 40);
+sun.castShadow = true;
+scene.add(sun);
+
+// 水面
+var wGeo = new THREE.PlaneGeometry(600, 600, 30, 30);
+var wPos = wGeo.attributes.position;
+for (var i = 0; i < wPos.count; i++) {
+  wPos.setZ(i, (Math.random()-0.5)*0.4);
+}
+wGeo.computeVertexNormals();
+var water = new THREE.Mesh(wGeo, new THREE.MeshPhongMaterial({color:0x1a5f7a, transparent:true, opacity:0.75, shininess:80, flatShading:true, side:THREE.DoubleSide}));
+water.rotation.x = -Math.PI/2;
+scene.add(water);
+
+// 岛屿
+var islandData = [
+  {x:-60,z:-40,r:22,h:18},{x:-30,z:-80,r:16,h:12},{x:50,z:-60,r:28,h:22},
+  {x:80,z:-30,r:14,h:10},{x:-90,z:20,r:20,h:16},{x:100,z:30,r:18,h:14},
+  {x:-50,z:60,r:24,h:20},{x:30,z:90,r:16,h:11},{x:-120,z:-10,r:30,h:24},
+  {x:130,z:-80,r:22,h:18},{x:-70,z:110,r:20,h:15},{x:70,z:130,r:18,h:13}
+];
+for (var idx = 0; idx < islandData.length; idx++) {
+  var d = islandData[idx];
+  var baseR = d.r * 0.6;
+  var baseGeo = new THREE.CylinderGeometry(baseR, d.r, 2.5, 6);
+  var baseMat = new THREE.MeshLambertMaterial({color:0x6b5040, flatShading:true});
+  var base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.set(d.x, 1.2, d.z);
+  scene.add(base);
+  
+  var peakR = d.r * 0.85;
+  var peakGeo = new THREE.ConeGeometry(peakR, d.h, 5);
+  var peakMat = new THREE.MeshLambertMaterial({color:0x2d8a4e, flatShading:true});
+  var peak = new THREE.Mesh(peakGeo, peakMat);
+  peak.position.set(d.x, 2.5 + d.h / 2, d.z);
+  scene.add(peak);
+}
+
+// 桨板
+var board = new THREE.Group();
+var body = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.15,3.2), new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true}));
+body.position.y = 0.2;
+board.add(body);
+var stripe = new THREE.Mesh(new THREE.BoxGeometry(0.08,0.16,3.0), new THREE.MeshLambertMaterial({color:0x2e86de,flatShading:true}));
+stripe.position.set(0,0.28,0);
+board.add(stripe);
+var nose = new THREE.Mesh(new THREE.ConeGeometry(0.3,0.8,4), new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true}));
+nose.rotation.x = Math.PI/2;
+nose.rotation.y = Math.PI/4;
+nose.position.set(0,0.2,2.0);
+board.add(nose);
+var tip = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.08,0.5), new THREE.MeshLambertMaterial({color:0xff6b35,flatShading:true}));
+tip.position.set(0,0.29,1.6);
+board.add(tip);
+
+// 小人
+var rider = new THREE.Group();
+var torso = new THREE.Mesh(new THREE.BoxGeometry(0.35,0.55,0.25), new THREE.MeshLambertMaterial({color:0xff4757,flatShading:true}));
+torso.position.y = 0.55; rider.add(torso);
+var head = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.22,0.22), new THREE.MeshLambertMaterial({color:0xffcc99,flatShading:true}));
+head.position.y = 1.0; rider.add(head);
+var hat = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.06,0.3), new THREE.MeshLambertMaterial({color:0x2ed573,flatShading:true}));
+hat.position.y = 1.11; rider.add(hat);
+rider.position.set(0,0.2,-0.3);
+board.add(rider);
+
+// 船桨
+var paddleL = new THREE.Group();
+var shaftL = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,2,6), new THREE.MeshLambertMaterial({color:0x8b4513,flatShading:true}));
+paddleL.add(shaftL);
+var bladeL = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.35,0.04), new THREE.MeshLambertMaterial({color:0xffa502,flatShading:true}));
+bladeL.position.y = -0.95; paddleL.add(bladeL);
+paddleL.position.set(-0.35, 1.0, -0.3);
+scene.add(paddleL);
+
+var paddleR = new THREE.Group();
+var shaftR = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,2,6), new THREE.MeshLambertMaterial({color:0x8b4513,flatShading:true}));
+paddleR.add(shaftR);
+var bladeR = new THREE.Mesh(new THREE.BoxGeometry(0.18,0.35,0.04), new THREE.MeshLambertMaterial({color:0xffa502,flatShading:true}));
+bladeR.position.y = -0.95; paddleR.add(bladeR);
+paddleR.position.set(0.35, 1.0, -0.3);
+scene.add(paddleR);
+
+scene.add(board);
+
+// 控制
+var keys = {};
+window.addEventListener('keydown', function(e){ keys[e.key] = true; });
+window.addEventListener('keyup', function(e){ keys[e.key] = false; });
+
+var velocity = 0;
+var angle = 0;
+var phase = 0;
+
+var bar = document.getElementById('bar');
+var spd = document.getElementById('spd');
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (keys['ArrowUp']) velocity += 4 * 0.016;
+  else if (keys['ArrowDown']) {
+    if (velocity > 0) velocity -= 6 * 0.016;
+    else velocity -= 2.4 * 0.016;
+  } else {
+    velocity *= Math.pow(0.98, 1);
+    if (Math.abs(velocity) < 0.02) velocity = 0;
+  }
+  velocity = Math.max(-3, Math.min(8, velocity));
+
+  var sf = Math.min(Math.abs(velocity)/8, 1);
+  var tr = 0.05 + 1.15 * sf;
+  if (keys['ArrowLeft']) angle += tr * 0.016 * 60;
+  if (keys['ArrowRight']) angle -= tr * 0.016 * 60;
+
+  var fwd = new THREE.Vector3(Math.sin(angle), 0, Math.cos(angle));
+  board.position.addScaledVector(fwd, velocity * 0.016 * 60);
+  board.rotation.y = angle;
+
+  // 桨动画
+  phase += 0.016 * 6;
+  var swing = Math.sin(phase) * 0.8;
+  if (keys['ArrowUp']) {
+    paddleL.rotation.x = swing;
+    paddleR.rotation.x = -swing;
+  } else if (keys['ArrowDown']) {
+    paddleL.rotation.x = 0.6;
+    paddleR.rotation.x = 0.6;
+  } else {
+    paddleL.rotation.x *= 0.9;
+    paddleR.rotation.x *= 0.9;
+  }
+
+  // 相机跟随
+  var cb = fwd.clone().multiplyScalar(-10);
+  var desired = new THREE.Vector3(board.position.x+cb.x, board.position.y+5, board.position.z+cb.z);
+  camera.position.lerp(desired, 0.06);
+  camera.lookAt(board.position.x, board.position.y+0.8, board.position.z);
+
+  // HUD
+  var sp = Math.abs(velocity);
+  spd.textContent = sp.toFixed(1);
+  bar.style.width = (sp/8*100) + '%';
+
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', function(){
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
+</script>
+</body>
+</html>

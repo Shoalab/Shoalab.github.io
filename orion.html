@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORION - 项目作品 | Matrix</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+    :root {
+        /* 黑客帝国风格 (默认) */
+        --matrix-green: #00ff41;
+        --matrix-green-dim: #008f11;
+        --matrix-dark: #0d0208;
+        --card-bg: rgba(0, 20, 0, 0.75);
+        --card-border: rgba(0, 255, 65, 0.3);
+        --card-hover: rgba(0, 40, 0, 0.85);
+        --text-primary: #00ff41;
+        --text-secondary: rgba(0, 255, 65, 0.7);
+        --text-muted: rgba(0, 255, 65, 0.4);
+        --nav-bg: rgba(0, 10, 0, 0.85);
+        --glow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 20px rgba(0, 255, 65, 0.3);
+        --body-bg: #0d0208;
+        --font-primary: 'Share Tech Mono', 'JetBrains Mono', monospace;
+        --title-shadow: 0 0 20px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 255, 65, 0.4);
+        --scanline-opacity: 0.15;
+        --canvas-opacity: 1;
+    }
+
+    /* Atlas基本风格（浅色主题） */
+    [data-theme="light"] {
+        --matrix-green: #0099ff;
+        --matrix-green-dim: #0066cc;
+        --matrix-dark: #f5f8fc;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --card-border: rgba(0, 153, 255, 0.15);
+        --card-hover: rgba(255, 255, 255, 1);
+        --text-primary: #1a1a2e;
+        --text-secondary: #555570;
+        --text-muted: #9090a5;
+        --nav-bg: rgba(255, 255, 255, 0.9);
+        --glow: none;
+        --body-bg: linear-gradient(180deg, #f5f8fc 0%, #e8eef5 50%, #dde6f0 100%) fixed;
+        --font-primary: 'Poppins', 'Noto Sans SC', sans-serif;
+        --title-shadow: none;
+        --scanline-opacity: 0;
+        --canvas-opacity: 0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+        font-family: var(--font-primary);
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+        background: var(--body-bg);
+        min-height: 100vh;
+        transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* 字符雨画布 */
+    #matrix-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: var(--matrix-dark);
+        opacity: var(--canvas-opacity);
+        transition: opacity 0.4s ease;
+    }
+
+    /* 扫描线效果 */
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.15) 2px,
+            rgba(0, 0, 0, 0.15) 4px
+        );
+        pointer-events: none;
+        z-index: 999;
+        opacity: var(--scanline-opacity);
+        transition: opacity 0.4s ease;
+    }
+
+    a { color: var(--matrix-green); text-decoration: none; transition: all 0.3s; }
+    a:hover { color: #fff; text-shadow: var(--glow); }
+    
+    ::selection { background: var(--matrix-green); color: #000; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 255, 65, 0.1); }
+    ::-webkit-scrollbar-thumb { background: var(--matrix-green); border-radius: 3px; }
+
+    /* 导航栏 */
+    .nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 1000;
+        background: var(--nav-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--card-border);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+    }
+    .nav__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .nav__title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--matrix-green) !important;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+        font-family: 'Share Tech Mono', monospace;
+    }
+    .nav__links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+    }
+    .nav__links a {
+        color: var(--text-secondary) !important;
+        font-size: 0.95rem;
+        font-weight: 500;
+        position: relative;
+        padding: 0.3rem 0;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .nav__links a::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 0; height: 2px;
+        background: var(--matrix-green);
+        box-shadow: var(--glow);
+        transition: width 0.3s ease;
+    }
+    .nav__links a:hover::after,
+    .nav__links a.active::after { width: 100%; }
+    .nav__links a:hover,
+    .nav__links a.active { color: var(--matrix-green) !important; text-shadow: 0 0 8px rgba(0, 255, 65, 0.6); }
+    
+    .nav__actions { display: flex; align-items: center; gap: 1rem; }
+    .theme-toggle {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--matrix-green);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        transition: all 0.3s;
+    }
+    .theme-toggle:hover { 
+        background: rgba(0, 255, 65, 0.1);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+
+    /* 主内容区 */
+    .paper-section {
+        width: 100%;
+        min-height: 100vh;
+        padding-top: 80px;
+    }
+    .section {
+        padding: 4rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .paper-section__header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        border: 1px solid var(--card-border);
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: var(--matrix-green);
+        background: rgba(0, 20, 0, 0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        font-family: 'Share Tech Mono', monospace;
+        letter-spacing: 1px;
+    }
+    .back-btn:hover {
+        background: rgba(0, 255, 65, 0.1);
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        transform: translateX(-4px);
+    }
+    
+    .section__title {
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--matrix-green);
+        text-shadow: 0 0 20px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 255, 65, 0.4);
+        letter-spacing: 8px;
+    }
+    .section__subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        letter-spacing: 4px;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* 卡片网格 */
+    .paper-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+    
+    .paper-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--card-border);
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .paper-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--matrix-green), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .paper-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+        border-color: var(--matrix-green);
+    }
+    .paper-card:hover::before {
+        opacity: 1;
+    }
+    
+    .paper-card__img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        filter: grayscale(30%) brightness(70%) contrast(110%);
+    }
+    .paper-card__body {
+        padding: 1.2rem 1.3rem 1.3rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .paper-card__title {
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--matrix-green);
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+        letter-spacing: 1px;
+    }
+    .paper-card__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.65rem;
+        border-radius: 2px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #000;
+        margin-bottom: 0.7rem;
+        align-self: flex-start;
+        letter-spacing: 0.5px;
+    }
+    .paper-card__venue {
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.7rem;
+    }
+    .paper-card__desc {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 0.7rem;
+    }
+    .paper-card__authors {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    .paper-card__authors strong {
+        color: var(--matrix-green);
+        font-weight: 600;
+    }
+    .paper-card__actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+        flex-wrap: wrap;
+    }
+    .paper-card__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 1rem;
+        border: 1px solid var(--card-border);
+        border-radius: 2px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--matrix-green);
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        font-family: 'Share Tech Mono', monospace;
+    }
+    .paper-card__btn:hover {
+        background: rgba(0, 255, 65, 0.1);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    }
+
+    .fade-in {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-family: 'Share Tech Mono', monospace;
+        letter-spacing: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .nav__links { display: none; }
+        .paper-grid { grid-template-columns: 1fr; }
+        .section__title { font-size: 2rem; letter-spacing: 4px; }
+        .section { padding: 3rem 1.5rem 2rem; }
+    }
+    @media (min-width: 641px) and (max-width: 992px) {
+        .paper-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* 浅色主题特殊样式 */
+    [data-theme="light"] .nav {
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    }
+    [data-theme="light"] .nav__title {
+        text-shadow: none;
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 1px;
+    }
+    [data-theme="light"] .section__title {
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: 4px;
+    }
+    [data-theme="light"] .back-btn {
+        font-family: 'Poppins', sans-serif;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    [data-theme="light"] .back-btn:hover {
+        background: rgba(0, 153, 255, 0.1);
+        box-shadow: 0 0 15px rgba(0, 153, 255, 0.2);
+    }
+    [data-theme="light"] .paper-card {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+    [data-theme="light"] .paper-card:hover {
+        box-shadow: 0 12px 40px rgba(0, 153, 255, 0.12);
+    }
+    [data-theme="light"] .paper-card__title {
+        font-family: 'Poppins', sans-serif;
+    }
+    [data-theme="light"] .paper-card__badge {
+        font-family: 'Poppins', sans-serif;
+    }
+    [data-theme="light"] .paper-card__venue {
+        color: var(--text-muted);
+    }
+    [data-theme="light"] .paper-card__desc {
+        color: var(--text-secondary);
+    }
+    [data-theme="light"] .paper-card__authors {
+        color: var(--text-muted);
+    }
+    [data-theme="light"] .paper-card__btn {
+        background: rgba(0, 153, 255, 0.08);
+        border-color: rgba(0, 153, 255, 0.25);
+        color: var(--matrix-green);
+    }
+    [data-theme="light"] .paper-card__btn:hover {
+        background: rgba(0, 153, 255, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 153, 255, 0.15);
+    }
+    [data-theme="light"] .nav__links a:hover,
+    [data-theme="light"] .nav__links a.active {
+        text-shadow: none;
+    }
+    [data-theme="light"] .nav__links a:hover::after,
+    [data-theme="light"] .nav__links a.active::after {
+        box-shadow: none;
+    }
+    [data-theme="light"] a:hover {
+        text-shadow: none;
+    }
+    [data-theme="light"] .footer {
+        color: var(--text-muted);
+    }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-canvas"></canvas>
+
+    <nav class="nav">
+        <div class="nav__inner">
+            <div class="nav__title">ORION</div>
+            <div class="nav__actions">
+                <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">
+                    <i class="fas fa-adjust"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="paper-section">
+        <section class="section">
+            <div class="paper-section__header">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> RETURN</a>
+                <h2 class="section__title">ORION</h2>
+                <p class="section__subtitle">PROJECTS // WORKS // CONCEPTS</p>
+            </div>
+
+            <div class="paper-grid">
+                <div class="paper-card fade-in">
+                    <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=game%20testing%20lab%20with%20multiple%20monitors%20and%20test%20equipment%20dark%20tech%20style&image_size=landscape_4_3" alt="SNAKE">
+                    <div class="paper-card__body">
+                        <h3 class="paper-card__title">SNAKE</h3>
+                        <span class="paper-card__badge" style="background:#00ff41;">ONLINE</span>
+                        <div class="paper-card__venue">Jul. 2023</div>
+                        <p class="paper-card__desc">核心玩法测试与性能验证，主导测试用例设计和自动化脚本编写。</p>
+                        <div class="paper-card__actions">
+                            <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> DETAILS</a>
+                            <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> LINK</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paper-card fade-in">
+                    <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=performance%20testing%20dashboard%20with%20real-time%20metrics%20charts%20and%20graphs%20dark%20tech&image_size=landscape_4_3" alt="膀检专家">
+                    <div class="paper-card__body">
+                        <h3 class="paper-card__title">膀检专家</h3>
+                        <span class="paper-card__badge" style="background:#1e90ff;">OPTIMIZING</span>
+                        <div class="paper-card__venue">Oct. 2022</div>
+                        <p class="paper-card__desc">高并发压力测试与性能调优，确保系统稳定性和响应速度。</p>
+                        <div class="paper-card__actions">
+                            <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> DETAILS</a>
+                            <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 仪器测试</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paper-card fade-in">
+                    <img class="paper-card__img" src="main_Stock/bionic-hero.jpg" alt="包罗万象">
+                    <div class="paper-card__body">
+                        <h3 class="paper-card__title">包罗万象</h3>
+                        <span class="paper-card__badge" style="background:#95a5a6;">格物园</span>
+                        <div class="paper-card__venue">Jun. 2022</div>
+                        <p class="paper-card__desc">仿象鼻气动连续体机器人，利用气囊弹性变形实现大弯曲的柔性机械臂设计。</p>
+                        <div class="paper-card__actions">
+                            <a href="bionic-trunk.html" class="paper-card__btn"><i class="fas fa-book"></i> Manual</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paper-card fade-in">
+                    <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=mobile%20app%20testing%20with%20smartphone%20on%20desk%20and%20test%20report%20documents%20professional&image_size=landscape_4_3" alt="移动端测试">
+                    <div class="paper-card__body">
+                        <h3 class="paper-card__title">PROJECT DELTA</h3>
+                        <span class="paper-card__badge" style="background:#a55eea;">ONLINE</span>
+                        <div class="paper-card__venue">MOBILE // 2024</div>
+                        <p class="paper-card__desc">iOS/Android 双平台兼容性测试，覆盖主流机型和系统版本。</p>
+                        <div class="paper-card__actions">
+                            <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> DETAILS</a>
+                            <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> LINK</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paper-card fade-in">
+                    <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=automation%20testing%20framework%20with%20code%20editor%20and%20test%20runner%20green%20success%20indicators&image_size=landscape_4_3" alt="自动化测试">
+                    <div class="paper-card__body">
+                        <h3 class="paper-card__title">PROJECT EPSILON</h3>
+                        <span class="paper-card__badge" style="background:#00ff41;">COMPLETED</span>
+                        <div class="paper-card__venue">AUTOMATION // 2024</div>
+                        <p class="paper-card__desc">搭建自动化测试框架，实现 CI/CD 流水线集成，提升测试效率 60%。</p>
+                        <div class="paper-card__actions">
+                            <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> DETAILS</a>
+                            <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> LINK</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="paper-card fade-in">
+                    <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=game%20UI%20UX%20design%20review%20with%20mockups%20and%20prototypes%20on%20tablet%20professional&image_size=landscape_4_3" alt="UI/UX测试">
+                    <div class="paper-card__body">
+                        <h3 class="paper-card__title">PROJECT ZETA</h3>
+                        <span class="paper-card__badge" style="background:#fd79a8;">IN PROGRESS</span>
+                        <div class="paper-card__venue">UI/UX // 2025</div>
+                        <p class="paper-card__desc">用户体验测试与交互优化，收集真实用户反馈并迭代改进。</p>
+                        <div class="paper-card__actions">
+                            <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> DETAILS</a>
+                            <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> LINK</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>// 2026 GEORGE ZHANG // SYSTEM ONLINE //</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+    // 黑客帝国字符雨
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    let matrixEnabled = true;
+    let animationId = null;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(0).map(() => Math.random() * -100);
+    
+    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*()_+-=[]{}|;:,.<>?';
+    const charArray = chars.split('');
+
+    function draw() {
+        if (!matrixEnabled) return;
+        
+        ctx.fillStyle = 'rgba(13, 2, 8, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = fontSize + 'px "Share Tech Mono", monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = charArray[Math.floor(Math.random() * charArray.length)];
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+
+            if (Math.random() > 0.975) {
+                ctx.fillStyle = '#fff';
+                ctx.shadowColor = '#00ff41';
+                ctx.shadowBlur = 15;
+            } else {
+                ctx.fillStyle = '#00ff41';
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.fillText(char, x, y);
+
+            if (y > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+        ctx.shadowBlur = 0;
+    }
+
+    function animate() {
+        draw();
+        animationId = requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    function toggleTheme() {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        
+        if (isLight) {
+            // 切换回黑客帝国风格
+            document.documentElement.removeAttribute('data-theme');
+            matrixEnabled = true;
+            animate();
+        } else {
+            // 切换为Atlas基本风格
+            document.documentElement.setAttribute('data-theme', 'light');
+            matrixEnabled = false;
+            if (animationId) cancelAnimationFrame(animationId);
+            ctx.fillStyle = '#f5f8fc';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    // 淡入动画
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

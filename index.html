@@ -376,7 +376,7 @@
 
     /* ========== PRISM 主题覆盖（太阳图标） ========== */
     [data-theme="dark"] .hero {
-        background: #0a0a14;
+        background: linear-gradient(180deg, #0a0a14 0%, #12122a 100%);
     }
 
     [data-theme="dark"] .hero__canvas--event { display: none; }
@@ -929,18 +929,34 @@
         box-shadow: 0 0 20px rgba(0, 153, 255, 0.15);
     }
 
-    /* ========== ATLAS 入口图标 ========== */
+    /* ========== 入口图标容器 ========== */
+    .entry-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 1rem 18rem;
+        padding: 0rem 1rem 1rem;
+        justify-items: center;
+        max-width: 900px;
+        margin: 0 auto;
+        transform: translateY(-5rem);
+    }
+
     .atlas-entry {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 3rem;
+    }
+
+    .atlas-entry:nth-child(3) {
+        grid-column: 1 / -1;
+        margin-top: -7rem;
     }
 
     .atlas-entry__icon {
-        width: 440px;
-        height: 440px;
+        width: 330px;
+        height: 330px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -952,7 +968,7 @@
     }
 
     .atlas-entry__icon::after {
-        content: '传送至 ATLAS';
+        content: attr(data-label);
         position: absolute;
         bottom: -10px;
         left: 50%;
@@ -1063,9 +1079,8 @@
             <a href="#hero" class="nav__logo">George Zhang</a>
             <ul class="nav__links" id="navLinks">
                 <li><a href="#hero" class="active">首页</a></li>
-                <li><a href="#about">ATLAS</a></li>
-                <li><a href="#projects">ORION</a></li>
-                <li><a href="#contact">联系我</a></li>
+                <li><a href="#about">More</a></li>
+                <li><a href="#contact">Echo</a></li>
             </ul>
             <div class="nav__actions">
                 <button class="theme-toggle" id="themeToggle" title="切换主题">
@@ -1107,123 +1122,35 @@
     <div class="paper-section">
     <section class="section" id="about">
         <div class="paper-section__header">
-            <h2 class="section__title">ATLAS</h2>
-            <p class="section__subtitle">旅程、探索、足迹</p>
+            <h2 class="section__title">More</h2>
+            <p class="section__subtitle">旅程、探索、项目</p>
         </div>
 
-        <div class="atlas-entry">
-            <a href="atlas.html" class="atlas-entry__icon fade-in" id="atlasEntry">
-                <img src="main_Stock/Chronosphere_3D.webp" alt="ATLAS 入口" class="atlas-entry__img">
-            </a>
-        </div>
-    </section>
-    </div>
-
-    <!-- ========== ORION ========== -->
-    <div class="paper-section">
-    <section class="section" id="projects">
-        <div class="paper-section__header">
-            <h2 class="section__title">ORION</h2>
-            <p class="section__subtitle">项目、作品、构想</p>
-        </div>
-
-        <div class="paper-grid">
-            <div class="paper-card fade-in">
-                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cherry%20blossom%20trees%20in%20full%20bloom%20along%20peaceful%20river%20spring%20soft%20pink%20petals&image_size=landscape_4_3" alt="项目一">
-                <div class="paper-card__body">
-                    <h3 class="paper-card__title">项目代号 Alpha</h3>
-                    <span class="paper-card__badge" style="background:#2ed573;"><i class="fas fa-check-circle"></i> 已上线</span>
-                    <div class="paper-card__venue">Game · 2024</div>
-                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
-                    <p class="paper-card__authors">角色：<strong>主测 / 负责人</strong></p>
-                    <div class="paper-card__actions">
-                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
-                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
-                    </div>
-                </div>
+        <div class="entry-container">
+            <div class="atlas-entry">
+                <a href="atlas.html" class="atlas-entry__icon fade-in" data-label="传送至 ATLAS">
+                    <img src="main_Stock/Chronosphere_3D.webp" alt="ATLAS 入口" class="atlas-entry__img">
+                </a>
             </div>
-
-            <div class="paper-card fade-in">
-                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=crystal%20clear%20alpine%20lake%20reflection%20snow%20mountains%20summer%20blue%20sky%20landscape&image_size=landscape_4_3" alt="项目二">
-                <div class="paper-card__body">
-                    <h3 class="paper-card__title">项目代号 Beta</h3>
-                    <span class="paper-card__badge" style="background:#1e90ff;"><i class="fas fa-spinner"></i> 进行中</span>
-                    <div class="paper-card__venue">Perf · 2025</div>
-                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
-                    <p class="paper-card__authors">角色：<strong>性能测试</strong></p>
-                    <div class="paper-card__actions">
-                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
-                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
-                    </div>
-                </div>
+            <div class="atlas-entry">
+                <a href="#" class="atlas-entry__icon fade-in" data-label="敬请期待">
+                    <img src="main_Stock/endurance_magnet_3D.png" alt="新入口" class="atlas-entry__img">
+                </a>
             </div>
-
-            <div class="paper-card fade-in">
-                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=rolling%20green%20hills%20and%20valley%20at%20foggy%20morning%20cinematic%20nature%20landscape&image_size=landscape_4_3" alt="项目三">
-                <div class="paper-card__body">
-                    <h3 class="paper-card__title">项目代号 Gamma</h3>
-                    <span class="paper-card__badge" style="background:#ff4757;"><i class="fas fa-shield-alt"></i> 安全</span>
-                    <div class="paper-card__venue">Security · 2024</div>
-                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
-                    <p class="paper-card__authors">角色：<strong>安全测试</strong></p>
-                    <div class="paper-card__actions">
-                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
-                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="paper-card fade-in">
-                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=tropical%20waterfall%20in%20lush%20green%20rainforest%20long%20exposure%20nature%20photography&image_size=landscape_4_3" alt="项目四">
-                <div class="paper-card__body">
-                    <h3 class="paper-card__title">项目代号 Delta</h3>
-                    <span class="paper-card__badge" style="background:#ffa502;"><i class="fas fa-code-branch"></i> 流程</span>
-                    <div class="paper-card__venue">Process · 2023</div>
-                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
-                    <p class="paper-card__authors">角色：<strong>版本管理</strong></p>
-                    <div class="paper-card__actions">
-                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
-                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="paper-card fade-in">
-                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=ancient%20stone%20bridge%20over%20river%20in%20misty%20bamboo%20forest%20zen%20atmosphere&image_size=landscape_4_3" alt="项目五">
-                <div class="paper-card__body">
-                    <h3 class="paper-card__title">项目代号 Epsilon</h3>
-                    <span class="paper-card__badge" style="background:#a55eea;"><i class="fas fa-file-alt"></i> 文档</span>
-                    <div class="paper-card__venue">Docs · 2023</div>
-                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
-                    <p class="paper-card__authors">角色：<strong>文档体系</strong></p>
-                    <div class="paper-card__actions">
-                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
-                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="paper-card fade-in">
-                <img class="paper-card__img" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=vast%20lavender%20fields%20in%20provence%20sunset%20purple%20flowers%20rolling%20landscape&image_size=landscape_4_3" alt="项目六">
-                <div class="paper-card__body">
-                    <h3 class="paper-card__title">项目代号 Zeta</h3>
-                    <span class="paper-card__badge" style="background:#1abc9c;"><i class="fas fa-tools"></i> 工具</span>
-                    <div class="paper-card__venue">Tool · 2022</div>
-                    <p class="paper-card__desc">这里是项目简介的占位文字。待你提供素材后，替换为项目的详细描述、核心亮点与个人贡献。</p>
-                    <p class="paper-card__authors">角色：<strong>工具开发</strong></p>
-                    <div class="paper-card__actions">
-                        <a href="#" class="paper-card__btn"><i class="fas fa-image"></i> 详情</a>
-                        <a href="#" class="paper-card__btn"><i class="fas fa-link"></i> 链接</a>
-                    </div>
-                </div>
+            <div class="atlas-entry">
+                <a href="orion.html" class="atlas-entry__icon fade-in" data-label="传送至 ORION">
+                    <img src="main_Stock/JURASSIC_PARK_3D.webp" alt="ORION 入口" class="atlas-entry__img">
+                </a>
             </div>
         </div>
     </section>
     </div>
 
-    <!-- ========== Say Hi ========== -->
+    
+
+    <!-- ========== Echo ========== -->
     <section class="section" id="contact">
-        <h2 class="section__title">联系<span>我</span></h2>
+        <h2 class="section__title" style="color: #1a1a2e;">Echo</h2>
         <p class="section__subtitle">GET IN TOUCH</p>
 
         <div class="contact__grid">

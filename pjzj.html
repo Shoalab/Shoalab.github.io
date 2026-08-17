@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PJZJ-100 膀胱癌定量检测仪 · 交互演示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{
+  --med-teal:#0e7490; --med-teal-dark:#155e75; --med-teal-light:#ecfeff;
+  --med-bg:#eef2f7; --med-panel:#ffffff; --med-border:#d3dce6;
+  --med-text:#1e293b; --med-sub:#64748b;
+  --med-green:#059669; --med-amber:#d97706; --med-red:#dc2626;
+  --screen-bg:#0a1628; --screen-teal:#22d3ee; --screen-dim:#164e63;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--med-bg);color:var(--med-text);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+
+/* ============ 顶部导航 ============ */
+.topbar{position:fixed;top:0;left:0;right:0;height:54px;background:#fff;border-bottom:1px solid var(--med-border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000;box-shadow:0 1px 4px rgba(15,23,42,.06)}
+.topbar__left{display:flex;align-items:center;gap:1rem}
+.topbar__back{display:flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border:1px solid var(--med-border);border-radius:4px;text-decoration:none;color:var(--med-sub);font-size:.85rem;font-weight:500;transition:.2s}
+.topbar__back:hover{border-color:var(--med-teal);color:var(--med-teal);background:var(--med-teal-light)}
+.topbar__title{font-weight:700;color:var(--med-text)}
+.topbar__title em{color:var(--med-teal);font-style:normal;font-family:var(--mono);font-size:.8rem;margin-left:.5rem}
+.topbar__status{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.75rem;color:var(--med-sub)}
+.led{width:9px;height:9px;border-radius:50%;background:#94a3b8;transition:.3s}
+.led--on{background:var(--med-green);box-shadow:0 0 8px rgba(5,150,105,.7)}
+
+/* ============ Hero ============ */
+.hero{margin-top:54px;padding:60px 20px 40px;background:linear-gradient(180deg,#f8fafc 0%,var(--med-bg) 100%);text-align:center}
+.hero__badge{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:700;letter-spacing:.15em;color:var(--med-teal-dark);background:var(--med-teal-light);border:1px solid #a5f3fc;padding:.35rem 1rem;border-radius:99px;margin-bottom:1.5rem}
+.hero__title{font-size:2.4rem;font-weight:900;letter-spacing:-.01em}
+.hero__title span{color:var(--med-teal)}
+.hero__sub{color:var(--med-sub);max-width:640px;margin:1rem auto 2rem}
+.hero__chips{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center}
+.chip{display:flex;flex-direction:column;background:#fff;border:1px solid var(--med-border);border-radius:6px;padding:.8rem 1.4rem;min-width:130px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+.chip__label{font-size:.68rem;color:var(--med-sub);letter-spacing:.08em;text-transform:uppercase}
+.chip__value{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--med-teal-dark)}
+
+/* ============ 通用Section ============ */
+.section{max-width:1080px;margin:0 auto 60px;padding:0 20px}
+.section__head{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1.6rem;border-bottom:2px solid var(--med-teal);padding-bottom:.7rem}
+.section__num{font-family:var(--mono);color:var(--med-teal);font-weight:700;font-size:1.1rem}
+.section__title{font-size:1.35rem;font-weight:700}
+.section__hint{margin-left:auto;font-size:.78rem;color:var(--med-sub);display:flex;align-items:center;gap:.4rem}
+
+/* ============ 实验室工作台 ============ */
+.workbench{display:grid;grid-template-columns:1.15fr 1fr;gap:1.4rem;align-items:stretch}
+.panel{background:var(--med-panel);border:1px solid var(--med-border);border-radius:8px;box-shadow:0 2px 12px rgba(15,23,42,.06);overflow:hidden;display:flex;flex-direction:column}
+.panel__head{padding:.7rem 1.1rem;background:#f8fafc;border-bottom:1px solid var(--med-border);font-size:.78rem;font-weight:600;color:var(--med-sub);display:flex;justify-content:space-between;align-items:center;letter-spacing:.05em}
+.panel__body{padding:1.2rem;flex:1;display:flex;flex-direction:column}
+
+/* 仪器台 */
+.device-stage{position:relative;background:linear-gradient(160deg,#f1f5f9,#e2e8f0);border-radius:6px;padding:2rem;display:flex;align-items:center;justify-content:center;min-height:320px;overflow:hidden}
+.device-stage::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(148,163,184,.06) 18px,rgba(148,163,184,.06) 36px)}
+.device-img{width:100%;max-width:420px;position:relative;z-index:2;filter:drop-shadow(0 16px 24px rgba(15,23,42,.22))}
+/* 热点 */
+.hotspot{position:absolute;z-index:5;width:30px;height:30px;border-radius:50%;border:2px solid var(--med-teal);background:rgba(255,255,255,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--med-teal);font-size:.7rem;font-weight:700;font-family:var(--mono);transition:.2s;transform:translate(-50%,-50%)}
+.hotspot:hover{background:var(--med-teal);color:#fff;transform:translate(-50%,-50%) scale(1.15)}
+.hotspot::after{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(14,116,144,.4);animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(1.5);opacity:0}}
+
+/* 电源按钮 */
+.power-btn{position:absolute;bottom:1.2rem;right:1.2rem;z-index:6;width:58px;height:58px;border-radius:50%;border:2px solid var(--med-border);background:#fff;cursor:pointer;font-size:1.25rem;color:#94a3b8;box-shadow:0 4px 12px rgba(15,23,42,.15);transition:.25s}
+.power-btn:hover{color:var(--med-teal);border-color:var(--med-teal)}
+.power-btn.on{color:var(--med-green);border-color:var(--med-green);box-shadow:0 0 18px rgba(5,150,105,.45)}
+.power-btn.blink{animation:blink .6s infinite}
+@keyframes blink{50%{opacity:.35}}
+
+/* 弹窗 */
+.modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:10px;max-width:560px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 24px 60px rgba(15,23,42,.35);animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.modal__head{padding:1rem 1.4rem;border-bottom:1px solid var(--med-border);display:flex;justify-content:space-between;align-items:center}
+.modal__title{font-weight:700;display:flex;align-items:center;gap:.6rem}
+.modal__title i{color:var(--med-teal)}
+.modal__close{border:none;background:#f1f5f9;width:30px;height:30px;border-radius:6px;cursor:pointer;color:var(--med-sub);transition:.2s}
+.modal__close:hover{background:var(--med-red);color:#fff}
+.modal__body{padding:1.4rem}
+.spec-row{display:flex;justify-content:space-between;padding:.55rem 0;border-bottom:1px dashed var(--med-border);font-size:.88rem}
+.spec-row b{font-family:var(--mono);color:var(--med-teal-dark)}
+
+/* 仪器屏幕模拟 */
+.device-screen{background:var(--screen-bg);border-radius:8px;border:6px solid #1e293b;box-shadow:inset 0 0 30px rgba(0,0,0,.6),0 8px 20px rgba(15,23,42,.3);flex:1;min-height:340px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.screen__topbar{display:flex;justify-content:space-between;padding:.6rem 1rem;font-family:var(--mono);font-size:.68rem;color:var(--screen-teal);border-bottom:1px solid var(--screen-dim);background:rgba(34,211,238,.05)}
+.screen__body{flex:1;padding:1.1rem;display:flex;flex-direction:column;gap:.9rem;overflow:auto}
+.screen__center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;text-align:center;color:#64748b;font-family:var(--mono);font-size:.8rem}
+.screen__center i{font-size:2rem;color:#334155}
+.boot-line{font-family:var(--mono);font-size:.74rem;color:#7dd3fc;text-align:left;line-height:1.9}
+.boot-line .ok{color:var(--med-green)}
+.stage-bar{display:flex;gap:.4rem;flex-wrap:wrap}
+.stage-tag{font-family:var(--mono);font-size:.62rem;padding:.25rem .55rem;border-radius:3px;border:1px solid var(--screen-dim);color:#475569;transition:.3s}
+.stage-tag.active{border-color:var(--screen-teal);color:var(--screen-teal);background:rgba(34,211,238,.12)}
+.stage-tag.done{border-color:var(--med-green);color:var(--med-green)}
+.rlu-panel{font-family:var(--mono)}
+.rlu-panel__label{font-size:.68rem;color:#64748b;letter-spacing:.1em}
+.rlu-panel__value{font-size:2rem;font-weight:700;color:var(--screen-teal);text-shadow:0 0 14px rgba(34,211,238,.55)}
+.progress-track{height:6px;background:var(--screen-dim);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#0891b2,var(--screen-teal));border-radius:99px;transition:width .4s ease;box-shadow:0 0 10px rgba(34,211,238,.6)}
+.glow{animation:glow 1.2s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* 芯片托盘 */
+.chip-tray{margin-top:1.2rem;background:#fff;border:1px dashed var(--med-border);border-radius:8px;padding:1rem 1.2rem;display:flex;align-items:center;gap:1.2rem;transition:.3s}
+.chip-tray.ready{border-color:var(--med-teal);background:var(--med-teal-light);box-shadow:0 0 0 4px rgba(14,116,144,.08)}
+.chip-item{width:180px;cursor:pointer;position:relative;transition:.3s;filter:drop-shadow(0 6px 10px rgba(15,23,42,.2))}
+.chip-item.inserted{opacity:.25;filter:grayscale(1);pointer-events:none}
+.chip-item:not(.inserted):hover{transform:translateY(-4px) scale(1.03)}
+.chip-fluid{position:absolute;left:8%;right:8%;top:34%;height:26%;border-radius:3px;background:linear-gradient(90deg,transparent 0%,rgba(220,38,38,.55) 50%,transparent 100%);background-size:220% 100%;opacity:0;pointer-events:none}
+.chip-fluid.flow{opacity:1;animation:fluidFlow 1.6s linear infinite}
+@keyframes fluidFlow{from{background-position:200% 0}to{background-position:-120% 0}}
+.tray__text{flex:1}
+.tray__title{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.5rem}
+.tray__desc{font-size:.8rem;color:var(--med-sub);margin-top:.3rem}
+.tray__action{font-family:var(--mono);font-size:.72rem;color:var(--med-teal);margin-top:.5rem;display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--med-teal);border-radius:4px;padding:.3rem .7rem;cursor:pointer;background:#fff;transition:.2s}
+.tray__action:hover{background:var(--med-teal);color:#fff}
+.tray__action:disabled{opacity:.4;cursor:not-allowed}
+
+/* 步骤说明 */
+.stage-note{margin-top:1rem;display:flex;gap:.7rem;align-items:flex-start;background:#fffbeb;border:1px solid #fde68a;border-left:4px solid var(--med-amber);border-radius:4px;padding:.8rem 1rem;font-size:.85rem;color:#92400e}
+.stage-note i{color:var(--med-amber);margin-top:.15rem}
+
+/* ============ 微流控芯片工艺 ============ */
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.chip-visual{background:#fff;border:1px solid var(--med-border);border-radius:8px;padding:1.6rem;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.chip-visual img{width:100%;max-width:380px;filter:drop-shadow(0 10px 16px rgba(15,23,42,.18))}
+.microsteps{display:flex;flex-direction:column;gap:.8rem}
+.microstep{display:flex;gap:1rem;background:#fff;border:1px solid var(--med-border);border-radius:6px;padding:1rem 1.2rem;transition:.3s;cursor:default}
+.microstep:hover{border-color:var(--med-teal);transform:translateX(4px)}
+.microstep__num{width:38px;height:38px;flex-shrink:0;border-radius:8px;background:var(--med-teal-light);color:var(--med-teal-dark);font-family:var(--mono);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.9rem;border:1px solid #a5f3fc}
+.microstep__title{font-weight:700;font-size:.92rem}
+.microstep__desc{font-size:.8rem;color:var(--med-sub);margin-top:.2rem}
+
+/* ============ 检测报告 ============ */
+.report-wrap{display:flex;justify-content:center}
+.report{background:#fff;width:100%;max-width:720px;box-shadow:0 8px 32px rgba(15,23,42,.12);border:1px solid var(--med-border);position:relative}
+.report::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--med-teal),#0891b2)}
+.report__inner{padding:2.2rem 2.5rem 2rem}
+.report__head{text-align:center;border-bottom:2px solid var(--med-text);padding-bottom:1rem;margin-bottom:1.2rem}
+.report__hosp{font-size:1.5rem;font-weight:900;letter-spacing:.25em}
+.report__doc{font-size:.85rem;color:var(--med-sub);letter-spacing:.1em;margin-top:.2rem}
+.report__meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.7rem;color:var(--med-sub);margin-bottom:1.4rem}
+.report__table{width:100%;border-collapse:collapse;font-size:.88rem;margin:.5rem 0 1.2rem}
+.report__table th{background:#f1f5f9;border:1px solid var(--med-border);padding:.6rem .8rem;font-size:.78rem;color:var(--med-sub);font-weight:600;letter-spacing:.05em}
+.report__table td{border:1px solid var(--med-border);padding:.65rem .8rem;text-align:center}
+.report__table td:first-child{text-align:left;font-weight:500}
+.val{font-family:var(--mono);font-weight:700}
+.flag--hi{color:var(--med-red);font-weight:700}
+.flag--ok{color:var(--med-green)}
+.report__result{border:1px solid var(--med-border);border-radius:6px;padding:1rem 1.2rem;background:#f8fafc;display:flex;gap:1rem;align-items:center}
+.report__result-tag{font-weight:900;font-size:1.1rem;padding:.4rem 1rem;border-radius:4px}
+.tag--low{background:#ecfdf5;color:var(--med-green);border:1px solid #a7f3d0}
+.tag--watch{background:#fffbeb;color:var(--med-amber);border:1px solid #fde68a}
+.report__note{font-size:.72rem;color:var(--med-sub);line-height:1.8;margin-top:1.2rem;border-top:1px dashed var(--med-border);padding-top:.9rem}
+.report__empty{text-align:center;padding:4rem 2rem;color:var(--med-sub)}
+.report__empty i{font-size:2.4rem;color:#cbd5e1;margin-bottom:1rem;display:block}
+.barcode{display:flex;gap:2px;height:34px;justify-content:center;margin:1rem 0 .4rem}
+.barcode span{width:2px;background:var(--med-text)}
+.report__stamp{position:absolute;right:2.5rem;bottom:5.2rem;width:110px;height:110px;border:3px solid rgba(220,38,38,.75);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(220,38,38,.8);font-weight:900;transform:rotate(-14deg);letter-spacing:.1em;font-size:.85rem;text-align:center;line-height:1.5}
+
+/* ============ 原理动画 ============ */
+.principle-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.principle-card{background:#fff;border:1px solid var(--med-border);border-radius:8px;overflow:hidden}
+.principle-card__head{padding:.8rem 1.2rem;background:var(--med-teal-light);border-bottom:1px solid #a5f3fc;font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem;color:var(--med-teal-dark)}
+.principle-card__body{padding:1.4rem}
+.sandwich-svg{width:100%;border-radius:6px;background:linear-gradient(180deg,#f8fafc,#eef2f7)}
+.principle-text{font-size:.86rem;color:var(--med-sub);line-height:1.9}
+.principle-text b{color:var(--med-text)}
+.principle-text ol{padding-left:1.2rem;margin:.5rem 0}
+.lumi-demo{background:var(--screen-bg);border-radius:8px;padding:1.4rem;text-align:center;margin-top:.8rem}
+.lumi-dot{width:60px;height:60px;margin:0 auto .8rem;border-radius:50%;background:radial-gradient(circle,#fde68a 0%,#f59e0b 45%,transparent 70%);opacity:.25;transition:.5s}
+.lumi-demo.active .lumi-dot{opacity:1;box-shadow:0 0 42px 12px rgba(245,158,11,.55);animation:lumi 2s ease-in-out infinite}
+@keyframes lumi{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.lumi-ris{font-family:var(--mono);color:var(--screen-teal);font-size:.78rem}
+
+/* 资料图 */
+.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.doc-card{background:#fff;border:1px solid var(--med-border);border-radius:8px;padding:1.2rem}
+.doc-card img{width:100%;border-radius:6px;border:1px solid var(--med-border)}
+.doc-card figcaption{margin-top:.8rem;font-size:.8rem;color:var(--med-sub);display:flex;gap:.5rem;align-items:center}
+.doc-card figcaption i{color:var(--med-teal)}
+.video-card{background:#000;border-radius:8px;overflow:hidden;border:1px solid var(--med-border);margin-top:1.4rem}
+.video-card video{width:100%;display:block}
+
+/* Footer */
+.pjzj-footer{background:#0f172a;color:#94a3b8;text-align:center;padding:2rem 20px;font-size:.75rem;line-height:2}
+.pjzj-footer b{color:#e2e8f0}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--med-text);color:#fff;padding:.7rem 1.4rem;border-radius:6px;font-size:.85rem;z-index:3000;transition:.35s;opacity:0;display:flex;align-items:center;gap:.6rem;box-shadow:0 8px 24px rgba(15,23,42,.4)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast i{color:var(--screen-teal)}
+
+@media(max-width:900px){
+  .workbench,.chip-grid,.principle-grid,.doc-grid{grid-template-columns:1fr}
+  .hero__title{font-size:1.7rem}
+  .report__inner{padding:1.4rem 1rem}
+  .report__stamp{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="topbar">
+  <div class="topbar__left">
+    <a href="orion.html" class="topbar__back"><i class="fas fa-arrow-left"></i><span>返回 Orion</span></a>
+    <div class="topbar__title">PJZJ-100 膀胱癌定量检测仪<em>IVD / POCT SIMULATOR</em></div>
+  </div>
+  <div class="topbar__status"><span class="led" id="sysLed"></span><span id="sysLedText">SYSTEM OFFLINE</span></div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero__badge"><i class="fas fa-microscope"></i>医学仪器 · 交互式虚拟仿真</div>
+  <h1 class="hero__title">膀胱癌<span>定量检测仪</span></h1>
+  <p class="hero__sub">基于「双抗夹心法 + 化学发光法」的微流控定量检测平台。插入载有血液样本的生物芯片，即可自动完成免疫反应、发光检测与报告输出。</p>
+  <div class="hero__chips">
+    <div class="chip"><span class="chip__label">检测原理</span><span class="chip__value">CLIA</span></div>
+    <div class="chip"><span class="chip__label">样本类型</span><span class="chip__value">静脉全血</span></div>
+    <div class="chip"><span class="chip__label">检测时间</span><span class="chip__value">≤ 12 min</span></div>
+    <div class="chip"><span class="chip__label">灵敏度</span><span class="chip__value">pg/mL</span></div>
+  </div>
+</section>
+
+<!-- ===== 01 实验台 ===== -->
+<section class="section">
+  <div class="section__head">
+    <span class="section__num">01</span><h2 class="section__title">虚拟实验台 · 仪器操作模拟</h2>
+    <span class="section__hint"><i class="fas fa-hand-pointer"></i>点击电源开机 → 点击芯片插入 → 自动完成检测</span>
+  </div>
+
+  <div class="workbench">
+    <!-- 左：仪器 -->
+    <div class="panel">
+      <div class="panel__head"><span><i class="fas fa-desktop"></i> DETECTION UNIT · PJZJ-100</span><span id="deviceState" style="font-family:var(--mono)">STANDBY</span></div>
+      <div class="panel__body">
+        <div class="device-stage">
+          <img src="orion-images/hub_PJZJ/pang_1.png" alt="PJZJ-100 膀胱癌定量检测仪" class="device-img">
+          <!-- 热点 -->
+          <div class="hotspot" style="left:30%;top:22%" data-info="screen">1</div>
+          <div class="hotspot" style="left:52%;top:48%" data-info="slot">2</div>
+          <div class="hotspot" style="left:70%;top:30%" data-info="optic">3</div>
+          <div class="hotspot" style="left:38%;top:66%" data-info="printer">4</div>
+          <button class="power-btn" id="powerBtn" title="电源"><i class="fas fa-power-off"></i></button>
+        </div>
+
+        <!-- 芯片托盘 -->
+        <div class="chip-tray" id="chipTray">
+          <div style="position:relative">
+            <img src="orion-images/hub_PJZJ/pang_2.png" alt="微流控生物芯片" class="chip-item" id="chipItem">
+            <div class="chip-fluid" id="chipFluid"></div>
+          </div>
+          <div class="tray__text">
+            <div class="tray__title"><i class="fas fa-memory" style="color:var(--med-teal)"></i>微流控生物芯片 · MC-BC100</div>
+            <div class="tray__desc">预包被捕获抗体 · 载入血液样本 · 一次性使用</div>
+            <button class="tray__action" id="insertChipBtn" disabled><i class="fas fa-arrow-up"></i>等待开机后插入芯片</button>
+          </div>
+        </div>
+
+        <div class="stage-note" id="stageNote">
+          <i class="fas fa-lightbulb"></i>
+          <div><b>操作提示：</b>点击右下角 <b>电源键</b> 启动仪器；开机自检通过后，点击芯片或「插入芯片」按钮开始检测流程。仪器表面 <b>①②③④</b> 热点可查看模块详情。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右：仪器屏幕 -->
+    <div class="panel">
+      <div class="panel__head"><span><i class="fas fa-tv"></i> TOUCH PANEL · 运行监控</span><span style="font-family:var(--mono)">192.168.10.1</span></div>
+      <div class="panel__body">
+        <div class="device-screen">
+          <div class="screen__topbar">
+            <span>PJZJ-100 OS v2.4.1</span>
+            <span id="screenClock">--:--:--</span>
+          </div>
+          <div class="screen__body" id="screenBody">
+            <div class="screen__center">
+              <i class="fas fa-power-off"></i>
+              <span>SYSTEM STANDBY<br>PRESS POWER TO START</span>
+            </div>
+          </div>
+        </div>
+        <div class="stage-bar" id="stageBar" style="margin-top:.9rem;justify-content:center">
+          <span class="stage-tag" data-stage="selftest">自检</span>
+          <span class="stage-tag" data-stage="chip">装载</span>
+          <span class="stage-tag" data-stage="sample">进样</span>
+          <span class="stage-tag" data-stage="reaction">孵育</span>
+          <span class="stage-tag" data-stage="wash">清洗</span>
+          <span class="stage-tag" data-stage="lumi">发光</span>
+          <span class="stage-tag" data-stage="report">报告</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 芯片工艺 ===== -->
+<section class="section">
+  <div class="section__head">
+    <span class="section__num">02</span><h2 class="section__title">微流控生物芯片 · 工艺流程</h2>
+    <span class="section__hint"><i class="fas fa-droplet"></i>点击下方流程查看各仓室功能</span>
+  </div>
+  <div class="chip-grid">
+    <div class="chip-visual">
+      <img src="orion-images/hub_PJZJ/pang_2.png" alt="微流控生物芯片结构">
+    </div>
+    <div class="microsteps">
+      <div class="microstep" data-info="chipstep1">
+        <div class="microstep__num">S1</div>
+        <div><div class="microstep__title">样本注入仓</div><div class="microstep__desc">全血样本经加样孔进入微通道，蠕动泵定量吸取 15 μL。</div></div>
+      </div>
+      <div class="microstep" data-info="chipstep2">
+        <div class="microstep__num">S2</div>
+        <div><div class="microstep__title">血浆分离仓</div><div class="microstep__desc">微柱阵列拦截血细胞，实现无离心血浆分离，去除基质干扰。</div></div>
+      </div>
+      <div class="microstep" data-info="chipstep3">
+        <div class="microstep__num">S3</div>
+        <div><div class="microstep__title">免疫反应仓</div><div class="microstep__desc">血浆流经预包被捕获抗体的反应微球，完成双抗夹心捕获。</div></div>
+      </div>
+      <div class="microstep" data-info="chipstep4">
+        <div class="microstep__num">S4</div>
+        <div><div class="microstep__title">发光检测仓</div><div class="microstep__desc">注入化学发光底物，光电倍增管采集 RLU 信号并定量换算。</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 检测报告 ===== -->
+<section class="section">
+  <div class="section__head">
+    <span class="section__num">03</span><h2 class="section__title">检验报告单</h2>
+    <span class="section__hint"><i class="fas fa-file-medical"></i>完成检测流程后自动生成</span>
+  </div>
+  <div class="report-wrap">
+    <div class="report">
+      <div class="report__inner" id="reportArea">
+        <div class="report__empty">
+          <i class="fas fa-file-circle-question"></i>
+          <div>暂无报告数据</div>
+          <div style="font-size:.78rem">请在上方虚拟实验台完成一次检测，或 <a href="#" id="demoReportLink" style="color:var(--med-teal)">查看示例报告</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 检测原理 ===== -->
+<section class="section">
+  <div class="section__head">
+    <span class="section__num">04</span><h2 class="section__title">检测原理</h2>
+    <span class="section__hint"><i class="fas fa-atom"></i>双抗夹心法 + 化学发光法</span>
+  </div>
+  <div class="principle-grid">
+    <div class="principle-card">
+      <div class="principle-card__head"><i class="fas fa-link"></i>双抗夹心法 · Sandwich Immunoassay</div>
+      <div class="principle-card__body">
+        <svg class="sandwich-svg" viewBox="0 0 420 210">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#94a3b8"/></marker>
+          </defs>
+          <!-- 固相表面 -->
+          <rect x="20" y="170" width="380" height="12" rx="3" fill="#0e7490"/>
+          <text x="210" y="197" text-anchor="middle" font-size="10" fill="#64748b" font-family="JetBrains Mono">固相载体 · 预包被捕获抗体</text>
+          <!-- capture Ab -->
+          <g fill="none" stroke="#155e75" stroke-width="2.5">
+            <path d="M90,170 v-16 M90,154 l-9,-9 M90,154 l9,-9"/>
+            <path d="M180,170 v-16 M180,154 l-9,-9 M180,154 l9,-9"/>
+            <path d="M270,170 v-16 M270,154 l-9,-9 M270,154 l9,-9"/>
+            <path d="M340,170 v-16 M340,154 l-9,-9 M340,154 l9,-9"/>
+          </g>
+          <!-- antigen -->
+          <g>
+            <circle cx="90" cy="120" r="13" fill="#dc2626" opacity=".9"/>
+            <circle cx="180" cy="128" r="10" fill="#dc2626" opacity=".65"/>
+            <circle cx="270" cy="118" r="14" fill="#dc2626" opacity=".9"/>
+            <text x="270" y="122" text-anchor="middle" font-size="9" fill="#fff" font-family="JetBrains Mono">Ag</text>
+            <text x="90" y="96" text-anchor="middle" font-size="9" fill="#dc2626" font-family="JetBrains Mono">靶抗原</text>
+          </g>
+          <!-- detection Ab -->
+          <g fill="none" stroke="#0891b2" stroke-width="2.5">
+            <path d="M90,104 v-18 M90,86 l-9,-9 M90,86 l9,-9"/>
+            <path d="M270,102 v-18 M270,84 l-9,-9 M270,84 l9,-9"/>
+          </g>
+          <!-- labels -->
+          <g>
+            <circle cx="62" cy="76" r="7" fill="#f59e0b"/>
+            <circle cx="242" cy="74" r="7" fill="#f59e0b"/>
+            <text x="88" y="66" font-size="9" fill="#b45309" font-family="JetBrains Mono">HRP/吖啶酯标记</text>
+          </g>
+          <!-- flow arrows -->
+          <line x1="330" y1="60" x2="380" y2="60" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="330" y1="120" x2="380" y2="120" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="355" y="48" text-anchor="middle" font-size="9" fill="#94a3b8" font-family="JetBrains Mono">Ab-Ag-Ab</text>
+          <!-- animate antigens -->
+          <animateTransform xlink:href="#ag1" attributeName="transform" type="translate" from="0,-30" to="0,0" dur="1.5s" fill="freeze"/>
+          <style>
+            .sandwich-svg circle[opacity=".9"]{animation:agDrop 2s ease infinite alternate}
+            .sandwich-svg circle[opacity=".65"]{animation:agDrop 2.4s .4s ease infinite alternate}
+            @keyframes agDrop{from{transform:translateY(-14px);opacity:.4}to{transform:translateY(0);opacity:.95}}
+          </style>
+        </svg>
+        <div class="principle-text" style="margin-top:1rem">
+          <b>夹心结构：</b>固相捕获抗体（Capture Ab）特异性结合样本中的肿瘤标志物抗原（Ag），再由酶/发光标记的检测抗体（Detection Ab）结合另一表位，形成 <b>Ab–Ag–Ab</b> 三明治复合物。双位点识别显著提升特异性，交叉反应率低。
+        </div>
+      </div>
+    </div>
+
+    <div class="principle-card">
+      <div class="principle-card__head"><i class="fas fa-lightbulb"></i>化学发光法 · Chemiluminescence</div>
+      <div class="principle-card__body">
+        <div class="principle-text">
+          <b>信号转换链路：</b>
+          <ol>
+            <li>碱性磷酸酶 / HRP 催化发光底物（AMPPD / 鲁米诺）</li>
+            <li>底物分解产生激发态中间体</li>
+            <li>回到基态时释放光子（hv），由 <b>PMT 光电倍增管</b> 采集</li>
+            <li>光子计数换算为 <b>RLU 值</b>，经内置定标曲线得出浓度</li>
+          </ol>
+          发光强度与抗原浓度在检测区间内呈良好线性关系，定量下限可达 <b>pg/mL</b> 级。
+        </div>
+        <div class="lumi-demo" id="lumiDemo">
+          <div class="lumi-dot"></div>
+          <div class="lumi-ris" id="lumiRis">RLU: — · 等待触发</div>
+          <button class="tray__action" id="lumiTrigger" style="margin-top:.8rem"><i class="fas fa-bolt"></i>激发发光（演示）</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 技术资料 ===== -->
+<section class="section">
+  <div class="section__head">
+    <span class="section__num">05</span><h2 class="section__title">技术资料</h2>
+    <span class="section__hint"><i class="fas fa-folder-open"></i>方案与核心技术概览</span>
+  </div>
+  <div class="doc-grid">
+    <figure class="doc-card">
+      <img src="orion-images/hub_PJZJ/检测方案.png" alt="检测方案">
+      <figcaption><i class="fas fa-clipboard-list"></i>检测方案 · 从采样到报告的全流程设计</figcaption>
+    </figure>
+    <figure class="doc-card">
+      <img src="orion-images/hub_PJZJ/核心技术.png" alt="核心技术">
+      <figcaption><i class="fas fa-microchip"></i>核心技术 · 微流控 + 化学发光定量平台</figcaption>
+    </figure>
+  </div>
+  <div class="video-card">
+    <video src="orion-images/hub_PJZJ/video1.mp4" controls preload="metadata"></video>
+  </div>
+</section>
+
+<footer class="pjzj-footer">
+  <div><b>PJZJ-100 膀胱癌定量检测仪 · 虚拟交互演示</b></div>
+  <div>本页面为产品演示原型 · 所有检测数据均为模拟生成 · 不构成医学诊断依据</div>
+</footer>
+
+<!-- ===== 弹窗 ===== -->
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal__head">
+      <div class="modal__title" id="modalTitle"><i class="fas fa-circle-info"></i>信息</div>
+      <button class="modal__close" id="modalClose"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal__body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-circle-check"></i><span id="toastText"></span></div>
+
+<script>
+/* ================== 状态机 ================== */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+const HOTSPOTS = {
+  screen:{icon:'fa-tv',title:'触摸显示屏 · 7" LCD',body:`
+    <div class="spec-row"><span>分辨率</span><b>1024 × 600</b></div>
+    <div class="spec-row"><span>界面</span><b>向导式检测流程</b></div>
+    <div class="spec-row"><span>功能</span><b>样本信息录入 / 定标 / 质控 / 报告</b></div>
+    <div class="spec-row"><span>联网</span><b>LIS / 双向通讯（HL7）</b></div>`},
+  slot:{icon:'fa-sd-card',title:'芯片装载仓 · Chip Slot',body:`
+    <div class="spec-row"><span>适配芯片</span><b>MC-BC100 微流控芯片</b></div>
+    <div class="spec-row"><span>识别方式</span><b>RFID 芯片信息自动读取</b></div>
+    <div class="spec-row"><span>温控</span><b>37 ± 0.5 ℃ 孵育</b></div>
+    <div class="spec-row"><span>防错设计</span><b>一次性芯片 · 用后自动锁止</b></div>`},
+  optic:{icon:'fa-lightbulb',title:'光学检测模块 · PMT',body:`
+    <div class="spec-row"><span>检测器</span><b>光电倍增管（PMT）</b></div>
+    <div class="spec-row"><span>动态范围</span><b>0 – 10⁷ RLU</b></div>
+    <div class="spec-row"><span>本底噪声</span><b>&lt; 200 RLU</b></div>
+    <div class="spec-row"><span>暗室设计</span><b>全遮蔽暗仓 · 消除环境光干扰</b></div>`},
+  printer:{icon:'fa-print',title:'报告输出 · 打印模块',body:`
+    <div class="spec-row"><span>输出</span><b>58mm 热敏打印</b></div>
+    <div class="spec-row"><span>内容</span><b>定量结果 + 参考区间 + 条码</b></div>
+    <div class="spec-row"><span>同步</span><b>PDF 推送 LIS / HIS</b></div>`},
+  chipstep1:{icon:'fa-droplet',title:'S1 · 样本注入仓',body:`<p style="font-size:.88rem;color:var(--med-sub)">加样孔内置微阀，全血样本经蠕动泵定量吸取 <b style="font-family:var(--mono)">15 μL</b> 进入微通道网络，全程封闭无交叉污染。</p>`},
+  chipstep2:{icon:'fa-filter',title:'S2 · 血浆分离仓',body:`<p style="font-size:.88rem;color:var(--med-sub)">基于<b>微柱阵列效应</b>物理拦截血细胞（2–8 μm），无需离心即可获得纯净血浆，去除血红蛋白等基质干扰，提升检测准确性。</p>`},
+  chipstep3:{icon:'fa-link',title:'S3 · 免疫反应仓',body:`<p style="font-size:.88rem;color:var(--med-sub)">反应仓内预包被<b>捕获抗体微球</b>，血浆流经时抗原被夹心捕获；随后流入<b>吖啶酯标记检测抗体</b>，形成 Ab–Ag–Ab 复合物，37℃ 恒温孵育。</p>`},
+  chipstep4:{icon:'fa-lightbulb',title:'S4 · 发光检测仓',body:`<p style="font-size:.88rem;color:var(--med-sub)">注入化学发光底物，复合物上的标记物催化发光；<b>PMT 光电倍增管</b> 实时采集光子，输出 RLU 值，由内置定标曲线自动换算为浓度。</p>`}
+};
+
+$$('.hotspot, .microstep').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const info = HOTSPOTS[el.dataset.info];
+    if(!info) return;
+    $('#modalTitle').innerHTML = `<i class="fas ${info.icon}"></i>${info.title}`;
+    $('#modalBody').innerHTML = info.body;
+    $('#modalMask').classList.add('show');
+  });
+});
+$('#modalClose').onclick = ()=> $('#modalMask').classList.remove('show');
+$('#modalMask').addEventListener('click',e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+/* toast */
+let toastTimer;
+function toast(msg){
+  $('#toastText').textContent = msg;
+  $('#toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> $('#toast').classList.remove('show'), 2600);
+}
+
+/* 时钟 */
+setInterval(()=>{ $('#screenClock').textContent = new Date().toLocaleTimeString('zh-CN',{hour12:false}); },1000);
+
+/* ================== 检测流程引擎 ================== */
+let state = 'off'; // off→boot→selftest→ready→running→done
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+function setDeviceState(t){ $('#deviceState').textContent = t; }
+function setStageTag(stage,cls){
+  const tag = document.querySelector(`.stage-tag[data-stage="${stage}"]`);
+  if(tag){ tag.className = 'stage-tag ' + cls; }
+}
+function resetTags(){ $$('.stage-tag').forEach(t=>t.className='stage-tag'); }
+function note(html){ $('#stageNote').querySelector('div').innerHTML = html; }
+
+function screenRender(html){ $('#screenBody').innerHTML = html; }
+
+/* 开机 */
+$('#powerBtn').addEventListener('click', async ()=>{
+  if(state!=='off' && state!=='ready') return;
+  if(state==='ready') return powerOff();
+  state='boot';
+  const btn=$('#powerBtn'); btn.classList.add('on','blink');
+  $('#sysLed').className='led led--on'; $('#sysLedText').textContent='SYSTEM ONLINE';
+  setDeviceState('BOOTING');
+  toast('仪器启动中，正在执行系统自检…');
+
+  const lines = [
+    '> BIOS POST .................... <span class="ok">OK</span>',
+    '> 加载 PJZJ-100 OS v2.4.1 ...... <span class="ok">OK</span>',
+    '> 温控模块 37.0℃ .............. <span class="ok">OK</span>',
+    '> PMT 光电倍增管自检 ........... <span class="ok">OK</span>',
+    '> 蠕动泵 / 微阀驱动 ............ <span class="ok">OK</span>',
+    '> RFID 读写器 .................. <span class="ok">OK</span>',
+    '> 定标曲线校验 (LOT:BC22-0613) . <span class="ok">OK</span>'
+  ];
+  screenRender('<div class="boot-line" id="bootLine"></div>');
+  setStageTag('selftest','active');
+  const bootLine=$('#bootLine');
+  for(const l of lines){ bootLine.innerHTML += l+'<br>'; await sleep(420); }
+  await sleep(400);
+  setStageTag('selftest','done');
+  state='ready';
+  btn.classList.remove('blink');
+  setDeviceState('READY');
+  $('#insertChipBtn').disabled=false;
+  $('#insertChipBtn').innerHTML='<i class="fas fa-arrow-up"></i>插入芯片并开始检测';
+  $('#chipTray').classList.add('ready');
+  screenRender(`<div class="screen__center">
+    <i class="fas fa-circle-check" style="color:var(--med-green);font-size:2.4rem"></i>
+    <span style="color:#a7f3d0">SELF-TEST PASSED</span>
+    <span style="color:#64748b">请插入 MC-BC100 微流控芯片</span>
+  </div>`);
+  note('<b>自检通过：</b>现在点击左侧<b>微流控芯片</b>（或「插入芯片」按钮）装载芯片并自动开始检测。再次点击<b>电源键</b>可关机复位。');
+  toast('自检通过，请插入微流控芯片');
+});
+
+function powerOff(){
+  state='off';
+  $('#powerBtn').className='power-btn';
+  $('#sysLed').className='led'; $('#sysLedText').textContent='SYSTEM OFFLINE';
+  setDeviceState('STANDBY');
+  resetTags();
+  $('#insertChipBtn').disabled=true;
+  $('#insertChipBtn').innerHTML='<i class="fas fa-arrow-up"></i>等待开机后插入芯片';
+  $('#chipTray').classList.remove('ready');
+  $('#chipItem').classList.remove('inserted');
+  screenRender(`<div class="screen__center"><i class="fas fa-power-off"></i><span>SYSTEM STANDBY<br>PRESS POWER TO START</span></div>`);
+  note('<b>仪器已关机。</b>点击右下角 <b>电源键</b> 重新启动。');
+}
+
+/* 插入芯片 → 全流程 */
+async function startRun(){
+  if(state!=='ready') return;
+  state='running';
+  $('#chipItem').classList.add('inserted');
+  $('#chipFluid').classList.add('flow');
+  $('#chipTray').classList.remove('ready');
+  $('#insertChipBtn').disabled=true;
+  $('#insertChipBtn').innerHTML='<i class="fas fa-spinner fa-spin"></i>检测运行中…';
+  setDeviceState('RUNNING');
+
+  const stages=[
+    {tag:'chip',dur:1400,label:'芯片识别',icon:'fa-sd-card',screen:()=>{
+      const cid='BC'+Date.now().toString().slice(-8);
+      return `<div class="boot-line">> RFID 读取芯片 ...... <span class="ok">OK</span><br>> 芯片编号: <span style="color:var(--screen-teal)">${cid}</span><br>> 效期/定标批号校验 ... <span class="ok">PASS</span><br>> 锁止机械臂 ......... <span class="ok">OK</span></div>`;
+    }},
+    {tag:'sample',dur:1800,label:'样本注入',icon:'fa-droplet',screen:()=>`
+      <div class="screen__center" style="gap:.5rem">
+        <i class="fas fa-droplet glow" style="color:#dc2626"></i>
+        <span style="color:var(--screen-teal)">样本注入中 · 15 μL</span>
+        <div class="progress-track" style="width:70%"><div class="progress-fill" id="pf"></div></div>
+        <span style="font-size:.65rem;color:#64748b">微柱阵列分离血浆 · 去除细胞基质</span>
+      </div>`,progress:true},
+    {tag:'reaction',dur:2200,label:'免疫反应',icon:'fa-link',screen:()=>`
+      <div class="screen__center" style="gap:.5rem">
+        <i class="fas fa-temperature-half glow" style="color:#f59e0b"></i>
+        <span style="color:var(--screen-teal)">37℃ 恒温孵育 · 双抗夹心反应</span>
+        <div class="boot-line" style="text-align:center">
+          > 捕获抗体结合 ...... <span class="ok">OK</span><br>
+          > 酶标抗体结合 ...... <span class="ok">OK</span>
+        </div>
+      </div>`},
+    {tag:'wash',dur:1500,label:'清洗分离',icon:'fa-soap',screen:()=>`
+      <div class="screen__center" style="gap:.5rem">
+        <i class="fas fa-arrows-spin glow" style="color:var(--screen-teal)"></i>
+        <span style="color:var(--screen-teal)">磁分离清洗 × 3 循环</span>
+        <span style="font-size:.65rem;color:#64748b">去除未结合标记物 · 降低本底</span>
+      </div>`},
+    {tag:'lumi',dur:2400,label:'化学发光检测',icon:'fa-lightbulb',rlu:true},
+    {tag:'report',dur:1200,label:'报告生成',icon:'fa-file-medical'}
+  ];
+
+  const rluFinal = 24800 + Math.floor(Math.random()*9000);
+  for(const st of stages){
+    setStageTag(st.tag,'active');
+    if(st.screen){ screenRender(st.screen()); }
+    if(st.progress){
+      const pf=$('#pf'); if(pf){ let w=0; const t=setInterval(()=>{ w+=Math.random()*18; pf.style.width=Math.min(w,100)+'%'; if(w>=100)clearInterval(t); },st.dur/12); }
+    }
+    if(st.rlu){
+      screenRender(`<div class="screen__center" style="gap:.4rem">
+        <i class="fas fa-lightbulb glow" style="color:#f59e0b;font-size:2rem"></i>
+        <span style="color:var(--screen-teal);font-size:.72rem">底物激发 · PMT 计数中</span>
+        <div class="rlu-panel"><div class="rlu-panel__label">RLU VALUE</div><div class="rlu-panel__value" id="rluVal">0</div></div>
+        <div class="progress-track" style="width:80%"><div class="progress-fill" id="pf2"></div></div>
+      </div>`);
+      const rv=$('#rluVal'),pf2=$('#pf2');
+      let t0=0; const steps=28;
+      for(let i=1;i<=steps;i++){
+        t0=Math.round(rluFinal*(i/steps)*(0.9+Math.random()*0.15));
+        rv.textContent=t0.toLocaleString();
+        if(pf2) pf2.style.width=(i/steps*100)+'%';
+        await sleep(st.dur/steps);
+      }
+      rv.textContent=rluFinal.toLocaleString();
+    }
+    await sleep(st.dur);
+    setStageTag(st.tag,'done');
+  }
+
+  state='done';
+  setDeviceState('COMPLETE');
+  $('#chipFluid').classList.remove('flow');
+  $('#insertChipBtn').disabled=false;
+  $('#insertChipBtn').innerHTML='<i class="fas fa-rotate-right"></i>重新检测';
+  screenRender(`<div class="screen__center" style="gap:.5rem">
+    <i class="fas fa-circle-check" style="color:var(--med-green);font-size:2.4rem"></i>
+    <span style="color:#a7f3d0">检测完成 · 报告已生成</span>
+    <span style="font-size:.65rem;color:#64748b">RLU: ${rluFinal.toLocaleString()} · 定量换算完成</span>
+  </div>`);
+  generateReport(rluFinal);
+  toast('检测完成，报告已生成');
+  document.getElementById('reportArea').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+$('#insertChipBtn').addEventListener('click',()=>{
+  if(state==='done') return startRun();
+  startRun();
+});
+$('#chipItem').addEventListener('click',()=>{ if(state==='ready'||state==='done') startRun(); });
+
+/* ================== 报告生成 ================== */
+function generateReport(rlu){
+  const rnd=(a,b,d)=> (a+Math.random()*(b-a)).toFixed(d);
+  const items=[
+    {name:'细胞角蛋白19片段 · CYFRA21-1',val:rnd(0.8,3.2,2),unit:'ng/mL',ref:'≤ 3.30'},
+    {name:'核基质蛋白22 · NMP22',val:rnd(3,9.8,1),unit:'U/mL',ref:'≤ 10.0'},
+    {name:'膀胱肿瘤抗原 · BTA',val:rnd(8,19,1),unit:'U/mL',ref:'≤ 14.0'},
+  ];
+  const flags=items.map(it=> parseFloat(it.val) > parseFloat(it.ref.replace('≤','').trim()) ? 'hi':'ok');
+  const hiCount=flags.filter(f=>f==='hi').length;
+  const overall = hiCount>=2 ? ['watch','建议复查 · 复合指标异常'] : hiCount===1 ? ['watch','单项偏高 · 建议随访复查'] : ['low','各指标处于参考区间内'];
+  const now=new Date();
+  const no='PJZJ'+now.getFullYear()+'0'+(now.getMonth()+1)+String(now.getDate()).padStart(2,'0')+String(rlu).slice(-4);
+  const bar=Array.from({length:36},()=>`<span style="width:${Math.random()>.5?3:1.5}px"></span>`).join('');
+
+  $('#reportArea').innerHTML=`
+    <div class="report__head">
+      <div class="report__hosp">医学检验报告单</div>
+      <div class="report__doc">CLINICAL LABORATORY REPORT · 膀胱癌标志物定量检测</div>
+    </div>
+    <div class="barcode">${bar}</div>
+    <div class="report__meta" style="justify-content:center;margin-bottom:.6rem">${no}</div>
+    <div class="report__meta">
+      <span>仪器：PJZJ-100</span><span>试剂批号：BC22-0613</span><span>方法：双抗夹心+化学发光</span>
+    </div>
+    <div class="report__meta">
+      <span>样本编号：S-${String(rlu).slice(-6)}</span><span>样本类型：静脉全血</span><span>采血至报告：18 min</span>
+    </div>
+    <table class="report__table">
+      <tr><th style="width:42%">检验项目</th><th>结果</th><th>单位</th><th>参考区间</th><th>提示</th></tr>
+      ${items.map((it,i)=>`<tr>
+        <td>${it.name}</td>
+        <td class="val ${flags[i]==='hi'?'flag--hi':'flag--ok'}">${it.val}</td>
+        <td>${it.unit}</td>
+        <td>${it.ref}</td>
+        <td>${flags[i]==='hi'?'<span class="flag--hi">↑</span>':'<span class="flag--ok">—</span>'}</td>
+      </tr>`).join('')}
+      <tr><td>发光强度 · RLU</td><td class="val">${rlu.toLocaleString()}</td><td>RLU</td><td>—</td><td>—</td></tr>
+    </table>
+    <div class="report__result">
+      <span class="report__result-tag ${overall[0]==='low'?'tag--low':'tag--watch'}">${overall[0]==='low'?'未见明显异常':'建议复查'}</span>
+      <div style="font-size:.85rem;color:var(--med-sub)"><b style="color:var(--med-text)">综合评估：</b>${overall[1]}。检测结果需结合临床表现与影像学检查由医师综合判断。</div>
+    </div>
+    <div class="report__stamp"><span>模拟报告</span><span style="font-size:.6rem;letter-spacing:.05em">SIMULATION ONLY</span></div>
+    <div class="report__note">
+      注：① 本报告单为<b>交互演示模拟数据</b>，非真实检测结果；② 肿瘤标志物仅供辅助参考，不作为确诊依据；③ 如有异常请遵循医嘱进行膀胱镜等进一步检查；④ 报告内容不涉及任何真实人员信息。
+    </div>`;
+}
+
+$('#demoReportLink')?.addEventListener('click',e=>{e.preventDefault();generateReport(31200);toast('已加载示例报告（模拟数据）');});
+
+/* 发光演示 */
+$('#lumiTrigger').addEventListener('click',()=>{
+  const d=$('#lumiDemo'); d.classList.toggle('active');
+  if(d.classList.contains('active')){
+    let v=0; const target=38000+Math.floor(Math.random()*20000);
+    const t=setInterval(()=>{ v+=Math.floor(target/20); if(v>=target){v=target;clearInterval(t);} $('#lumiRis').textContent='RLU: '+v.toLocaleString(); },60);
+    $('#lumiRis').textContent='RLU: 0 · 计数中';
+  } else {
+    $('#lumiRis').textContent='RLU: — · 等待触发';
+  }
+});
+</script>
+</body>
+</html>

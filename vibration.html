@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机械设备振动减轻和智能控制装置</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#121214;
+  --bg2:#0c0d10;
+  --panel:#1a1c20;
+  --panel2:#15171b;
+  --line:#3a3f47;
+  --line-hi:rgba(255,255,255,.14);
+  --text:#e8eaee;
+  --sub:#9aa3b0;
+  --orange:#ff5500;
+  --amber:#ffb800;
+  --cyan:#38bdf8;
+  --steel:#8b95a3;
+  --disp:'Chakra Petch','Noto Sans SC',sans-serif;
+  --mono:'JetBrains Mono',Consolas,monospace;
+  --sans:'Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  line-height:1.7;
+}
+/* 蓝图网格背景 */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;
+  background:
+    linear-gradient(rgba(56,120,180,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,120,180,.05) 1px,transparent 1px),
+    linear-gradient(rgba(56,120,180,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,120,180,.028) 1px,transparent 1px),
+    radial-gradient(ellipse 70% 50% at 50% 0%,rgba(255,85,0,.06),transparent);
+  background-size:240px 240px,240px 240px,48px 48px,48px 48px,100% 100%;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.14) 3px 4px);
+}
+::selection{background:var(--orange);color:#fff}
+a{color:var(--cyan);text-decoration:none}
+
+/* ===== 顶栏 ===== */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;gap:1.4rem;
+  padding:.85rem 28px;
+  background:rgba(14,15,18,.88);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.topbar::before{content:'';position:absolute;bottom:0;left:0;width:220px;height:1px;background:linear-gradient(90deg,var(--orange),transparent)}
+.topbar__logo{
+  width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--orange);color:var(--amber);
+  font-family:var(--mono);font-weight:700;font-size:.72rem;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+}
+.topbar__title{font-family:var(--disp);font-weight:700;font-size:1.02rem;letter-spacing:.02em;white-space:nowrap}
+.topbar__title em{display:block;font-family:var(--mono);font-style:normal;font-size:.58rem;color:var(--sub);letter-spacing:.22em;margin-top:1px}
+.topbar__nav{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}
+.topbar__nav a{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;
+  color:var(--sub);padding:.38rem .8rem;border:1px solid transparent;transition:.2s;white-space:nowrap;
+}
+.topbar__nav a:hover{color:var(--amber);border-color:var(--line)}
+.topbar__nav a.active{color:var(--orange);border-color:rgba(255,85,0,.5);background:rgba(255,85,0,.07)}
+
+/* ===== Hero ===== */
+.hero{
+  position:relative;
+  padding:8.5rem 24px 5rem;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  overflow:hidden;
+}
+.hero__tag{
+  display:inline-flex;align-items:center;gap:.6rem;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;color:var(--amber);
+  border:1px solid rgba(255,184,0,.4);background:rgba(255,184,0,.06);
+  padding:.42rem 1.1rem;margin-bottom:1.6rem;
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);
+}
+.hero__tag i{color:var(--orange)}
+.hero h1{
+  font-family:var(--disp);font-weight:700;
+  font-size:clamp(2.6rem,6.4vw,4.6rem);line-height:1.08;letter-spacing:.01em;
+}
+.hero h1 span{
+  display:block;font-size:.42em;color:var(--sub);font-weight:400;
+  letter-spacing:.32em;margin-top:.9rem;font-family:var(--mono);
+}
+.hero h1 b{color:var(--orange);text-shadow:0 0 34px rgba(255,85,0,.45)}
+.hero__sub{
+  max-width:760px;margin:1.8rem auto 0;color:var(--sub);font-size:.95rem;
+}
+.hero__sub b{color:var(--amber);font-weight:500}
+.hero__stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  margin-top:3.2rem;width:min(880px,92vw);
+  background:var(--line);border:1px solid var(--line);
+  clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);
+}
+.hstat{background:var(--panel);padding:1.25rem 1rem;position:relative}
+.hstat::after{content:'';position:absolute;top:0;left:0;width:38px;height:2px;background:var(--orange)}
+.hstat__v{font-family:var(--mono);font-weight:700;font-size:1.5rem;color:var(--amber)}
+.hstat__v small{font-size:.5em;color:var(--sub);font-weight:400;margin-left:.3rem}
+.hstat__k{font-size:.68rem;color:var(--sub);letter-spacing:.1em;margin-top:.2rem}
+/* 十字准星装饰 */
+.crosshair{position:absolute;width:22px;height:22px;opacity:.5}
+.crosshair::before,.crosshair::after{content:'';position:absolute;background:var(--steel)}
+.crosshair::before{left:50%;top:0;bottom:0;width:1px}
+.crosshair::after{top:50%;left:0;right:0;height:1px}
+
+/* ===== 版块 ===== */
+.section{max-width:1280px;margin:0 auto;padding:4.2rem 24px}
+.shead{display:flex;align-items:baseline;gap:1.1rem;margin-bottom:2.2rem;flex-wrap:wrap}
+.shead__num{
+  font-family:var(--mono);font-weight:700;font-size:2rem;color:transparent;
+  -webkit-text-stroke:1px var(--orange);letter-spacing:.04em;
+}
+.shead__title{font-family:var(--disp);font-size:1.55rem;font-weight:700;letter-spacing:.02em}
+.shead__hint{margin-left:auto;font-family:var(--mono);font-size:.68rem;color:var(--sub);letter-spacing:.1em;display:flex;align-items:center;gap:.5rem}
+.shead__hint i{color:var(--amber)}
+
+/* 金属卡片：斜角 + 顶部光泽 */
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);position:relative;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:16px;height:1px;
+  background:linear-gradient(90deg,rgba(255,255,255,.22),transparent 60%);
+}
+.card--amber::after{content:'';position:absolute;top:0;left:0;width:46px;height:2px;background:var(--amber)}
+.card--orange::after{content:'';position:absolute;top:0;left:0;width:46px;height:2px;background:var(--orange)}
+
+/* ===== 01 背景 ===== */
+.bg-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:1.3rem}
+.bg-card{padding:1.5rem 1.6rem}
+.bg-card h3{font-family:var(--disp);font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+.bg-card h3 i{color:var(--orange);font-size:.95rem}
+.bg-card p{font-size:.83rem;color:var(--sub);line-height:1.85}
+.bg-card p b{color:var(--text);font-weight:500}
+.pain-list{display:grid;gap:.8rem}
+.pain{
+  display:flex;gap:1rem;align-items:flex-start;
+  padding:1rem 1.15rem;background:var(--panel2);
+  border:1px solid var(--line);border-left:3px solid var(--orange);
+  transition:.25s;
+}
+.pain:hover{border-left-color:var(--amber);transform:translateX(5px);background:#181a1f}
+.pain__ic{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);color:var(--amber);font-size:.9rem;background:rgba(255,184,0,.05)}
+.pain__t{font-weight:700;font-size:.88rem;margin-bottom:.15rem;font-family:var(--disp)}
+.pain__t small{font-family:var(--mono);font-size:.6rem;color:var(--steel);font-weight:400;letter-spacing:.1em;margin-left:.5rem}
+.pain__d{font-size:.75rem;color:var(--sub);line-height:1.7}
+.tech-route{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.4rem}
+.route{padding:1.1rem 1.2rem;border:1px solid var(--line);background:var(--panel2);position:relative;transition:.25s}
+.route:hover{border-color:var(--cyan)}
+.route--pass{border-top:2px solid var(--steel)}
+.route--act{border-top:2px solid var(--cyan)}
+.route h4{font-family:var(--disp);font-size:.92rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.route h4 i{color:var(--steel)}
+.route--act h4 i{color:var(--cyan)}
+.route p{font-size:.72rem;color:var(--sub);line-height:1.75}
+.route__tag{position:absolute;top:.8rem;right:.9rem;font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;color:var(--steel)}
+.route__tag--hi{color:var(--orange)}
+
+/* ===== 02 装置构造 ===== */
+.struct-layout{display:grid;grid-template-columns:1.45fr 1fr;gap:1.3rem}
+.bp-frame{
+  position:relative;background:#0a1424;
+  border:1px solid #274764;overflow:hidden;
+  cursor:zoom-in;transition:.3s;
+}
+.bp-frame:hover{border-color:var(--cyan);box-shadow:0 0 34px rgba(56,189,248,.14)}
+.bp-frame img{width:100%;display:block;opacity:.92}
+.bp-frame__bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.6rem 1rem;background:rgba(10,20,36,.92);border-top:1px solid #274764;
+  font-family:var(--mono);font-size:.66rem;color:#7fb8dc;letter-spacing:.06em;
+}
+.bp-frame__bar b{color:var(--cyan);font-weight:700}
+.bp-tag{
+  position:absolute;top:.7rem;left:.7rem;z-index:2;
+  font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.12em;
+  color:var(--cyan);background:rgba(8,16,30,.9);
+  border:1px solid rgba(56,189,248,.5);padding:.16rem .5rem;
+}
+.bp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.3rem}
+.bp-grid .bp-frame img{max-height:230px;object-fit:contain;background:#0a1424}
+.level-stack{display:grid;gap:.9rem}
+.level{
+  display:flex;gap:1rem;padding:1.05rem 1.2rem;
+  background:linear-gradient(90deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);border-left:3px solid var(--amber);
+  position:relative;transition:.25s;
+}
+.level:hover{border-left-color:var(--orange);transform:translateX(5px)}
+.level__no{
+  font-family:var(--mono);font-weight:700;font-size:1.6rem;color:transparent;
+  -webkit-text-stroke:1px var(--amber);line-height:1;flex-shrink:0;width:52px;
+}
+.level__t{font-family:var(--disp);font-weight:700;font-size:.94rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+.level__t small{font-family:var(--mono);font-size:.58rem;color:var(--steel);font-weight:400;letter-spacing:.1em}
+.level__d{font-size:.75rem;color:var(--sub);line-height:1.75}
+.level__d b{color:var(--amber);font-weight:500;font-family:var(--mono);font-size:.72rem}
+.part-chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.6rem}
+.pchip{
+  font-family:var(--mono);font-size:.6rem;color:var(--cyan);
+  border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);
+  padding:.13rem .45rem;white-space:nowrap;
+}
+.pchip b{color:var(--amber);font-weight:700}
+
+/* ===== 03 阻尼器剖面动画 ===== */
+.damper-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:1.3rem}
+.damper-stage{
+  position:relative;background:var(--bg2);
+  border:1px solid var(--line);overflow:hidden;
+  min-height:400px;
+}
+.damper-stage canvas{display:block;width:100%;height:100%}
+.hud-corner{position:absolute;width:26px;height:26px;pointer-events:none;z-index:3}
+.hud-corner--tl{top:10px;left:10px;border-top:2px solid var(--orange);border-left:2px solid var(--orange)}
+.hud-corner--tr{top:10px;right:10px;border-top:2px solid var(--orange);border-right:2px solid var(--orange)}
+.hud-corner--bl{bottom:10px;left:10px;border-bottom:2px solid var(--orange);border-left:2px solid var(--orange)}
+.hud-corner--br{bottom:10px;right:10px;border-bottom:2px solid var(--orange);border-right:2px solid var(--orange)}
+.damper-readouts{position:absolute;inset:0;pointer-events:none;z-index:2;font-family:var(--mono)}
+.dr{position:absolute;font-size:.62rem;color:var(--sub);letter-spacing:.06em;background:rgba(12,13,16,.72);padding:.22rem .55rem;border:1px solid rgba(58,63,71,.8)}
+.dr b{color:var(--amber);font-weight:700}
+.dr--tl{top:20px;left:22px}
+.dr--tr{top:20px;right:22px;text-align:right}
+.dr--bl{bottom:20px;left:22px}
+.dr--br{bottom:20px;right:22px;text-align:right}
+.damper-side{display:grid;gap:1rem;align-content:start}
+.lore{padding:1.3rem 1.4rem}
+.lore h3{font-family:var(--disp);font-size:1rem;font-weight:700;display:flex;gap:.55rem;align-items:center;margin-bottom:.7rem}
+.lore h3 i{color:var(--orange)}
+.lore p{font-size:.78rem;color:var(--sub);line-height:1.85}
+.lore p b{color:var(--text);font-weight:500}
+.lore+.lore{margin-top:0}
+.energy-steps{display:grid;gap:.7rem;margin-top:.8rem}
+.estep{display:flex;gap:.9rem;align-items:center;padding:.7rem .95rem;background:var(--panel2);border:1px solid var(--line);transition:.25s}
+.estep:hover{border-color:var(--amber)}
+.estep__ic{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--orange);border:1px solid var(--line);font-size:.85rem}
+.estep__t{font-size:.8rem;font-weight:600}
+.estep__d{font-size:.68rem;color:var(--sub)}
+.estep__arrow{margin-left:auto;color:var(--steel);font-size:.8rem;opacity:.6}
+
+/* ===== 04 模拟器 ===== */
+.sim-shell{
+  border:1px solid var(--line);background:linear-gradient(180deg,#17191d,#101215);
+  position:relative;overflow:hidden;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
+}
+.sim-shell::before{content:'';position:absolute;top:0;left:0;right:20px;height:1px;background:linear-gradient(90deg,rgba(255,184,0,.5),transparent 55%);z-index:5}
+.sim-head{
+  display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;
+  padding:.9rem 1.3rem;border-bottom:1px solid var(--line);background:rgba(255,85,0,.04);
+}
+.sim-head__t{font-family:var(--disp);font-weight:700;font-size:.98rem;display:flex;gap:.55rem;align-items:center}
+.sim-head__t i{color:var(--orange)}
+.sim-head__id{font-family:var(--mono);font-size:.62rem;color:var(--sub);letter-spacing:.14em;margin-left:auto}
+.sim-body{display:grid;grid-template-columns:270px 1fr;gap:0}
+.ctrl-panel{padding:1.3rem 1.2rem;border-right:1px solid var(--line);background:rgba(12,13,16,.5)}
+.ctrl-panel h4{font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;color:var(--amber);margin:1.15rem 0 .7rem;display:flex;align-items:center;gap:.5rem}
+.ctrl-panel h4:first-child{margin-top:0}
+.ctrl-panel h4::after{content:'';flex:1;height:1px;background:var(--line)}
+.slider-row{margin-bottom:.95rem}
+.slider-row label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;color:var(--sub);margin-bottom:.4rem}
+.slider-row label b{color:var(--amber);font-weight:700}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:3px;background:var(--line);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;background:var(--orange);
+  border:2px solid #121214;box-shadow:0 0 0 1px var(--orange);cursor:grab;
+}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;background:var(--orange);border:2px solid #121214;border-radius:0}
+.toggles{display:grid;gap:.55rem;margin-bottom:.4rem}
+.tgl{
+  display:flex;align-items:center;gap:.6rem;cursor:pointer;
+  font-size:.74rem;color:var(--sub);padding:.55rem .7rem;
+  border:1px solid var(--line);background:var(--panel2);transition:.2s;user-select:none;
+}
+.tgl:hover{border-color:var(--amber)}
+.tgl input{display:none}
+.tgl__box{width:15px;height:15px;border:1px solid var(--steel);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s}
+.tgl__box i{font-size:.6rem;color:#121214;opacity:0}
+.tgl input:checked~.tgl__box{background:var(--amber);border-color:var(--amber)}
+.tgl input:checked~.tgl__box i{opacity:1}
+.tgl b{font-weight:500;color:var(--text);font-size:.74rem}
+.tgl small{font-family:var(--mono);font-size:.58rem;color:var(--steel);margin-left:auto}
+.scope-area{padding:1.2rem;display:grid;gap:1rem;background:
+  radial-gradient(ellipse 60% 40% at 50% 0%,rgba(56,189,248,.04),transparent)}
+.scope{position:relative;background:#0a0d12;border:1px solid var(--line)}
+.scope canvas{display:block;width:100%}
+.scope__label{
+  position:absolute;top:.5rem;left:.7rem;font-family:var(--mono);
+  font-size:.6rem;letter-spacing:.14em;z-index:2;
+}
+.scope__label b{font-weight:700}
+.sim-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+.metric{background:var(--panel2);padding:.8rem .9rem;position:relative}
+.metric::after{content:'';position:absolute;top:0;left:0;width:26px;height:2px;background:var(--steel)}
+.metric--hot::after{background:var(--orange)}
+.metric--cool::after{background:var(--cyan)}
+.metric__k{font-family:var(--mono);font-size:.58rem;color:var(--sub);letter-spacing:.1em}
+.metric__v{font-family:var(--mono);font-weight:700;font-size:1.18rem;color:var(--text);margin-top:.15rem}
+.metric__v small{font-size:.55em;color:var(--sub);font-weight:400}
+.metric--hot .metric__v{color:var(--amber)}
+.metric--cool .metric__v{color:var(--cyan)}
+.sim-note{padding:.85rem 1.2rem;border-top:1px solid var(--line);font-size:.72rem;color:var(--sub);line-height:1.8;background:rgba(12,13,16,.4)}
+.sim-note b{color:var(--amber);font-weight:600}
+
+/* ===== 05 图纸画廊 ===== */
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.gal-card{position:relative;cursor:zoom-in}
+.gal-card img{width:100%;height:215px;object-fit:contain;background:#0a1424;display:block;transition:.35s;opacity:.9}
+.gal-card:hover img{opacity:1;transform:scale(1.04)}
+.gal-card__cap{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.55rem .85rem;border-top:1px solid #274764;background:rgba(10,20,36,.9);
+  font-family:var(--mono);font-size:.62rem;color:#7fb8dc;
+}
+.gal-card__cap b{color:var(--cyan)}
+
+/* ===== 06 成果 ===== */
+.result-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:1.3rem}
+.result-list{display:grid;gap:1rem;align-content:start}
+.res-card{display:flex;gap:1rem;padding:1.15rem 1.3rem;align-items:flex-start}
+.res-card__ic{width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);color:var(--amber);font-size:1.05rem;background:rgba(255,184,0,.06)}
+.res-card__t{font-family:var(--disp);font-weight:700;font-size:.92rem;margin-bottom:.2rem}
+.res-card__d{font-size:.75rem;color:var(--sub);line-height:1.75}
+.res-card__d b{color:var(--text);font-weight:500}
+.team-box{padding:1.4rem 1.5rem}
+.team-box h3{font-family:var(--disp);font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;gap:.55rem;align-items:center}
+.team-box h3 i{color:var(--orange)}
+.team-row{display:flex;gap:.9rem;padding:.75rem 0;border-bottom:1px dashed var(--line);font-size:.78rem}
+.team-row:last-child{border-bottom:0}
+.team-row__k{font-family:var(--mono);font-size:.64rem;color:var(--sub);width:76px;flex-shrink:0;padding-top:.2rem;letter-spacing:.06em}
+.team-row__v b{color:var(--amber);font-weight:500}
+.team-row__v{color:var(--sub);line-height:1.7}
+.team-row__v span{color:var(--text)}
+
+/* ===== 灯箱 ===== */
+.lightbox{
+  position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  background:rgba(5,6,8,.94);backdrop-filter:blur(8px);padding:30px;
+}
+.lightbox.show{display:flex}
+.lb-inner{max-width:min(1100px,92vw);text-align:center}
+.lb-inner img{max-width:100%;max-height:78vh;border:1px solid #274764;background:#0a1424}
+.lb-cap{margin-top:.9rem;font-family:var(--mono);font-size:.74rem;color:var(--sub);letter-spacing:.08em}
+.lb-cap b{color:var(--cyan)}
+.lb-btn{
+  position:fixed;top:50%;transform:translateY(-50%);z-index:201;
+  width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+  background:rgba(18,20,24,.9);border:1px solid var(--line);color:var(--text);
+  cursor:pointer;font-size:1.05rem;transition:.2s;
+}
+.lb-btn:hover{border-color:var(--amber);color:var(--amber)}
+.lb-prev{left:22px}.lb-next{right:22px}
+.lb-close{position:fixed;top:20px;right:24px;z-index:201;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:rgba(18,20,24,.9);border:1px solid var(--line);color:var(--text);cursor:pointer}
+.lb-close:hover{border-color:var(--orange);color:var(--orange)}
+
+/* ===== 页脚 ===== */
+footer{
+  margin-top:4rem;border-top:1px solid var(--line);
+  background:#0a0b0e;padding:2.4rem 24px;text-align:center;
+  font-family:var(--mono);font-size:.7rem;color:var(--sub);letter-spacing:.06em;line-height:2.2;
+}
+footer b{color:var(--amber);font-weight:600}
+
+/* ===== 响应式 ===== */
+@media(max-width:1080px){
+  .sim-body{grid-template-columns:1fr}
+  .ctrl-panel{border-right:0;border-bottom:1px solid var(--line)}
+  .damper-layout{grid-template-columns:1fr}
+  .struct-layout{grid-template-columns:1fr}
+}
+@media(max-width:960px){
+  .bg-grid{grid-template-columns:1fr}
+  .gal-grid{grid-template-columns:1fr 1fr}
+  .result-layout{grid-template-columns:1fr}
+  .hero__stats{grid-template-columns:1fr 1fr}
+  .topbar__nav{display:none}
+}
+@media(max-width:640px){
+  .bp-grid{grid-template-columns:1fr}
+  .gal-grid{grid-template-columns:1fr}
+  .sim-metrics{grid-template-columns:1fr 1fr}
+  .tech-route{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 顶栏 ===== -->
+<header class="topbar">
+  <div class="topbar__logo">A-01</div>
+  <div class="topbar__title">机械设备减振装置<em>VIBRATION CONTROL UNIT // DEV_01</em></div>
+  <nav class="topbar__nav">
+    <a href="#bg" class="active">01 背景</a>
+    <a href="#struct">02 构造</a>
+    <a href="#damper">03 核心机构</a>
+    <a href="#sim">04 减振模拟器</a>
+    <a href="#gallery">05 图纸</a>
+    <a href="#result">06 成果</a>
+  </nav>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="crosshair" style="top:110px;left:12vw"></div>
+  <div class="crosshair" style="top:150px;right:10vw"></div>
+  <div class="hero__tag"><i class="fas fa-wave-square"></i>DEV_01 // VIB_CTRL · 2022 年度创客项目 · 结题答辩 2023.05</div>
+  <h1>XX<b>AA</b><span>MACHINERY VIBRATION ATTENUATION &amp; INTELLIGENT CONTROL</span></h1>
+  <p class="hero__sub">
+    源自工厂生产实际的<b>机械设备振动减轻装置</b>：首次将建筑结构减振理论移植到机械领域，以
+    <b>减震弹簧 + 粘滞阻尼器 + 隔震支座</b>三级体系耗散振动能量——阻尼粒子碰撞将动能转化为热能，
+    从源头镇住设备振动，保护机器、延长寿命、保障交付。
+  </p>
+  <div class="hero__stats">
+    <div class="hstat"><div class="hstat__v">3<small>级</small></div><div class="hstat__k">减振体系 SPRING / DAMPER / BEARING</div></div>
+    <div class="hstat"><div class="hstat__v">4<small>组</small></div><div class="hstat__k">对称布置粘滞阻尼器 VISCOUS DAMPERS</div></div>
+    <div class="hstat"><div class="hstat__v">KE→HEAT</div><div class="hstat__k">阻尼粒子耗能原理 PARTICLE DAMPING</div></div>
+    <div class="hstat"><div class="hstat__v">1<small>项</small></div><div class="hstat__k">专利申请《一种机械设备减震装置》</div></div>
+  </div>
+</section>
+
+<!-- ===== 01 背景 ===== -->
+<section class="section" id="bg">
+  <div class="shead">
+    <span class="shead__num">01</span><h2 class="shead__title">课题背景 · 市场问题</h2>
+    <span class="shead__hint"><i class="fas fa-triangle-exclamation"></i>PROJECT SOURCE // FACTORY PAIN POINTS</span>
+  </div>
+  <div class="bg-grid">
+    <div>
+      <div class="card card--orange bg-card">
+        <h3><i class="fas fa-industry"></i>来自生产一线的真实需求</h3>
+        <p>
+          本项目需求直接来自<b>生产机械设备的企业客户</b>。随着机器使用时间的增长，机械设备出现振动的频率和振幅逐步增加，
+          且常会毫无征兆地突然损坏、无法恢复作业——这不仅增加企业生产成本，更严重威胁产品按期交付。
+          机械振动降低机器的<b>动态精度和性能</b>，使机器产生<b>交变载荷</b>，导致使用寿命降低甚至酿成灾难事故。
+          当代工业特别是高端制造业快速发展，机械设备减振要求越来越高：自上世纪 90 年代减振产品出现以来，一直未得到充分发展，
+          设计制作一款性能可靠的机械设备振动减轻装置，具备明确的市场价值。
+        </p>
+      </div>
+      <div class="card bg-card" style="margin-top:1.3rem">
+        <h3><i class="fas fa-route"></i>技术路线 · 被动控制 × 结构创新</h3>
+        <p style="margin-bottom:.9rem">振动控制分为主动与被动两大类。主动控制成本高、系统复杂；本项目选择<b>被动控制 + 结构创新</b>路线，将建筑结构减振理论创造性地移植到机械设备领域：</p>
+        <div class="tech-route">
+          <div class="route route--pass">
+            <span class="route__tag">CONVENTIONAL</span>
+            <h4><i class="fas fa-grip-lines"></i>传统被动控制</h4>
+            <p>减小激励（动平衡）、避开共振区、增加系统阻尼、附加减振器——振动无法完全消除，宽频激励下易产生新共振。</p>
+          </div>
+          <div class="route route--act">
+            <span class="route__tag--hi route__tag">THIS PROJECT</span>
+            <h4><i class="fas fa-bolt"></i>隔震支座 + 粘滞阻尼器</h4>
+            <p>借鉴建筑结构减振理论：隔震支座延长系统周期、粘滞阻尼器耗散能量——二者组合对设备减振有立竿见影的功效。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pain-list">
+      <div class="pain">
+        <div class="pain__ic"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <div class="pain__t">经营隐患<small>BUSINESS RISK</small></div>
+          <div class="pain__d">设备突然损坏导致非计划停产，订单交付延期，客户信任受损，企业蒙受直接经济损失。</div>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__ic"><i class="fas fa-hard-hat"></i></div>
+        <div>
+          <div class="pain__t">安全隐患<small>SAFETY RISK</small></div>
+          <div class="pain__d">大型高速旋转机械动态失稳引发的事故多次发生；振动剧烈上升时，大型发电机组等曾酿成重大灾难。</div>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__ic"><i class="fas fa-crosshairs"></i></div>
+        <div>
+          <div class="pain__t">精度隐患<small>PRECISION LOSS</small></div>
+          <div class="pain__d">振动影响加工零件质量，产品无法达到精度要求；高密度机械加工对机床振动有严格限制。</div>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__ic"><i class="fas fa-hourglass-half"></i></div>
+        <div>
+          <div class="pain__t">寿命隐患<small>LIFESPAN LOSS</small></div>
+          <div class="pain__d">振动带来额外动态负载，交变应力持续损耗部件寿命——振动频率与振幅随使用时间逐步增加。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 装置构造 ===== -->
+<section class="section" id="struct">
+  <div class="shead">
+    <span class="shead__num">02</span><h2 class="shead__title">装置构造 · 三级减振体系</h2>
+    <span class="shead__hint"><i class="fas fa-layer-group"></i>STRUCTURE // 3-LEVEL ISOLATION SYSTEM</span>
+  </div>
+  <div class="struct-layout">
+    <div>
+      <div class="bp-frame" data-lb="0">
+        <span class="bp-tag">PATENT FIG.1</span>
+        <img src="orion-images/hub_VIB/bp_fig1.png" alt="机械设备减震装置整体结构剖视图">
+        <div class="bp-frame__bar">
+          <span><b>FIG.1</b> 整体结构剖视图 · 平台 1 / 底座 2 / 减震箱 3 / 减震弹簧 4 / 粘滞阻尼器 5 / 隔震支座 6</span>
+          <span><i class="fas fa-expand"></i></span>
+        </div>
+      </div>
+      <div class="bp-grid">
+        <div class="bp-frame" data-lb="1">
+          <span class="bp-tag">FIG.2</span>
+          <img src="orion-images/hub_VIB/bp_fig2.png" alt="粘滞阻尼器剖面图">
+          <div class="bp-frame__bar"><span><b>FIG.2</b> 粘滞阻尼器剖面</span></div>
+        </div>
+        <div class="bp-frame" data-lb="5">
+          <span class="bp-tag">FIG.6</span>
+          <img src="orion-images/hub_VIB/bp_fig6.png" alt="隔震支座层叠结构">
+          <div class="bp-frame__bar"><span><b>FIG.6</b> 隔震支座层叠结构</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="level-stack">
+      <div class="level">
+        <div class="level__no">LV1</div>
+        <div>
+          <div class="level__t">减震弹簧 · 初级隔振<small>SPRING ISOLATION</small></div>
+          <div class="level__d">四根减震弹簧布置于平台与底座四角，隔绝竖向振动传递；导向柱穿设导向管内对平台限位，避免升降过程中位置偏移，橡胶垫进一步提升缓震性能。</div>
+          <div class="part-chips">
+            <span class="pchip"><b>1</b>平台</span><span class="pchip"><b>4</b>减震弹簧</span><span class="pchip"><b>11</b>导向柱</span><span class="pchip"><b>12</b>橡胶垫</span><span class="pchip"><b>32</b>导向管</span>
+          </div>
+        </div>
+      </div>
+      <div class="level">
+        <div class="level__no">LV2</div>
+        <div>
+          <div class="level__t">粘滞阻尼器 · 核心耗能<small>VISCOUS DAMPER</small></div>
+          <div class="level__d">四组阻尼器铰接于固定块与平台四角之间；气缸内阻尼粒子随活塞往复与缸壁高频碰撞，将设备振动动能转化为热能——振动越剧烈，碰撞越频繁，耗能效率越高。</div>
+          <div class="part-chips">
+            <span class="pchip"><b>51</b>气缸</span><span class="pchip"><b>513</b>阻尼粒子</span><span class="pchip"><b>54</b>活塞头</span><span class="pchip"><b>543</b>安装弹簧</span><span class="pchip"><b>57</b>耳环</span>
+          </div>
+        </div>
+      </div>
+      <div class="level">
+        <div class="level__no">LV3</div>
+        <div>
+          <div class="level__t">隔震支座 · 层叠缓冲<small>ISOLATION BEARING</small></div>
+          <div class="level__d">钢板与橡胶板相间隔层叠、外围包覆层包覆，限位板间橡胶管连接——橡胶板与橡胶管共同缓冲设备震动，固定板使隔震组件在限位板间安装稳固。</div>
+          <div class="part-chips">
+            <span class="pchip"><b>631</b>钢板</span><span class="pchip"><b>632</b>橡胶板</span><span class="pchip"><b>633</b>包覆层</span><span class="pchip"><b>634</b>固定板</span><span class="pchip"><b>635</b>橡胶管</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 核心机构 ===== -->
+<section class="section" id="damper">
+  <div class="shead">
+    <span class="shead__num">03</span><h2 class="shead__title">核心机构 · 阻尼粒子耗能</h2>
+    <span class="shead__hint"><i class="fas fa-atom"></i>SECTION VIEW // LIVE PARTICLE PHYSICS</span>
+  </div>
+  <div class="damper-layout">
+    <div class="damper-stage">
+      <canvas id="damperCv"></canvas>
+      <div class="hud-corner hud-corner--tl"></div>
+      <div class="hud-corner hud-corner--tr"></div>
+      <div class="hud-corner hud-corner--bl"></div>
+      <div class="hud-corner hud-corner--br"></div>
+      <div class="damper-readouts">
+        <div class="dr dr--tl">UNIT <b>VD-05</b> // SECTION A-A</div>
+        <div class="dr dr--tr">碰撞频率 <b id="drHit">--</b> /s<br>腔体温度 <b id="drTemp">36.0°C</b></div>
+        <div class="dr dr--bl">活塞行程 <b id="drStroke">±0.0 mm</b><br>累计耗散 <b id="drEnergy">0 J</b></div>
+        <div class="dr dr--br">STATE <b id="drState">DAMPING</b></div>
+      </div>
+    </div>
+    <div class="damper-side">
+      <div class="card card--amber lore">
+        <h3><i class="fas fa-flask"></i>为什么是阻尼粒子？</h3>
+        <p>
+          传统粘滞阻尼器依靠<b>硅油</b>通过阻尼通道产生阻尼力。本项目在气缸的第一腔体 <b>511</b> 与第二腔体 <b>512</b> 内
+          创新注入<b>阻尼粒子 513</b>：设备振动时活塞头 54 在气缸内滑移，粒子与缸壁、粒子与粒子之间高频碰撞——
+          <b>将振动动能直接转化为热能</b>。振动越剧烈，碰撞越频繁，能量转化效率越高，实现"越振越稳"的自适应耗能。
+        </p>
+      </div>
+      <div class="card lore">
+        <h3><i class="fas fa-diagram-project"></i>四步能量转化链</h3>
+        <div class="energy-steps">
+          <div class="estep">
+            <div class="estep__ic"><i class="fas fa-gear"></i></div>
+            <div><div class="estep__t">设备振动输入</div><div class="estep__d">固定块 31 传导振动至活塞杆</div></div>
+            <i class="fas fa-angles-right estep__arrow"></i>
+          </div>
+          <div class="estep">
+            <div class="estep__ic"><i class="fas fa-arrows-left-right"></i></div>
+            <div><div class="estep__t">活塞往复滑移</div><div class="estep__d">安装弹簧 543 缓冲双活塞杆相对位移</div></div>
+            <i class="fas fa-angles-right estep__arrow"></i>
+          </div>
+          <div class="estep">
+            <div class="estep__ic"><i class="fas fa-burst"></i></div>
+            <div><div class="estep__t">粒子高频碰撞</div><div class="estep__d">腔体 511/512 内粒子与缸壁激烈互撞</div></div>
+            <i class="fas fa-angles-right estep__arrow"></i>
+          </div>
+          <div class="estep">
+            <div class="estep__ic"><i class="fas fa-fire"></i></div>
+            <div><div class="estep__t">动能 → 热能耗散</div><div class="estep__d">振动能量被彻底转化，设备恢复平稳</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 04 减振模拟器 ===== -->
+<section class="section" id="sim">
+  <div class="shead">
+    <span class="shead__num">04</span><h2 class="shead__title">减振模拟器 · 实时对比</h2>
+    <span class="shead__hint"><i class="fas fa-wave-square"></i>SIMULATION // FORCED VIBRATION RESPONSE</span>
+  </div>
+  <div class="sim-shell">
+    <div class="sim-head">
+      <div class="sim-head__t"><i class="fas fa-sliders"></i>受迫振动响应实验台</div>
+      <span class="sim-head__id">SIM // SDOF-DAMPED · RK4 SOLVER</span>
+    </div>
+    <div class="sim-body">
+      <div class="ctrl-panel">
+        <h4><i class="fas fa-wave-square"></i>激励参数 EXCITATION</h4>
+        <div class="slider-row">
+          <label>激励频率 ω/ωn <b id="vFreq">1.00</b></label>
+          <input type="range" id="rFreq" min="0" max="3" step="0.01" value="1.0">
+        </div>
+        <div class="slider-row">
+          <label>激励幅值 F₀ <b id="vForce">100</b> N</label>
+          <input type="range" id="rForce" min="20" max="200" step="1" value="100">
+        </div>
+        <h4><i class="fas fa-shield-halved"></i>减振配置 DAMPING</h4>
+        <div class="slider-row">
+          <label>阻尼系数 C <b id="vDamp">400</b> N·s/m</label>
+          <input type="range" id="rDamp" min="0" max="1200" step="10" value="400">
+        </div>
+        <div class="slider-row">
+          <label>弹簧刚度 K <b id="vStiff">9000</b> N/m</label>
+          <input type="range" id="rStiff" min="2000" max="20000" step="500" value="9000">
+        </div>
+        <div class="toggles">
+          <label class="tgl">
+            <input type="checkbox" id="tDamper" checked>
+            <span class="tgl__box"><i class="fas fa-check"></i></span>
+            <b>粘滞阻尼器</b><small>VD-05</small>
+          </label>
+          <label class="tgl">
+            <input type="checkbox" id="tBearing" checked>
+            <span class="tgl__box"><i class="fas fa-check"></i></span>
+            <b>隔震支座</b><small>ISB-06</small>
+          </label>
+        </div>
+      </div>
+      <div class="scope-area">
+        <div class="scope">
+          <span class="scope__label" style="color:var(--orange)"><b>CH-1 RAW</b> · 设备原始振动激励</span>
+          <canvas id="cvIn"></canvas>
+        </div>
+        <div class="scope">
+          <span class="scope__label" style="color:var(--cyan)"><b>CH-2 DAMPED</b> · 减振后设备响应</span>
+          <canvas id="cvOut"></canvas>
+        </div>
+        <div class="sim-metrics">
+          <div class="metric metric--hot">
+            <div class="metric__k">振幅放大系数 M</div>
+            <div class="metric__v" id="mMag">--</div>
+          </div>
+          <div class="metric metric--hot">
+            <div class="metric__k">振幅衰减率</div>
+            <div class="metric__v" id="mAtt">--<small> dB</small></div>
+          </div>
+          <div class="metric metric--cool">
+            <div class="metric__k">振动传递率 T</div>
+            <div class="metric__v" id="mTrans">--<small> %</small></div>
+          </div>
+          <div class="metric metric--cool">
+            <div class="metric__k">相位角 φ</div>
+            <div class="metric__v" id="mPhase">--<small> °</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sim-note">
+      <b>实验指南：</b>拖动"激励频率"扫过 <b>1.00</b> 可观察共振峰——无阻尼时振幅放大系数趋于无穷；
+      增大阻尼系数 C 可有效压低共振峰、使响应相位滞后趋于 90°；关闭"粘滞阻尼器"与"隔震支座"开关，
+      CH-2 波形将恢复为原始等幅振动——直观体验三级减振体系的价值。
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 图纸画廊 ===== -->
+<section class="section" id="gallery">
+  <div class="shead">
+    <span class="shead__num">05</span><h2 class="shead__title">工程图纸 · 专利构型</h2>
+    <span class="shead__hint"><i class="fas fa-compass-drafting"></i>BLUEPRINTS // PATENT FIG.1-6</span>
+  </div>
+  <div class="gal-grid">
+    <div class="bp-frame gal-card" data-lb="0">
+      <span class="bp-tag">FIG.1</span>
+      <img src="orion-images/hub_VIB/bp_fig1.png" alt="整体结构剖视图">
+      <div class="gal-card__cap"><span>整体结构剖视图</span><b>FIG.1</b></div>
+    </div>
+    <div class="bp-frame gal-card" data-lb="1">
+      <span class="bp-tag">FIG.2</span>
+      <img src="orion-images/hub_VIB/bp_fig2.png" alt="粘滞阻尼器剖面">
+      <div class="gal-card__cap"><span>粘滞阻尼器剖面</span><b>FIG.2</b></div>
+    </div>
+    <div class="bp-frame gal-card" data-lb="2">
+      <span class="bp-tag">FIG.3</span>
+      <img src="orion-images/hub_VIB/bp_fig3.png" alt="阻尼器活塞组件">
+      <div class="gal-card__cap"><span>阻尼器活塞组件</span><b>FIG.3</b></div>
+    </div>
+    <div class="bp-frame gal-card" data-lb="3">
+      <span class="bp-tag">FIG.4</span>
+      <img src="orion-images/hub_VIB/bp_fig4.png" alt="活塞头结构">
+      <div class="gal-card__cap"><span>活塞头结构</span><b>FIG.4</b></div>
+    </div>
+    <div class="bp-frame gal-card" data-lb="4">
+      <span class="bp-tag">FIG.5</span>
+      <img src="orion-images/hub_VIB/bp_fig5.png" alt="安装腔与弹簧">
+      <div class="gal-card__cap"><span>安装腔与缓冲弹簧</span><b>FIG.5</b></div>
+    </div>
+    <div class="bp-frame gal-card" data-lb="5">
+      <span class="bp-tag">FIG.6</span>
+      <img src="orion-images/hub_VIB/bp_fig6.png" alt="隔震支座层叠结构">
+      <div class="gal-card__cap"><span>隔震支座层叠结构</span><b>FIG.6</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 06 成果 ===== -->
+<section class="section" id="result">
+  <div class="shead">
+    <span class="shead__num">06</span><h2 class="shead__title">结题成果 · 项目信息</h2>
+    <span class="shead__hint"><i class="fas fa-flag-checkered"></i>CONCLUSION // 2023.05 DEFENSE</span>
+  </div>
+  <div class="result-layout">
+    <div class="result-list">
+      <div class="card card--amber res-card">
+        <div class="res-card__ic"><i class="fas fa-certificate"></i></div>
+        <div>
+          <div class="res-card__t">结题结论 · 实用性强</div>
+          <div class="res-card__d">项目来源于工厂生产实际，装置<b>减震效果明显且易复制、可装配性强</b>；可根据工厂实际组装不同大小的固定块和减震箱，对不同尺寸和频率的需减振设备均可适用——经过与需求企业充分沟通验证，符合生产实际。</div>
+        </div>
+      </div>
+      <div class="card res-card">
+        <div class="res-card__ic"><i class="fas fa-file-signature"></i></div>
+        <div>
+          <div class="res-card__t">专利申请 ·《一种机械设备减震装置》</div>
+          <div class="res-card__d">完整覆盖平台、底座、减震箱、减震弹簧、粘滞阻尼器、隔震支座六大部件与 <b>31 个附图标记</b>的专利交底书（V2 修订稿），含整体结构、阻尼器、活塞头、隔震支座等 6 幅结构图纸。</div>
+        </div>
+      </div>
+      <div class="card res-card">
+        <div class="res-card__ic"><i class="fas fa-arrows-turn-right"></i></div>
+        <div>
+          <div class="res-card__t">推广思路 · 定制化配套</div>
+          <div class="res-card__d">面向工厂实际生产中存在机械振动现象的机电设备<b>作定制化配套</b>：通过隔震支座 + 粘滞阻尼器的结构创新原理达到减振目的，为企业解决设备振动的后顾之忧。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card team-box">
+      <h3><i class="fas fa-users"></i>项目档案 PROJECT FILE</h3>
+      <div class="team-row"><div class="team-row__k">PROJECT</div><div class="team-row__v"><span>机械设备振动减轻和智能控制装置</span><br>2022 年度第一批创客项目</div></div>
+      <div class="team-row"><div class="team-row__k">AUTHOR</div><div class="team-row__v"><b>GEORGE</b> · 机电工程学院</div></div>
+      <div class="team-row"><div class="team-row__k">MENTORS</div><div class="team-row__v">柯工 · 后勤基建处<br>Z博士 · 智能制造研究院</div></div>
+      <div class="team-row"><div class="team-row__k">TIMELINE</div><div class="team-row__v">2022 立项 → 2023.05 结题答辩</div></div>
+      <div class="team-row"><div class="team-row__k">OUTPUTS</div><div class="team-row__v">结题报告 · 样机演示视频 · 专利申请《一种机械设备减震装置》</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 灯箱 ===== -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-inner">
+    <img id="lbImg" src="" alt="">
+    <div class="lb-cap"><b id="lbTag"></b> <span id="lbTitle"></span></div>
+  </div>
+  <button class="lb-btn lb-prev" id="lbPrev"><i class="fas fa-chevron-left"></i></button>
+  <button class="lb-btn lb-next" id="lbNext"><i class="fas fa-chevron-right"></i></button>
+  <button class="lb-close" id="lbClose"><i class="fas fa-xmark"></i></button>
+</div>
+
+<footer>
+  <div><b>机械设备振动减轻和智能控制装置</b></div>
+  <div>DEV_01 // VIB_CTRL · SZPT MAKER PROJECT · 2022-2023</div>
+  <div>三级减振体系：减震弹簧 · 粘滞阻尼器 · 隔震支座</div>
+</footer>
+
+<script>
+/* ============================================================
+   振动控制互动平台
+   A. 阻尼器剖面粒子物理动画
+   B. SDOF 受迫振动 RK4 模拟器（双通道示波器）
+   C. 图纸灯箱
+   ============================================================ */
+
+/* ---------- 通用：高分屏 canvas ---------- */
+function fitCanvas(cv, cssH) {
+  const dpr = window.devicePixelRatio || 1;
+  const w = cv.clientWidth || cv.parentElement.clientWidth;
+  cv.width = w * dpr;
+  cv.height = cssH * dpr;
+  cv.style.height = cssH + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return [ctx, w, cssH];
+}
+
+/* ============ A. 阻尼器剖面动画 ============ */
+(function () {
+  const cv = document.getElementById('damperCv');
+  if (!cv) return;
+  let ctx, W, H;
+  const els = {
+    hit: document.getElementById('drHit'),
+    temp: document.getElementById('drTemp'),
+    stroke: document.getElementById('drStroke'),
+    energy: document.getElementById('drEnergy'),
+    state: document.getElementById('drState'),
+  };
+
+  // 粒子系统
+  const N_P = 64;
+  const parts = [];
+  let hitCount = 0, hitRate = 0, energy = 0, temp = 36.0;
+  let pistonX = 0, pistonV = 0, t = 0;
+
+  function resize() {
+    [ctx, W, H] = fitCanvas(cv, 420);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // 气缸几何（CSS 像素）
+  function geom() {
+    const cx = W / 2, cy = H / 2;
+    const cw = Math.min(W * 0.74, 760);          // 气缸长
+    const ch = 148;                               // 气缸内径高
+    return { cx, cy, x0: cx - cw / 2, x1: cx + cw / 2, y0: cy - ch / 2, y1: cy + ch / 2, cw, ch };
+  }
+
+  function initParts() {
+    parts.length = 0;
+    const g = geom();
+    for (let i = 0; i < N_P; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const r = 3.2 + Math.random() * 3.4;
+      parts.push({
+        x: g.cx + side * (30 + Math.random() * (g.cw / 2 - 90)),
+        y: g.y0 + r + Math.random() * (g.ch - 2 * r),
+        vx: (Math.random() - 0.5) * 60,
+        vy: (Math.random() - 0.5) * 60,
+        r, glow: 0,
+      });
+    }
+  }
+  initParts();
+
+  let last = performance.now();
+  let hitWindow = [];
+
+  function step(dt) {
+    t += dt;
+    const g = geom();
+    // 活塞运动：受迫振动响应（多频叠加，强度随时间起伏）
+    const amp = 46 * (0.62 + 0.38 * Math.sin(t * 0.35));
+    const nx = amp * Math.sin(t * 5.2) * Math.cos(t * 0.9);
+    pistonV = (nx - pistonX) / Math.max(dt, 1e-4);
+    pistonX = nx;
+    const pxL = g.cx + pistonX - 34;   // 活塞头左缘
+    const pxR = g.cx + pistonX + 34;   // 活塞头右缘
+
+    for (const p of parts) {
+      // 重力 + 微阻尼
+      p.vy += 190 * dt;
+      p.vx *= (1 - 0.12 * dt);
+      p.vy *= (1 - 0.12 * dt);
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      // 气缸壁碰撞
+      let hit = false;
+      if (p.x - p.r < g.x0 + 10) { p.x = g.x0 + 10 + p.r; p.vx = Math.abs(p.vx) * 0.55 + 20; hit = true; }
+      if (p.x + p.r > g.x1 - 10) { p.x = g.x1 - 10 - p.r; p.vx = -Math.abs(p.vx) * 0.55 - 20; hit = true; }
+      if (p.y - p.r < g.y0 + 8) { p.y = g.y0 + 8 + p.r; p.vy = Math.abs(p.vy) * 0.5; hit = true; }
+      if (p.y + p.r > g.y1 - 8) { p.y = g.y1 - 8 - p.r; p.vy = -Math.abs(p.vy) * 0.5; hit = true; }
+
+      // 活塞头碰撞（把粒子推开）
+      if (p.x + p.r > pxL && p.x - p.r < pxR) {
+        const mid = (pxL + pxR) / 2;
+        if (p.x < mid) { p.x = pxL - p.r; p.vx = -Math.abs(p.vx) * 0.5 - 30 + pistonV * 0.25; }
+        else { p.x = pxR + p.r; p.vx = Math.abs(p.vx) * 0.5 + 30 + pistonV * 0.25; }
+        hit = true;
+      }
+      if (hit) { hitCount++; p.glow = 1; energy += 0.06; }
+      p.glow = Math.max(0, p.glow - dt * 2.6);
+    }
+
+    // 粒子间碰撞（O(n²) 64 个粒子可接受）
+    for (let i = 0; i < parts.length; i++) {
+      for (let j = i + 1; j < parts.length; j++) {
+        const a = parts[i], b = parts[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const d2 = dx * dx + dy * dy;
+        const rr = a.r + b.r;
+        if (d2 < rr * rr && d2 > 1e-6) {
+          const d = Math.sqrt(d2);
+          const nxn = dx / d, nyn = dy / d;
+          const overlap = (rr - d) / 2;
+          a.x -= nxn * overlap; a.y -= nyn * overlap;
+          b.x += nxn * overlap; b.y += nyn * overlap;
+          const p1 = (a.vx * nxn + a.vy * nyn), p2 = (b.vx * nxn + b.vy * nyn);
+          if (p1 - p2 > 0) {
+            a.vx += (p2 - p1) * nxn * 0.6; a.vy += (p2 - p1) * nyn * 0.6;
+            b.vx += (p1 - p2) * nxn * 0.6; b.vy += (p1 - p2) * nyn * 0.6;
+            a.glow = Math.max(a.glow, 0.8); b.glow = Math.max(b.glow, 0.8);
+            hitCount++;
+          }
+        }
+      }
+    }
+  }
+
+  function draw() {
+    const g = geom();
+    ctx.clearRect(0, 0, W, H);
+
+    // 背景网格
+    ctx.strokeStyle = 'rgba(56,120,180,.08)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 44) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 44) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // 气缸体（金属渐变外壳）
+    const shell = ctx.createLinearGradient(0, g.y0 - 26, 0, g.y1 + 26);
+    shell.addColorStop(0, '#3d434c'); shell.addColorStop(.12, '#565e69');
+    shell.addColorStop(.5, '#22262c'); shell.addColorStop(.88, '#4a515c'); shell.addColorStop(1, '#181b20');
+    ctx.fillStyle = shell;
+    ctx.beginPath();
+    ctx.roundRect(g.x0 - 26, g.y0 - 26, g.cw + 52, g.ch + 52, 9);
+    ctx.fill();
+    ctx.strokeStyle = '#5c6470'; ctx.lineWidth = 2; ctx.stroke();
+
+    // 腔体内衬（暗钢）
+    ctx.fillStyle = '#12161c';
+    ctx.fillRect(g.x0 + 8, g.y0 + 8, g.cw - 16, g.ch - 16);
+    // 腔体高光线
+    ctx.fillStyle = 'rgba(140,160,190,.10)';
+    ctx.fillRect(g.x0 + 8, g.y0 + 8, g.cw - 16, 14);
+    ctx.fillStyle = 'rgba(0,0,0,.30)';
+    ctx.fillRect(g.x0 + 8, g.y1 - 22, g.cw - 16, 14);
+
+    // 粒子（阻尼粒子 513）
+    for (const p of parts) {
+      const gl = p.glow;
+      const cr = Math.round(120 + gl * 135), cg = Math.round(125 + gl * 55), cb = Math.round(132 - gl * 100);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 7);
+      ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+      if (gl > 0.05) { ctx.shadowColor = 'rgba(255,120,20,.85)'; ctx.shadowBlur = 10 * gl; }
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // 高光点
+      ctx.beginPath();
+      ctx.arc(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.3, 0, 7);
+      ctx.fillStyle = 'rgba(255,255,255,.35)';
+      ctx.fill();
+    }
+
+    // 活塞头（54）+ 活塞杆（52/53）
+    const pxC = g.cx + pistonX;
+    // 杆（左右伸出）
+    ctx.fillStyle = '#6a7380';
+    ctx.fillRect(pxC - 150, g.cy - 7, 116, 14);   // 左杆
+    ctx.fillRect(pxC + 34, g.cy - 7, 116, 14);    // 右杆
+    ctx.strokeStyle = '#8b95a3'; ctx.lineWidth = 1;
+    ctx.strokeRect(pxC - 150, g.cy - 7, 116, 14);
+    ctx.strokeRect(pxC + 34, g.cy - 7, 116, 14);
+    // 耳环（57）
+    for (const ex of [pxC - 158, pxC + 158]) {
+      ctx.beginPath(); ctx.arc(ex, g.cy, 13, 0, 7);
+      ctx.strokeStyle = '#ffb800'; ctx.lineWidth = 4.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(ex, g.cy, 5, 0, 7);
+      ctx.fillStyle = '#121214'; ctx.fill();
+    }
+    // 活塞头本体
+    const pg = ctx.createLinearGradient(0, g.y0 + 8, 0, g.y1 - 8);
+    pg.addColorStop(0, '#7d8794'); pg.addColorStop(.45, '#aab4c2');
+    pg.addColorStop(.55, '#59626e'); pg.addColorStop(1, '#39404a');
+    ctx.fillStyle = pg;
+    ctx.fillRect(pxC - 34, g.y0 + 8, 68, g.ch - 16);
+    ctx.strokeStyle = '#c8d2df'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(pxC - 34, g.y0 + 8, 68, g.ch - 16);
+    // 活塞环槽
+    for (const off of [-14, 0, 14]) {
+      ctx.fillStyle = 'rgba(10,12,16,.55)';
+      ctx.fillRect(pxC - 34, g.cy + off - 2, 68, 4);
+    }
+    // 安装弹簧（543）示意：活塞头中心小弹簧
+    ctx.strokeStyle = 'rgba(255,184,0,.85)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    const sy0 = g.cy - 16, sy1 = g.cy + 16;
+    for (let i = 0; i <= 8; i++) {
+      const yy = sy0 + (sy1 - sy0) * i / 8;
+      const xx = pxC + (i % 2 === 0 ? -8 : 8);
+      if (i === 0) ctx.moveTo(pxC, sy0); else ctx.lineTo(xx, yy);
+    }
+    ctx.lineTo(pxC, sy1);
+    ctx.stroke();
+
+    // 腔体标签
+    ctx.font = '600 10px "JetBrains Mono",monospace';
+    ctx.fillStyle = 'rgba(56,189,248,.75)';
+    ctx.fillText('CAVITY 511', g.x0 + 22, g.y0 + 28);
+    ctx.fillText('CAVITY 512', g.x1 - 88, g.y0 + 28);
+    ctx.fillStyle = 'rgba(255,184,0,.8)';
+    ctx.fillText('PISTON 54', pxC - 30, g.y1 - 20);
+    ctx.fillText('ROD 52', pxC - 142, g.cy - 14);
+    ctx.fillText('ROD 53', pxC + 60, g.cy - 14);
+
+    // 中轴线（点划线）
+    ctx.strokeStyle = 'rgba(139,149,163,.35)';
+    ctx.setLineDash([12, 6, 2, 6]);
+    ctx.beginPath(); ctx.moveTo(30, g.cy); ctx.lineTo(W - 30, g.cy); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  let uiAcc = 0;
+  function loop(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    step(dt);
+    draw();
+
+    uiAcc += dt;
+    if (uiAcc > 0.25) {
+      uiAcc = 0;
+      // 碰撞频率：最近 1s 计数
+      const rate = Math.min(hitCount, 9999);
+      hitRate = hitRate * 0.5 + rate * 0.5;
+      els.hit.textContent = hitRate.toFixed(0);
+      hitCount = 0;
+      // 温度：能量积累升温 + 环境散热
+      temp += Math.min(hitRate, 300) * 0.00028 - (temp - 36) * 0.03;
+      els.temp.textContent = temp.toFixed(1) + '°C';
+      els.stroke.textContent = '±' + (Math.abs(pistonX) * 0.28).toFixed(1) + ' mm';
+      els.energy.textContent = (energy / 1000).toFixed(2) + ' kJ';
+      els.state.textContent = hitRate > 260 ? 'CRITICAL' : hitRate > 120 ? 'DAMPING' : 'STABLE';
+      els.state.style.color = hitRate > 260 ? '#ff5500' : hitRate > 120 ? '#ffb800' : '#3ddc84';
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ============ B. 减振模拟器 ============ */
+(function () {
+  const cvIn = document.getElementById('cvIn'), cvOut = document.getElementById('cvOut');
+  if (!cvIn || !cvOut) return;
+  const SCOPE_H = 165;
+  let ctxIn, ctxOut, SW;
+
+  const S = {
+    freq: 1.0,   // ω/ωn
+    force: 100,  // F0
+    damp: 400,   // C
+    stiff: 9000, // K
+    damper: true,
+    bearing: true,
+  };
+  const M = 10; // 质量 kg
+
+  // 状态
+  let x = 0, v = 0, tSim = 0;
+  const bufIn = [], bufOut = [];
+  const BUF_N = 420;
+
+  function resize() {
+    [ctxIn, SW] = fitCanvas(cvIn, SCOPE_H);
+    [ctxOut] = fitCanvas(cvOut, SCOPE_H);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const $ = id => document.getElementById(id);
+  const ui = { vFreq: $('vFreq'), vForce: $('vForce'), vDamp: $('vDamp'), vStiff: $('vStiff'),
+               mMag: $('mMag'), mAtt: $('mAtt'), mTrans: $('mTrans'), mPhase: $('mPhase') };
+
+  function bindRange(rid, vid, key, fmt) {
+    const r = $(rid);
+    r.addEventListener('input', () => {
+      S[key] = +r.value;
+      $(vid).textContent = fmt(S[key]);
+      if (key === 'stiff' || key === 'damp') { /* 物理变化自然过渡 */ }
+    });
+  }
+  bindRange('rFreq', 'vFreq', 'freq', v => v.toFixed(2));
+  bindRange('rForce', 'vForce', 'force', v => v.toFixed(0));
+  bindRange('rDamp', 'vDamp', 'damp', v => v.toFixed(0));
+  bindRange('rStiff', 'vStiff', 'stiff', v => v.toFixed(0));
+  $('tDamper').addEventListener('change', e => S.damper = e.target.checked);
+  $('tBearing').addEventListener('change', e => S.bearing = e.target.checked);
+
+  // 有效参数
+  function params() {
+    let k = S.stiff;
+    let c = S.damper ? S.damp : 0;
+    if (S.bearing) { k *= 0.42; c += 60; }  // 隔震支座：延长周期（降低刚度）
+    return { k, c };
+  }
+
+  // RK4
+  function deriv(st, tt) {
+    const { k, c } = params();
+    const w = S.freq * Math.sqrt(k / M);
+    const F = S.force * Math.sin(w * tt);
+    return [st[1], (F - c * st[1] - k * st[0]) / M];
+  }
+  function rk4(dt) {
+    const st = [x, v];
+    const a = deriv(st, tSim);
+    const b = deriv([st[0] + a[0] * dt / 2, st[1] + a[1] * dt / 2], tSim + dt / 2);
+    const c2 = deriv([st[0] + b[0] * dt / 2, st[1] + b[1] * dt / 2], tSim + dt / 2);
+    const d = deriv([st[0] + c2[0] * dt, st[1] + c2[1] * dt], tSim + dt);
+    x += (a[0] + 2 * b[0] + 2 * c2[0] + d[0]) * dt / 6;
+    v += (a[1] + 2 * b[1] + 2 * c2[1] + d[1]) * dt / 6;
+    tSim += dt;
+  }
+
+  // 示波器绘制
+  function drawScope(ctx, buf, color, label) {
+    ctx.clearRect(0, 0, SW, SCOPE_H);
+    // 网格
+    ctx.strokeStyle = 'rgba(56,120,180,.10)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx <= SW; gx += SW / 10) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, SCOPE_H); ctx.stroke(); }
+    for (let gy = 0; gy <= SCOPE_H; gy += SCOPE_H / 4) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(SW, gy); ctx.stroke(); }
+    // 中线
+    ctx.strokeStyle = 'rgba(139,149,163,.35)';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(0, SCOPE_H / 2); ctx.lineTo(SW, SCOPE_H / 2); ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (buf.length < 2) return;
+    // 自动量程
+    let peak = 1e-9;
+    for (const s of buf) peak = Math.max(peak, Math.abs(s));
+    const scale = (SCOPE_H * 0.42) / peak;
+
+    // 波形（辉光）
+    ctx.beginPath();
+    buf.forEach((s, i) => {
+      const xx = (i / (BUF_N - 1)) * SW;
+      const yy = SCOPE_H / 2 - s * scale;
+      i === 0 ? ctx.moveTo(xx, yy) : ctx.lineTo(xx, yy);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 9;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // 量程标注
+    ctx.font = '9px "JetBrains Mono",monospace';
+    ctx.fillStyle = 'rgba(154,163,176,.8)';
+    ctx.fillText((peak >= 100 ? peak.toFixed(0) : peak.toFixed(2)) + ' ' + label, SW - 92, SCOPE_H - 8);
+  }
+
+  // 指标计算
+  function metrics() {
+    const { k, c } = params();
+    const wn = Math.sqrt(k / M);
+    const lam = S.freq;
+    const zeta = c / (2 * Math.sqrt(k * M));
+    const den = Math.sqrt(Math.pow(1 - lam * lam, 2) + Math.pow(2 * zeta * lam, 2));
+    const Mmag = 1 / Math.max(den, 1e-6);
+    const Tr = Math.sqrt(1 + Math.pow(2 * zeta * lam, 2)) / Math.max(den, 1e-6);
+    const phi = Math.atan2(2 * zeta * lam, 1 - lam * lam) * 180 / Math.PI;
+    ui.mMag.textContent = Mmag >= 100 ? '∞' : Mmag.toFixed(2);
+    const att = 20 * Math.log10(Math.max(Mmag, 1e-4));
+    ui.mAtt.innerHTML = (att <= -60 ? '-60' : att.toFixed(1)) + '<small> dB</small>';
+    ui.mTrans.innerHTML = Math.min(Tr * 100, 999).toFixed(1) + '<small> %</small>';
+    ui.mPhase.innerHTML = phi.toFixed(1) + '<small> °</small>';
+  }
+
+  // 主循环（固定物理步长）
+  let acc = 0, last = performance.now(), sampleAcc = 0;
+  const DT = 1 / 240;
+  function loop(now) {
+    let dt = Math.min((now - last) / 1000, 0.06);
+    last = now;
+    acc += dt;
+    sampleAcc += dt;
+    const { k } = params();
+    const w = S.freq * Math.sqrt(k / M);
+
+    while (acc >= DT) {
+      rk4(DT);
+      acc -= DT;
+    }
+    // 采样入环形缓冲（激励与响应）
+    if (sampleAcc >= 0.008) {
+      sampleAcc = 0;
+      const F = S.force * Math.sin(w * tSim) / 100;      // 归一化 N/100
+      const xst = S.force / Math.max(k, 1);               // 静态位移
+      const resp = x / Math.max(xst, 1e-6);               // 归一化 x/x_st
+      bufIn.push(F); bufOut.push(resp);
+      if (bufIn.length > BUF_N) { bufIn.shift(); bufOut.shift(); }
+    }
+
+    drawScope(ctxIn, bufIn, '#ff5500', 'N·10⁻²');
+    drawScope(ctxOut, bufOut, '#38bdf8', 'x/x_st');
+    metrics();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ============ C. 灯箱 ============ */
+(function () {
+  const LB = [
+    { tag: 'FIG.1', title: '整体结构剖视图 · 平台 / 底座 / 减震箱 / 弹簧 / 阻尼器 / 隔震支座', src: 'orion-images/hub_VIB/bp_fig1.png' },
+    { tag: 'FIG.2', title: '粘滞阻尼器剖面 · 气缸 / 活塞 / 阻尼粒子', src: 'orion-images/hub_VIB/bp_fig2.png' },
+    { tag: 'FIG.3', title: '阻尼器活塞组件', src: 'orion-images/hub_VIB/bp_fig3.png' },
+    { tag: 'FIG.4', title: '活塞头结构', src: 'orion-images/hub_VIB/bp_fig4.png' },
+    { tag: 'FIG.5', title: '安装腔与缓冲弹簧', src: 'orion-images/hub_VIB/bp_fig5.png' },
+    { tag: 'FIG.6', title: '隔震支座层叠结构 · 钢板 / 橡胶板 / 包覆层', src: 'orion-images/hub_VIB/bp_fig6.png' },
+  ];
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbTag = document.getElementById('lbTag');
+  const lbTitle = document.getElementById('lbTitle');
+  let cur = 0;
+
+  function show(i) {
+    cur = (i + LB.length) % LB.length;
+    lbImg.src = LB[cur].src;
+    lbTag.textContent = LB[cur].tag;
+    lbTitle.textContent = LB[cur].title;
+    lb.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function hide() { lb.classList.remove('show'); document.body.style.overflow = ''; }
+
+  document.querySelectorAll('[data-lb]').forEach(el => {
+    el.addEventListener('click', () => show(+el.dataset.lb));
+  });
+  document.getElementById('lbPrev').addEventListener('click', () => show(cur - 1));
+  document.getElementById('lbNext').addEventListener('click', () => show(cur + 1));
+  document.getElementById('lbClose').addEventListener('click', hide);
+  lb.addEventListener('click', e => { if (e.target === lb) hide(); });
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('show')) return;
+    if (e.key === 'Escape') hide();
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+})();
+
+/* ============ D. 导航高亮 ============ */
+(function () {
+  const links = document.querySelectorAll('.topbar__nav a');
+  const secs = [...document.querySelectorAll('section[id]')];
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  secs.forEach(s => io.observe(s));
+})();
+</script>
+
+</body>
+</html>

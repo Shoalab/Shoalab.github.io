@@ -978,7 +978,7 @@ function updateDrive(dt) {
 
     // 转向（速度越快转向越小，避免高速甩飞）
     const speedFactor = Math.min(1, Math.abs(driveState.speed) / 10);
-    const turnInput = (right - left);
+    const turnInput = (left - right); // 左右转向修正：左=+ / 右=-
     const targetSteer = turnInput * driveState.turnRate * speedFactor;
     driveState.steer += (targetSteer - driveState.steer) * Math.min(1, dt * 8);
     // 倒车时转向反向

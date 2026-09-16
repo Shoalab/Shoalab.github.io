@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵蛇工程 · 正交关节模块化蛇形搜救机器人</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{
+  --bg:#0e1114; --panel:#161b21; --panel-2:#1c232b; --line:#2a333d;
+  --text:#e8edf2; --sub:#8a97a5;
+  --orange:#ff6b1a; --amber:#ffb020; --green:#3ddc84; --cyan:#38bdf8; --red:#ef4444;
+  --mono:'JetBrains Mono',monospace; --disp:'Chakra Petch','Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ===== 顶栏 ===== */
+.topbar{position:fixed;top:0;left:0;right:0;height:54px;background:rgba(14,17,20,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:1000}
+.topbar__left{display:flex;align-items:center;gap:1rem}
+.topbar__back{display:flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border:1px solid var(--line);border-radius:4px;text-decoration:none;color:var(--sub);font-size:.85rem;font-weight:500;transition:.2s}
+.topbar__back:hover{border-color:var(--orange);color:var(--orange)}
+.topbar__title{font-family:var(--disp);font-weight:700;letter-spacing:.08em}
+.topbar__title em{color:var(--orange);font-style:normal;font-family:var(--mono);font-size:.72rem;margin-left:.6rem;letter-spacing:.05em}
+.topbar__status{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.72rem;color:var(--sub)}
+.led{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(61,220,132,.8);animation:ledBlink 2s infinite}
+@keyframes ledBlink{50%{opacity:.35}}
+
+/* ===== Hero ===== */
+.hero{position:relative;min-height:92vh;display:flex;flex-direction:column;justify-content:center;padding:110px 24px 60px;overflow:hidden}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero__inner{position:relative;z-index:3;max-width:1000px;margin:0 auto;width:100%}
+.hero__tag{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--amber);border:1px solid rgba(255,176,32,.4);background:rgba(255,176,32,.08);padding:.4rem 1rem;border-radius:2px;margin-bottom:1.6rem}
+.hero__title{font-family:var(--disp);font-size:clamp(2.2rem,6vw,4.2rem);font-weight:700;line-height:1.1;letter-spacing:.02em}
+.hero__title span{color:var(--orange)}
+.hero__sub{max-width:660px;color:var(--sub);margin:1.4rem 0 2rem;font-size:.95rem}
+.hero__sub b{color:var(--text)}
+.hero__stats{display:flex;flex-wrap:wrap;gap:1rem}
+.hstat{background:rgba(22,27,33,.75);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:4px;padding:.9rem 1.4rem;backdrop-filter:blur(4px)}
+.hstat__v{font-family:var(--disp);font-size:1.5rem;font-weight:700;color:var(--orange)}
+.hstat__v small{font-size:.75rem;color:var(--sub);font-weight:400;margin-left:.2rem}
+.hstat__l{font-size:.72rem;color:var(--sub);letter-spacing:.08em}
+.scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);color:var(--sub);font-size:.7rem;font-family:var(--mono);letter-spacing:.3em;animation:cue 2s infinite;z-index:3}
+@keyframes cue{50%{transform:translate(-50%,8px);opacity:.4}}
+
+/* ===== 通用 ===== */
+.section{max-width:1080px;margin:0 auto 80px;padding:0 24px}
+.shead{display:flex;align-items:baseline;gap:1rem;margin-bottom:2rem;border-bottom:1px solid var(--line);padding-bottom:.8rem}
+.shead__num{font-family:var(--mono);color:var(--orange);font-weight:700}
+.shead__title{font-family:var(--disp);font-size:1.5rem;font-weight:700;letter-spacing:.03em}
+.shead__hint{margin-left:auto;font-size:.76rem;color:var(--sub);display:flex;align-items:center;gap:.4rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.panel__head{padding:.7rem 1.2rem;background:var(--panel-2);border-bottom:1px solid var(--line);font-size:.78rem;font-weight:600;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center;color:var(--sub)}
+.panel__head i{color:var(--orange);margin-right:.4rem}
+.mono{font-family:var(--mono)}
+
+/* ===== 01 步态模拟器 ===== */
+.gait-grid{display:grid;grid-template-columns:320px 1fr;gap:1.4rem}
+.gait-ctrl{display:flex;flex-direction:column;gap:1.1rem}
+.mode-btns{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.mbtn{padding:.7rem .4rem;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;color:var(--sub);cursor:pointer;font-family:var(--disp);font-weight:600;font-size:.82rem;transition:.2s;text-align:center}
+.mbtn i{display:block;font-size:1.1rem;margin-bottom:.25rem}
+.mbtn:hover{border-color:var(--orange);color:var(--text)}
+.mbtn.active{background:linear-gradient(180deg,rgba(255,107,26,.22),rgba(255,107,26,.08));border-color:var(--orange);color:var(--orange);box-shadow:0 0 16px rgba(255,107,26,.25)}
+.slider-block label{display:flex;justify-content:space-between;font-size:.75rem;color:var(--sub);margin-bottom:.4rem}
+.slider-block label b{font-family:var(--mono);color:var(--amber)}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--line);border-radius:99px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--orange);border:3px solid var(--bg);box-shadow:0 0 10px rgba(255,107,26,.6);cursor:pointer}
+.readouts{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.2rem}
+.readout{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:.55rem .8rem}
+.readout__v{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--green)}
+.readout__l{font-size:.66rem;color:var(--sub);letter-spacing:.05em}
+.gait-note{font-size:.78rem;color:var(--sub);background:rgba(255,176,32,.06);border-left:3px solid var(--amber);padding:.7rem .9rem;border-radius:0 4px 4px 0;line-height:1.6}
+#simCanvasWrap{position:relative;background:#0a0d10;min-height:340px}
+#simCanvasWrap canvas{display:block;width:100%}
+
+/* ===== 02 结构 ===== */
+.struct-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.struct-svg-panel{padding:1.4rem;display:flex;align-items:center;justify-content:center}
+.struct-svg-panel svg{width:100%;max-width:440px}
+.unit-cards{display:grid;gap:.9rem}
+.ucard{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:1.1rem 1.3rem;transition:.25s}
+.ucard:hover{border-color:var(--orange);transform:translateX(4px)}
+.ucard__tag{display:inline-block;font-family:var(--mono);font-size:.66rem;color:var(--orange);border:1px solid rgba(255,107,26,.4);padding:.15rem .5rem;border-radius:2px;margin-bottom:.5rem;letter-spacing:.1em}
+.ucard__t{font-weight:700;font-size:.98rem;margin-bottom:.3rem}
+.ucard__d{font-size:.82rem;color:var(--sub)}
+.hw-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;margin-top:1.4rem}
+.hw-chip{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:.8rem 1rem}
+.hw-chip__h{font-size:.72rem;color:var(--orange);font-weight:600;display:flex;gap:.4rem;align-items:center;margin-bottom:.3rem}
+.hw-chip__d{font-size:.78rem;color:var(--sub);font-family:var(--mono)}
+
+/* ===== 03 三代演进 ===== */
+.evo{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.evo-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative;transition:.3s}
+.evo-card:hover{border-color:var(--amber);transform:translateY(-5px);box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.evo-card__img{position:relative;background:#0a0d10;height:170px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:zoom-in}
+.evo-card__img img{width:100%;height:100%;object-fit:cover;transition:.4s}
+.evo-card:hover .evo-card__img img{transform:scale(1.06)}
+.evo-card__zoom{position:absolute;bottom:.6rem;right:.6rem;width:30px;height:30px;border-radius:5px;background:rgba(14,17,20,.8);border:1px solid var(--line);color:var(--sub);display:flex;align-items:center;justify-content:center;font-size:.75rem;opacity:0;transition:.25s;pointer-events:none}
+.evo-card:hover .evo-card__zoom{opacity:1;color:var(--orange);border-color:var(--orange)}
+
+/* 图片灯箱 */
+.lightbox{position:fixed;inset:0;background:rgba(5,7,9,.92);backdrop-filter:blur(6px);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem 1.5rem;animation:lbIn .25s ease}
+.lightbox.show{display:flex}
+@keyframes lbIn{from{opacity:0}to{opacity:1}}
+.lightbox__close{position:absolute;top:1rem;right:1.2rem;width:40px;height:40px;border-radius:8px;border:1px solid var(--line);background:rgba(22,27,33,.8);color:var(--sub);font-size:1rem;cursor:pointer;transition:.2s}
+.lightbox__close:hover{color:var(--red);border-color:var(--red)}
+.lightbox__img{max-width:92%;max-height:78vh;object-fit:contain;border:1px solid #274764;background:#0a1424;background-image:linear-gradient(rgba(56,120,180,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(56,120,180,.13) 1px,transparent 1px);background-size:22px 22px;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.8);animation:lbZoom .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes lbZoom{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.lightbox__cap{margin-top:1.1rem;text-align:center;font-size:.82rem;color:var(--sub)}
+.lightbox__cap b{color:var(--orange);font-family:var(--mono);margin-right:.6rem}
+.lightbox__nav{display:flex;gap:1rem;margin-top:1rem}
+.lb-btn{padding:.5rem 1.1rem;background:var(--panel);border:1px solid var(--line);border-radius:5px;color:var(--sub);cursor:pointer;font-size:.8rem;transition:.2s}
+.lb-btn:hover{border-color:var(--orange);color:var(--orange)}
+.lb-btn:disabled{opacity:.3;cursor:not-allowed}
+.evo-card__gen{position:absolute;top:.7rem;left:.7rem;font-family:var(--mono);font-size:.68rem;font-weight:700;background:rgba(14,17,20,.85);border:1px solid var(--line);padding:.25rem .6rem;border-radius:2px;color:var(--amber);letter-spacing:.1em}
+.evo-card__gen--final{color:var(--green);border-color:rgba(61,220,132,.5)}
+.evo-card__body{padding:1rem 1.1rem 1.2rem}
+.evo-card__t{font-weight:700;font-size:.9rem;margin-bottom:.35rem}
+.evo-card__d{font-size:.76rem;color:var(--sub);line-height:1.65}
+.evo-card__spec{margin-top:.6rem;font-family:var(--mono);font-size:.68rem;color:var(--cyan);border-top:1px dashed var(--line);padding-top:.5rem}
+
+/* ===== 04 性能指标 ===== */
+.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem}
+.spec-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:1.2rem 1.3rem;position:relative;overflow:hidden}
+.spec-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--orange),transparent)}
+.spec-card__l{font-size:.76rem;color:var(--sub);letter-spacing:.05em;margin-bottom:.6rem;display:flex;justify-content:space-between}
+.spec-card__l span{color:var(--green);font-family:var(--mono);font-size:.68rem}
+.spec-card__v{font-family:var(--disp);font-size:2rem;font-weight:700;color:var(--orange);line-height:1.1}
+.spec-card__v small{font-size:.8rem;color:var(--sub);font-weight:400}
+.spec-bar{height:5px;background:var(--line);border-radius:99px;margin-top:.8rem;overflow:hidden}
+.spec-bar__fill{height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--amber));border-radius:99px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.terrain-tests{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;margin-top:1.6rem}
+.tt-card{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:1rem;transition:.25s}
+.tt-card:hover{border-color:var(--green)}
+.tt-card__icon{font-size:1.4rem;color:var(--green);margin-bottom:.5rem}
+.tt-card__t{font-weight:700;font-size:.88rem;margin-bottom:.25rem}
+.tt-card__d{font-size:.75rem;color:var(--sub)}
+.tt-card__r{margin-top:.5rem;font-family:var(--mono);font-size:.7rem;color:var(--green)}
+
+/* ===== 05 控制系统 ===== */
+.ctrl-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:1.4rem}
+.ctrl-flow{padding:1.6rem}
+.ctrl-node{display:flex;align-items:center;gap:1rem;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:.9rem 1.2rem;margin-bottom:.8rem;transition:.25s}
+.ctrl-node:hover{border-color:var(--cyan);transform:translateX(4px)}
+.ctrl-node__ic{width:42px;height:42px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(56,189,248,.1);color:var(--cyan);border:1px solid rgba(56,189,248,.3)}
+.ctrl-node__t{font-weight:700;font-size:.9rem}
+.ctrl-node__d{font-size:.75rem;color:var(--sub)}
+.ctrl-arrow{text-align:center;color:var(--sub);font-size:.8rem;margin:-0.35rem 0 .45rem}
+.ctrl-node--user .ctrl-node__ic{background:rgba(61,220,132,.1);color:var(--green);border-color:rgba(61,220,132,.3)}
+.vision-demo{padding:1.4rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.vd-box{background:#05070a;border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
+.vd-box__h{font-family:var(--mono);font-size:.66rem;padding:.45rem .7rem;color:var(--sub);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;background:var(--panel-2)}
+.vd-rgb,.vd-ir{height:150px;position:relative;overflow:hidden}
+.vd-rgb{background:linear-gradient(135deg,#1a2430 0%,#2c3a48 50%,#1a2430 100%)}
+.vd-rgb::after{content:'RGB CAM · 640×480';position:absolute;bottom:.5rem;right:.6rem;font-family:var(--mono);font-size:.6rem;color:#9fb4c8}
+.rubble{position:absolute;bottom:0;left:0;right:0;height:60px;background:#0d1218;clip-path:polygon(0 55%,12% 35%,25% 60%,38% 30%,52% 55%,66% 25%,80% 50%,92% 32%,100% 58%,100% 100%,0 100%)}
+.heat-spot{position:absolute;width:34px;height:22px;border-radius:50%;background:radial-gradient(circle,rgba(255,60,0,.95),rgba(255,140,0,.55) 55%,transparent 75%);filter:blur(2px);animation:heat 2.6s ease-in-out infinite}
+.heat-spot--s{width:20px;height:13px;animation-delay:1.1s}
+@keyframes heat{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+.vd-ir{background:radial-gradient(ellipse at 50% 80%,#231408 0%,#0a0604 70%)}
+.vd-ir::after{content:'IR THERMAL · 80×62';position:absolute;bottom:.5rem;right:.6rem;font-family:var(--mono);font-size:.6rem;color:#c88}
+.ir-grid{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.35) 3px 4px),repeating-linear-gradient(90deg,transparent 0 3px,rgba(0,0,0,.35) 3px 4px)}
+.vd-note{grid-column:1/-1;font-size:.74rem;color:var(--sub);line-height:1.7;border-top:1px dashed var(--line);padding-top:.8rem}
+
+/* ===== 06 媒体 ===== */
+.media-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.photo-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.photo-card img{width:100%;display:block;aspect-ratio:16/10;object-fit:cover}
+.photo-card figcaption{padding:.8rem 1.1rem;font-size:.78rem;color:var(--sub);display:flex;gap:.5rem;align-items:center}
+.photo-card figcaption i{color:var(--orange)}
+.video-wrap{grid-column:1/-1;background:#000;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.video-wrap video{width:100%;display:block}
+
+/* ===== 07 研究成果 ===== */
+.pub-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:1.4rem}
+.pub-col{display:grid;gap:1rem;align-content:start}
+.pub-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative;transition:.3s}
+.pub-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
+.pub-card:hover{border-color:var(--cyan);transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.pub-card__body{padding:1.4rem 1.5rem;display:flex;flex-direction:column;flex:1}
+.pub-card__venue{display:inline-flex;align-self:flex-start;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.66rem;color:var(--cyan);border:1px solid rgba(56,189,248,.4);background:rgba(56,189,248,.08);padding:.25rem .7rem;border-radius:2px;letter-spacing:.08em;margin-bottom:.9rem}
+.pub-card__t{font-family:var(--disp);font-size:1.08rem;font-weight:700;line-height:1.45;margin-bottom:.35rem;min-height:3.14em}
+.pub-card__t-cn{font-size:.84rem;color:var(--text);opacity:.85;margin-bottom:.85rem;line-height:1.6;min-height:2.72em}
+.pub-card__meta{display:grid;grid-template-columns:4.8em 1fr;column-gap:.6rem;row-gap:.45rem;font-size:.74rem;color:var(--sub);line-height:1.75;border-top:1px dashed var(--line);padding-top:.95rem}
+.pub-card__meta b{color:var(--text);font-weight:500;white-space:nowrap}
+.pub-card__meta>span,.pub-card__meta>div{min-width:0}
+.pub-funds{display:grid;gap:.3rem}
+.pub-funds>div{padding-left:0}
+.pub-funds .no{font-family:var(--mono);font-size:.68rem;color:var(--cyan)}
+.pub-card__actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:auto;padding-top:1.1rem}
+.pub-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.1rem;border-radius:5px;font-size:.8rem;font-weight:600;text-decoration:none;transition:.2s;border:1px solid var(--line);color:var(--sub);background:var(--panel-2);cursor:pointer}
+.pub-btn--doi{background:linear-gradient(180deg,rgba(56,189,248,.22),rgba(56,189,248,.08));border-color:var(--cyan);color:var(--cyan)}
+.pub-btn--doi:hover{box-shadow:0 0 16px rgba(56,189,248,.3)}
+.pub-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.pub-btn .mono{font-size:.72rem}
+.out-list{display:grid;gap:1rem;align-content:start}
+.out-card{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:1rem 1.2rem;display:flex;gap:1rem;align-items:flex-start;transition:.25s}
+.out-card:hover{border-color:var(--amber);transform:translateX(4px)}
+.out-card__ic{width:38px;height:38px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;background:rgba(255,176,32,.1);color:var(--amber);border:1px solid rgba(255,176,32,.3);font-size:1rem}
+.out-card__t{font-weight:700;font-size:.88rem;margin-bottom:.2rem}
+.out-card__d{font-size:.75rem;color:var(--sub);line-height:1.65}
+
+/* 知识产权卡片（右列堆叠） */
+.ip-head{display:flex;align-items:center;gap:.6rem;margin:.2rem 0 .1rem;font-family:var(--disp);font-size:.88rem;font-weight:700;letter-spacing:.04em;color:var(--sub)}
+.ip-head i{color:var(--amber)}
+.ip-head::after{content:'';flex:1;height:1px;background:var(--line)}
+.ip-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:1rem 1.2rem;position:relative;overflow:hidden;transition:.3s}
+.ip-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--amber),transparent)}
+.ip-card:hover{border-color:var(--amber);transform:translateX(4px);box-shadow:0 10px 26px rgba(0,0,0,.45)}
+.ip-card__type{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;padding:.22rem .6rem;border-radius:2px;border:1px solid;margin-bottom:.6rem}
+.ip-card__type--inv{color:var(--amber);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+.ip-card__type--um{color:var(--green);border-color:rgba(61,220,132,.4);background:rgba(61,220,132,.08)}
+.ip-card__type--cr{color:var(--cyan);border-color:rgba(56,189,248,.4);background:rgba(56,189,248,.08)}
+.ip-card__t{font-weight:700;font-size:.9rem;line-height:1.5;margin-bottom:.55rem;min-height:1.5em}
+.ip-card__no{font-family:var(--mono);font-size:.72rem;color:var(--sub);border-top:1px dashed var(--line);padding-top:.55rem}
+.ip-card__no b{color:var(--amber);font-weight:700}
+
+/* ===== 02 专利图纸 ===== */
+.patent-hero{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:1.4rem;cursor:zoom-in;transition:.3s;position:relative}
+.patent-hero:hover{border-color:var(--amber);transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.patent-hero__fig{background:#0a1424;background-image:linear-gradient(rgba(56,120,180,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(56,120,180,.13) 1px,transparent 1px);background-size:22px 22px;padding:1.2rem 1.4rem .8rem;display:flex;align-items:center;justify-content:center;position:relative}
+.patent-hero__fig img{width:100%;max-height:340px;object-fit:contain}
+.patent-hero__bar{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1.2rem;border-top:1px solid var(--line);font-size:.76rem;color:var(--sub)}
+.patent-hero__bar b{color:var(--amber);font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;margin-right:.6rem}
+.fig-tag{position:absolute;top:.7rem;left:.7rem;font-family:var(--mono);font-size:.62rem;font-weight:700;color:var(--amber);background:rgba(14,17,20,.88);border:1px solid rgba(255,176,32,.45);padding:.18rem .55rem;border-radius:2px;letter-spacing:.1em;z-index:2}
+.patent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.4rem}
+.patent-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:.3s;cursor:zoom-in}
+.patent-card:hover{border-color:var(--amber);transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.patent-card__fig{position:relative;background:#0a1424;background-image:linear-gradient(rgba(56,120,180,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(56,120,180,.13) 1px,transparent 1px);background-size:22px 22px;height:180px;display:flex;align-items:center;justify-content:center;padding:.7rem;overflow:hidden}
+.patent-card__fig img{max-width:100%;max-height:100%;object-fit:contain;transition:.4s}
+.patent-card:hover .patent-card__fig img{transform:scale(1.05)}
+.patent-card__body{padding:.95rem 1.1rem 1.05rem;border-top:1px solid var(--line)}
+.patent-card__t{font-weight:700;font-size:.9rem;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
+.patent-card__t .mono{font-size:.62rem;color:var(--cyan);font-weight:400;letter-spacing:.06em}
+.patent-card__d{font-size:.74rem;color:var(--sub);line-height:1.7}
+.patent-parts{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem;border-top:1px dashed var(--line);padding-top:.7rem}
+.ppart{font-family:var(--mono);font-size:.62rem;color:var(--cyan);border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.06);padding:.14rem .5rem;border-radius:2px;white-space:nowrap}
+.ppart b{color:var(--amber);font-weight:700;margin-right:.2rem}
+
+/* ===== 03 工作状态 ===== */
+.state-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.state-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;transition:.3s;cursor:zoom-in;position:relative}
+.state-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,var(--orange),transparent);z-index:2}
+.state-card:hover{border-color:var(--orange);transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.state-card__fig{position:relative;background:#0a1424;background-image:linear-gradient(rgba(56,120,180,.13) 1px,transparent 1px),linear-gradient(90deg,rgba(56,120,180,.13) 1px,transparent 1px);background-size:22px 22px;height:185px;display:flex;align-items:center;justify-content:center;padding:.7rem}
+.state-card__fig img{max-width:100%;max-height:100%;object-fit:contain}
+.state-card__body{padding:1rem 1.15rem 1.15rem;border-top:1px solid var(--line)}
+.state-card__no{font-family:var(--mono);font-size:.62rem;color:var(--orange);letter-spacing:.12em;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+.state-card__t{font-family:var(--disp);font-weight:700;font-size:1.02rem;margin-bottom:.4rem}
+.state-card__t small{font-size:.68rem;color:var(--sub);font-weight:400;margin-left:.4rem;font-family:var(--mono)}
+.state-card__d{font-size:.76rem;color:var(--sub);line-height:1.75}
+.state-card__d b{color:var(--text);font-weight:500}
+
+footer{border-top:1px solid var(--line);background:#0a0d10;padding:2.2rem 24px;text-align:center;font-size:.74rem;color:var(--sub);line-height:2}
+footer b{color:var(--text);font-family:var(--disp);letter-spacing:.05em}
+
+@media(max-width:960px){
+  .gait-grid,.struct-grid,.ctrl-grid,.media-grid,.pub-grid{grid-template-columns:1fr}
+  .patent-grid,.state-grid{grid-template-columns:1fr}
+  .evo{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){.evo{grid-template-columns:1fr}.vision-demo{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__left">
+    <a href="../orion.html" class="topbar__back"><i class="fas fa-arrow-left"></i><span>返回 Orion</span></a>
+    <div class="topbar__title">灵蛇工程 · 蛇形搜救机器人<em>ORTHO-JOINT MODULAR SERPENTINE ROBOT</em></div>
+  </div>
+  <div class="topbar__status"><span class="led"></span>MISSION READY</div>
+</header>
+
+<!-- ============ HERO + 背景蛇形动画 ============ -->
+<section class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="hero__inner">
+    <div class="hero__tag"><i class="fas fa-wave-square"></i>LINGSHE PROJECT · ZL 202310933056.1 专利构型 · 救灾搜救场景</div>
+    <h1 class="hero__title">灵蛇工程<br><span>正交关节模块化蛇形机器人</span></h1>
+    <p class="hero__sub">
+      面向<b>地震、坍塌等灾后废墟环境</b>的搜救任务，采用<b>正交轴关节串联结构</b> + <b>主动轮驱动</b>的模块化设计——既保留蛇类穿越狭小空间的柔性身形，又具备轮式机构的高速越障能力，实现三维运动、高速平移与跨沟越障的统一。
+    </p>
+    <div class="hero__stats">
+      <div class="hstat"><div class="hstat__v">0.28<small>m/s</small></div><div class="hstat__l">实测行进速度</div></div>
+      <div class="hstat"><div class="hstat__v">40<small>°</small></div><div class="hstat__l">最大爬坡角度</div></div>
+      <div class="hstat"><div class="hstat__v">0.35<small>m</small></div><div class="hstat__l">越障高度</div></div>
+      <div class="hstat"><div class="hstat__v">0.5<small>m</small></div><div class="hstat__l">越沟宽度</div></div>
+      <div class="hstat"><div class="hstat__v">0.15<small>×0.15m</small></div><div class="hstat__l">最小通过孔洞</div></div>
+    </div>
+  </div>
+  <div class="scroll-cue">SCROLL ▼</div>
+</section>
+
+<!-- ============ 01 步态模拟器 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">01</span><h2 class="shead__title">蜿蜒步态 · 实时模拟器</h2>
+    <span class="shead__hint"><i class="fas fa-sliders"></i>切换模式 / 拖动参数，观察蛇体波形变化</span>
+  </div>
+  <div class="gait-grid">
+    <div class="gait-ctrl">
+      <div class="mode-btns">
+        <button class="mbtn active" data-mode="serpentine"><i class="fas fa-wave-square"></i>蜿蜒运动</button>
+        <button class="mbtn" data-mode="straight"><i class="fas fa-gauge-high"></i>轮式直行</button>
+        <button class="mbtn" data-mode="lookup"><i class="fas fa-video"></i>抬头侦察</button>
+        <button class="mbtn" data-mode="hooktail"><i class="fas fa-stethoscope"></i>勾尾作业</button>
+      </div>
+      <div class="slider-block">
+        <label>波形频率 ω<b id="freqVal">1.6 Hz</b></label>
+        <input type="range" id="freqSlider" min="4" max="30" value="16">
+      </div>
+      <div class="slider-block">
+        <label>摆动幅值 A<b id="ampVal">26 px</b></label>
+        <input type="range" id="ampSlider" min="6" max="46" value="26">
+      </div>
+      <div class="slider-block">
+        <label>行进速度 v<b id="spdVal">1.8</b></label>
+        <input type="range" id="spdSlider" min="2" max="40" value="18">
+      </div>
+      <div class="readouts">
+        <div class="readout"><div class="readout__v" id="roPhase">0°</div><div class="readout__l">关节相位 PHASE</div></div>
+        <div class="readout"><div class="readout__v" id="roYaw">±0°</div><div class="readout__l">头部偏航角 YAW</div></div>
+      </div>
+      <div class="gait-note">
+        <b style="color:var(--amber)">步态说明：</b>蜿蜒运动以正弦波沿蛇体传播，各正交关节按相位差依次摆动；轮式直行时蛇身舒展、主动轮全速驱动；抬头侦察模式运用<b>平面 2R 逆运动学</b>将头部立起，扩大相机视野；勾尾作业模式对应专利 <b>FIG.18</b>——连杆单元组将平台 SR3 转至蛇身后侧成"蝎尾"构型，实施原位检伤作业。
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel__head"><span><i class="fas fa-display"></i>FIELD SIMULATION · GAIT LAB</span><span class="mono" id="simFps">-- FPS</span></div>
+      <div id="simCanvasWrap"><canvas id="simCanvas"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 机构设计 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">02</span><h2 class="shead__title">正交轴关节 · 机构设计</h2>
+    <span class="shead__hint"><i class="fas fa-cubes"></i>三大单元组 · 模块化可拆卸</span>
+  </div>
+  <div class="struct-grid">
+    <div class="panel">
+      <div class="panel__head"><span><i class="fas fa-diagram-project"></i>正交关节单元示意 · 俯仰×偏航交替</span></div>
+      <div class="struct-svg-panel">
+        <svg viewBox="0 0 440 300">
+          <defs>
+            <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="2.6" orient="auto"><path d="M0,0 L6,2.6 L0,5.2 z" fill="#ff6b1a"/></marker>
+          </defs>
+          <!-- 地面 -->
+          <line x1="20" y1="252" x2="420" y2="252" stroke="#2a333d" stroke-width="2"/>
+          <!-- 模块1 仓体 -->
+          <rect x="40" y="196" width="86" height="40" rx="8" fill="#1c232b" stroke="#ff6b1a" stroke-width="1.5"/>
+          <text x="83" y="220" text-anchor="middle" font-size="10" fill="#e8edf2" font-family="JetBrains Mono">仓体</text>
+          <!-- 轮子1 -->
+          <circle cx="62" cy="244" r="9" fill="none" stroke="#8a97a5" stroke-width="2.5"/>
+          <circle cx="106" cy="244" r="9" fill="none" stroke="#8a97a5" stroke-width="2.5"/>
+          <!-- 偏航关节 -->
+          <circle cx="152" cy="216" r="13" fill="rgba(255,107,26,.15)" stroke="#ff6b1a" stroke-width="2"/>
+          <text x="152" y="220" text-anchor="middle" font-size="9" fill="#ff6b1a" font-family="JetBrains Mono">YAW</text>
+          <!-- 模块2 骨架 -->
+          <rect x="180" y="188" width="80" height="56" rx="8" fill="#1c232b" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="220" y="215" text-anchor="middle" font-size="10" fill="#e8edf2" font-family="JetBrains Mono">骨架</text>
+          <text x="220" y="230" text-anchor="middle" font-size="8" fill="#8a97a5" font-family="JetBrains Mono">从动轮×4</text>
+          <!-- 俯仰关节 -->
+          <circle cx="286" cy="216" r="13" fill="rgba(56,189,248,.12)" stroke="#38bdf8" stroke-width="2"/>
+          <text x="286" y="220" text-anchor="middle" font-size="8" fill="#38bdf8" font-family="JetBrains Mono">PITCH</text>
+          <!-- 模块3 -->
+          <rect x="312" y="196" width="86" height="40" rx="8" fill="#1c232b" stroke="#3ddc84" stroke-width="1.5"/>
+          <text x="355" y="220" text-anchor="middle" font-size="10" fill="#e8edf2" font-family="JetBrains Mono">平台仓</text>
+          <circle cx="334" cy="244" r="9" fill="none" stroke="#3ddc84" stroke-width="2.5"/>
+          <circle cx="378" cy="244" r="9" fill="none" stroke="#3ddc84" stroke-width="2.5"/>
+          <!-- 相机头 -->
+          <rect x="402" y="188" width="24" height="22" rx="4" fill="rgba(255,176,32,.15)" stroke="#ffb020" stroke-width="1.5"/>
+          <circle cx="414" cy="199" r="5" fill="#ffb020"/>
+          <!-- 旋转箭头 -->
+          <path d="M146,185 a10,10 0 1,1 -4,14" fill="none" stroke="#ff6b1a" stroke-width="1.5" marker-end="url(#ar)"/>
+          <path d="M292,190 a10,10 0 1,1 8,-12" fill="none" stroke="#38bdf8" stroke-width="1.5" marker-end="url(#ar)"/>
+          <text x="58" y="178" font-size="9" fill="#8a97a5" font-family="JetBrains Mono">主动轮驱动</text>
+          <text x="150" y="168" font-size="9" fill="#8a97a5" font-family="JetBrains Mono">总线舵机正交布局</text>
+          <text x="222" y="282" font-size="9" fill="#8a97a5" font-family="JetBrains Mono" text-anchor="middle">相邻关节轴线相互垂直 → 蛇体可实现三维运动</text>
+        </svg>
+      </div>
+    </div>
+    <div class="unit-cards">
+      <div class="ucard">
+        <span class="ucard__tag">UNIT GROUP 01</span>
+        <div class="ucard__t">正交轴关节串联单元组</div>
+        <div class="ucard__d">蛇身基本构建单元：仓体 <b>O1</b> 底部经微型电机 <b>O7</b> 联动双侧主动轮 <b>O2</b>，偏航舵机 <b>O3</b> 连接骨架 <b>O4</b>，俯仰舵机 <b>O5</b> 连接骨架 <b>O6</b>；骨架四角均布从动轮 <b>O8</b> 与销钉 <b>O9</b>。各件通孔轴线逐级重合装配、标准件固定，若干单元组串联成蛇身，每模块 2 自由度。</div>
+      </div>
+      <div class="ucard">
+        <span class="ucard__tag">UNIT GROUP 02</span>
+        <div class="ucard__t">连杆构件单元组</div>
+        <div class="ucard__d">H 形连杆支架 <b>C1</b> 采用肋板加强设计，两端共 4 个舵机配合位（C1a1–C1a4）对应第一舵机 <b>C2</b> 与第二舵机 <b>C3</b> 的双侧配合盘；支架中部设穿线槽 C1c1–C1c5——既承担蛇身到平台的串联传力，又为电气控制线路预留走线通道。</div>
+      </div>
+      <div class="ucard">
+        <span class="ucard__tag">UNIT GROUP 03</span>
+        <div class="ucard__t">平台机械单元组</div>
+        <div class="ucard__d">半包式长方体仓体 <b>P1</b>，孔位 P1a3 / P1a4 装配微型电机 <b>P2 / P4</b>，输出轴轴线重合联动左右主动轮 <b>P3 / P5</b>；平台自身亦为正交轴关节结构（舵机 <b>P7</b> + 骨架 <b>P8</b>），可独立偏航调整。顶部装载可见光 + 红外热成像双模态相机。</div>
+      </div>
+      <div class="hw-chips">
+        <div class="hw-chip"><div class="hw-chip__h"><i class="fas fa-microchip"></i>总线舵机</div><div class="hw-chip__d">ZP30D · 30 kg·cm</div></div>
+        <div class="hw-chip"><div class="hw-chip__h"><i class="fas fa-gear"></i>金属数字舵机</div><div class="hw-chip__d">TBS-K20 · 20 kg·cm</div></div>
+        <div class="hw-chip"><div class="hw-chip__h"><i class="fas fa-bolt"></i>驱动电机</div><div class="hw-chip__d">N20 直流减速 · 全轮差速</div></div>
+        <div class="hw-chip"><div class="hw-chip__h"><i class="fas fa-cube"></i>制造工艺</div><div class="hw-chip__d">3D打印 · 树脂仓体 + 尼龙骨架</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 专利结构图纸（源自 ZL 202310933056.1 技术交底书） -->
+  <div class="patent-hero" data-lb="4">
+    <span class="fig-tag">PATENT FIG.1</span>
+    <div class="patent-hero__fig">
+      <img src="assets/patent_img/bp_image1.png" alt="整体结构示意图">
+    </div>
+    <div class="patent-hero__bar">
+      <span><b>FIG.1</b>仿生蛇形机器人整体结构：正交轴关节串联单元组 SR1a / SR1b —— 连杆构件单元组 SR2 —— 平台机械单元组 SR3</span>
+      <span class="mono" style="font-size:.66rem;color:var(--amber)"><i class="fas fa-expand"></i> 点击放大</span>
+    </div>
+  </div>
+  <div class="patent-grid">
+    <div class="patent-card" data-lb="5">
+      <span class="fig-tag">FIG.3</span>
+      <div class="patent-card__fig"><img src="assets/patent_img/bp_image3.png" alt="正交轴关节串联单元组爆炸图"></div>
+      <div class="patent-card__body">
+        <div class="patent-card__t">正交轴关节串联单元组 <span class="mono">SR1 · EXPLODED</span></div>
+        <div class="patent-card__d">爆炸图揭示装配链：仓体 → 舵机 → 骨架逐级以通孔轴线重合对接，全部采用标准件配合固定，支持模块按需增减与快速更换。</div>
+        <div class="patent-parts">
+          <span class="ppart"><b>O1</b>仓体</span><span class="ppart"><b>O2</b>主动轮</span><span class="ppart"><b>O3</b>偏航舵机</span><span class="ppart"><b>O4</b>骨架</span><span class="ppart"><b>O5</b>俯仰舵机</span><span class="ppart"><b>O6</b>骨架</span><span class="ppart"><b>O7</b>微型电机</span><span class="ppart"><b>O8</b>从动轮</span><span class="ppart"><b>O9</b>销钉</span>
+        </div>
+      </div>
+    </div>
+    <div class="patent-card" data-lb="6">
+      <span class="fig-tag">FIG.11</span>
+      <div class="patent-card__fig"><img src="assets/patent_img/bp_image11.png" alt="H形连杆支架结构图"></div>
+      <div class="patent-card__body">
+        <div class="patent-card__t">连杆构件单元组 <span class="mono">SR2 · LINK BAR</span></div>
+        <div class="patent-card__d">H 形连杆支架 C1：肋板加强抵抗弯扭，端部 4 个配合位锁定双舵机配合盘，中部 4 条穿线槽贯通全架，控制线束由此穿越关节直达平台。</div>
+        <div class="patent-parts">
+          <span class="ppart"><b>C1</b>H形支架</span><span class="ppart"><b>C2</b>第一舵机</span><span class="ppart"><b>C3</b>第二舵机</span><span class="ppart"><b>C1c</b>穿线槽 ×4</span>
+        </div>
+      </div>
+    </div>
+    <div class="patent-card" data-lb="7">
+      <span class="fig-tag">FIG.13</span>
+      <div class="patent-card__fig"><img src="assets/patent_img/bp_image13.png" alt="平台机械单元组整体结构"></div>
+      <div class="patent-card__body">
+        <div class="patent-card__t">平台机械单元组 <span class="mono">SR3 · PLATFORM</span></div>
+        <div class="patent-card__d">半包式长方体仓体 P1 内藏双电机双主动轮，正交轴关节（P7+P8）赋予平台独立偏航能力；模块化孔位预留拓展安装位。</div>
+        <div class="patent-parts">
+          <span class="ppart"><b>P1</b>半包仓体</span><span class="ppart"><b>P2·P4</b>微型电机</span><span class="ppart"><b>P3·P5</b>主动轮</span><span class="ppart"><b>P7</b>舵机</span><span class="ppart"><b>P8</b>骨架</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 工作状态 · 三态重构 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">03</span><h2 class="shead__title">工作状态 · 三态重构</h2>
+    <span class="shead__hint"><i class="fas fa-arrows-split-up-and-left"></i>同一本体 · 三种构型 · 覆盖行进 / 侦察 / 作业场景</span>
+  </div>
+  <div class="state-grid">
+    <div class="state-card" data-lb="8">
+      <span class="fig-tag" style="color:var(--cyan);border-color:rgba(56,189,248,.45)">FIG.16</span>
+      <div class="state-card__fig"><img src="assets/patent_img/bp_image16.png" alt="舒张式工作状态"></div>
+      <div class="state-card__body">
+        <div class="state-card__no"><i class="fas fa-wave-square"></i>STATE 01 · 常规行进</div>
+        <div class="state-card__t">舒张式<small>STRETCH</small></div>
+        <div class="state-card__d">蛇身完全舒展的基础形态：主动轮 <b>O2</b> 驱动直线前行；转向蜿蜒时偏航舵机 <b>O3</b> 带动仓体与骨架水平摆动；遇障碍沟槽时俯仰舵机 <b>O5</b> 带动骨架 <b>O4 / O6</b> 竖向抬升，整机抬头跨越。</div>
+      </div>
+    </div>
+    <div class="state-card" data-lb="9">
+      <span class="fig-tag" style="color:var(--cyan);border-color:rgba(56,189,248,.45)">FIG.17</span>
+      <div class="state-card__fig"><img src="assets/patent_img/bp_image17.png" alt="抬头式工作状态"></div>
+      <div class="state-card__body">
+        <div class="state-card__no"><i class="fas fa-arrow-up"></i>STATE 02 · 高位侦察</div>
+        <div class="state-card__t">抬头式<small>LOOKUP</small></div>
+        <div class="state-card__d">连杆单元组双舵机 <b>C2 / C3</b> 偏航协同旋转，配合 H 形连杆支架 <b>C1</b> 将平台单元组 <b>SR3</b> 抬升至限定范围内的指定水平高度——相机获得高位俯瞰视野，越过废墟表层遮挡实施远距侦察。</div>
+      </div>
+    </div>
+    <div class="state-card" data-lb="10">
+      <span class="fig-tag" style="color:var(--cyan);border-color:rgba(56,189,248,.45)">FIG.18</span>
+      <div class="state-card__fig"><img src="assets/patent_img/bp_image18.png" alt="勾尾式工作状态"></div>
+      <div class="state-card__body">
+        <div class="state-card__no"><i class="fas fa-stethoscope"></i>STATE 03 · 原位作业</div>
+        <div class="state-card__t">勾尾式<small>HOOK-TAIL</small></div>
+        <div class="state-card__d">双舵机将平台 <b>SR3</b> 旋转至蛇身后方相对方位形成"蝎尾"构型，第二舵机 <b>C3</b> 微调俯仰角，平台舵机 <b>P7</b> + 骨架 <b>P8</b> 独立偏航对准目标——GEN2 仿蝎尾构造的机构原理即源于此，支撑原位在线检伤作业。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 三代样机演进 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">04</span><h2 class="shead__title">样机迭代 · 四代演进</h2>
+    <span class="shead__hint"><i class="fas fa-timeline"></i>从结构验证到一体式工程样机</span>
+  </div>
+  <div class="evo">
+    <div class="evo-card">
+      <div class="evo-card__img" data-lb="0" title="点击放大查看"><img src="assets/样机照片/加入课题时最开始的蛇形机器人样机.jpg" alt="初始验证样机"><span class="evo-card__gen">GEN 0 · 验证机</span><span class="evo-card__zoom"><i class="fas fa-magnifying-glass-plus"></i></span></div>
+      <div class="evo-card__body">
+        <div class="evo-card__t">结构验证样机</div>
+        <div class="evo-card__d">课题起步阶段的原理样机，STM32 + PS2 无线遥控架构，验证蛇形结构可行性。</div>
+        <div class="evo-card__spec">STM32 主控 / 2.4G 遥控 / 分体显示</div>
+      </div>
+    </div>
+    <div class="evo-card">
+      <div class="evo-card__img" data-lb="1" title="点击放大查看"><img src="assets/样机照片/第一代蛇形机器人样机：一种曲面盒装中间体的轮式机器蛇.png" alt="第一代样机"><span class="evo-card__gen">GEN 1</span><span class="evo-card__zoom"><i class="fas fa-magnifying-glass-plus"></i></span></div>
+      <div class="evo-card__body">
+        <div class="evo-card__t">曲面盒装中间体轮式机器蛇</div>
+        <div class="evo-card__d">确立单边开口曲面盒中间体结构，多组 L298N 驱动主动轮，实现平面蜿蜒运动。</div>
+        <div class="evo-card__spec">曲面盒中间体 / 多控制器并联</div>
+      </div>
+    </div>
+    <div class="evo-card">
+      <div class="evo-card__img" data-lb="2" title="点击放大查看"><img src="assets/样机照片/第二代蛇形机器人样机：一种曲面盒装中间体连接仿蝎尾构造的轮式机器蛇.jpg" alt="第二代样机"><span class="evo-card__gen">GEN 2</span><span class="evo-card__zoom"><i class="fas fa-magnifying-glass-plus"></i></span></div>
+      <div class="evo-card__body">
+        <div class="evo-card__t">仿蝎尾构造轮式机器蛇</div>
+        <div class="evo-card__d">在曲面盒中间体基础上引入仿蝎尾构造，探索头部抬升与侦察姿态的机械实现。</div>
+        <div class="evo-card__spec">仿蝎尾支架 / 抬头机构验证</div>
+      </div>
+    </div>
+    <div class="evo-card">
+      <div class="evo-card__img" data-lb="3" title="点击放大查看"><img src="assets/样机照片/第三代蛇形机器人样机：一种基于正交关节模块连接平台构件的轮式机器蛇.jpg" alt="第三代样机"><span class="evo-card__gen evo-card__gen--final">GEN 3 · 工程样机</span><span class="evo-card__zoom"><i class="fas fa-magnifying-glass-plus"></i></span></div>
+      <div class="evo-card__body">
+        <div class="evo-card__t">正交关节模块化机器蛇</div>
+        <div class="evo-card__d">最终形态：正交轴关节串联 + 连杆 + 平台仓体三大单元组，树莓派 Web 一体式控制，全地形实测达标。</div>
+        <div class="evo-card__spec">Raspberry Pi 4B / Web 控制 / 94×12×7 cm</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 性能实测 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">05</span><h2 class="shead__title">运动性能 · 实测数据</h2>
+    <span class="shead__hint"><i class="fas fa-clipboard-check"></i>户外复杂环境 7 项指标全部达标</span>
+  </div>
+  <div class="spec-grid">
+    <div class="spec-card"><div class="spec-card__l">行走速度 <span>要求 ≥0.2</span></div><div class="spec-card__v" data-target="0.28" data-dec="2">0<small>m/s</small></div><div class="spec-bar"><div class="spec-bar__fill" data-w="70"></div></div></div>
+    <div class="spec-card"><div class="spec-card__l">越障高度 <span>要求 ≥0.25</span></div><div class="spec-card__v" data-target="0.35" data-dec="2">0<small>m</small></div><div class="spec-bar"><div class="spec-bar__fill" data-w="88"></div></div></div>
+    <div class="spec-card"><div class="spec-card__l">越沟宽度 <span>设计指标</span></div><div class="spec-card__v" data-target="0.5" data-dec="2">0<small>m</small></div><div class="spec-bar"><div class="spec-bar__fill" data-w="100"></div></div></div>
+    <div class="spec-card"><div class="spec-card__l">爬坡角度 <span>设计指标</span></div><div class="spec-card__v" data-target="40" data-dec="0">0<small>°</small></div><div class="spec-bar"><div class="spec-bar__fill" data-w="80"></div></div></div>
+    <div class="spec-card"><div class="spec-card__l">转弯半径 <span>要求 ≤0.3</span></div><div class="spec-card__v" data-target="0.25" data-dec="2">0<small>m</small></div><div class="spec-bar"><div class="spec-bar__fill" data-w="76"></div></div></div>
+    <div class="spec-card"><div class="spec-card__l">最小通过孔洞 <span>设计指标</span></div><div class="spec-card__v" data-target="0.15" data-dec="2">0<small>m²</small></div><div class="spec-bar"><div class="spec-bar__fill" data-w="60"></div></div></div>
+  </div>
+
+  <div class="terrain-tests">
+    <div class="tt-card"><div class="tt-card__icon"><i class="fas fa-seedling"></i></div><div class="tt-card__t">草地地形行进</div><div class="tt-card__d">禾本科草地土质松软，考验主动轮附着力与功率储备。</div><div class="tt-card__r">RESULT: 顺利通行</div></div>
+    <div class="tt-card"><div class="tt-card__icon"><i class="fas fa-mountain-sun"></i></div><div class="tt-card__t">沙石地形行进</div><div class="tt-card__d">窄通道、斜面与不规则障碍混合的沙石野地。</div><div class="tt-card__r">RESULT: 自适应通过</div></div>
+    <div class="tt-card"><div class="tt-card__icon"><i class="fas fa-stairs"></i></div><div class="tt-card__t">台阶越障 · 30cm</div><div class="tt-card__d">蛇身抬起 + 姿态扭转克服高度差，并可连续两级越障。</div><div class="tt-card__r">RESULT: 30cm / 连续两级 PASS</div></div>
+    <div class="tt-card"><div class="tt-card__icon"><i class="fas fa-arrows-left-right-to-line"></i></div><div class="tt-card__t">跨越空隙 · 35cm</div><div class="tt-card__d">不借助外力，靠控制系统协调独立跨越空隙地形。</div><div class="tt-card__r">RESULT: 35cm PASS</div></div>
+  </div>
+</section>
+
+<!-- ============ 05 控制系统 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">06</span><h2 class="shead__title">控制系统 · Web 一体式架构</h2>
+    <span class="shead__hint"><i class="fas fa-sitemap"></i>指令分发 + 双模态感知回传</span>
+  </div>
+  <div class="ctrl-grid">
+    <div class="panel">
+      <div class="panel__head"><span><i class="fas fa-diagram-project"></i>CONTROL PIPELINE</span></div>
+      <div class="ctrl-flow">
+        <div class="ctrl-node ctrl-node--user"><div class="ctrl-node__ic"><i class="fas fa-user-gear"></i></div><div><div class="ctrl-node__t">操作员 · Web 控制端</div><div class="ctrl-node__d">浏览器界面下发移动 / 拍照 / 录音指令，实时接收回传画面</div></div></div>
+        <div class="ctrl-arrow"><i class="fas fa-angles-down"></i>&nbsp;HTTP / WebSocket</div>
+        <div class="ctrl-node"><div class="ctrl-node__ic"><i class="fab fa-raspberry-pi"></i></div><div><div class="ctrl-node__t">Raspberry Pi 4B 主控</div><div class="ctrl-node__d">Python-Bottle 服务解析指令，分发给各子控制器，缓解网络延迟</div></div></div>
+        <div class="ctrl-arrow"><i class="fas fa-angles-down"></i>&nbsp;串口总线 · PWM</div>
+        <div class="ctrl-node"><div class="ctrl-node__ic"><i class="fas fa-microchip"></i></div><div><div class="ctrl-node__t">总线控制器 + 舵机阵列</div><div class="ctrl-node__d">正交关节俯仰/偏航舵机 + N20 主动轮全轮差速控制</div></div></div>
+        <div class="ctrl-arrow"><i class="fas fa-angles-down"></i>&nbsp;USB / 串口</div>
+        <div class="ctrl-node"><div class="ctrl-node__ic"><i class="fas fa-camera"></i></div><div><div class="ctrl-node__t">双模态感知模块</div><div class="ctrl-node__d">RGB 可见光相机（640×480）+ 红外热成像仪（80×62 阵列）</div></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel__head"><span><i class="fas fa-eye"></i>DUAL-MODE VISION · 感知回传演示</span></div>
+      <div class="vision-demo">
+        <div class="vd-box">
+          <div class="vd-box__h"><span>CH-A · 可见光</span><span class="mono">LIVE</span></div>
+          <div class="vd-rgb">
+            <div class="rubble"></div>
+            <div style="position:absolute;left:18%;bottom:34px;width:46px;height:30px;border-radius:3px;background:#3a4a5a;border:1px solid #556a7d;opacity:.85"></div>
+          </div>
+        </div>
+        <div class="vd-box">
+          <div class="vd-box__h"><span>CH-B · 红外热成像</span><span class="mono">LIVE</span></div>
+          <div class="vd-ir">
+            <div class="ir-grid"></div>
+            <div class="heat-spot" style="left:26%;bottom:40px"></div>
+            <div class="heat-spot heat-spot--s" style="left:56%;bottom:52px"></div>
+          </div>
+        </div>
+        <div class="vd-note">
+          灾后废墟中，红外热成像可穿透粉尘与黑暗探测<b style="color:var(--red)">人体热源</b>，可见光相机负责确认现场细节——双模态图传为搜救定位提供互补信息。操作界面另提供底部运动控制与镜头视野控制两套按钮组合，实现灵活越障。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 影像资料 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">07</span><h2 class="shead__title">影像资料</h2>
+    <span class="shead__hint"><i class="fas fa-film"></i>样机实拍与实地演示</span>
+  </div>
+  <div class="media-grid">
+    <figure class="photo-card">
+      <img src="assets/样机照片/第三代蛇形机器人样机：一种基于正交关节模块连接平台构件的轮式机器蛇.jpg" alt="第三代工程样机">
+      <figcaption><i class="fas fa-camera-retro"></i>GEN 3 工程样机 · 正交关节模块化轮式机器蛇</figcaption>
+    </figure>
+    <figure class="photo-card">
+      <img src="assets/样机照片/第二代蛇形机器人样机：一种曲面盒装中间体连接仿蝎尾构造的轮式机器蛇.jpg" alt="第二代样机">
+      <figcaption><i class="fas fa-camera-retro"></i>GEN 2 样机 · 曲面盒中间体 + 仿蝎尾构造</figcaption>
+    </figure>
+    <div class="video-wrap">
+      <video src="assets/蛇形机器人的演示视频.mp4" controls preload="metadata"></video>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 研究成果 ============ -->
+<section class="section">
+  <div class="shead">
+    <span class="shead__num">08</span><h2 class="shead__title">研究成果 · 论文与知识产权</h2>
+    <span class="shead__hint"><i class="fas fa-award"></i>2 篇论文 · 2 项专利 + 1 项著作权</span>
+  </div>
+  <div class="pub-grid">
+    <div class="pub-col">
+      <div class="pub-card">
+        <div class="pub-card__body">
+          <span class="pub-card__venue"><i class="fas fa-book-open"></i>ICIRA 2023 · LNCS Vol.14267 · SPRINGER</span>
+          <div class="pub-card__t">Design and Research of a Snake-Like Robot Based on Orthogonal Joint and Wheel Modules</div>
+          <div class="pub-card__t-cn">基于正交关节与轮模块的类蛇机器人设计与研究</div>
+          <div class="pub-card__meta">
+            <b>会议：</b><span>第 16 届智能机器人与应用国际会议（ICIRA 2023）</span>
+            <b>出版：</b><span>Springer · Lecture Notes in Computer Science, Vol. 14267 · 2023.10</span>
+            <b>作者：</b><span>Ran Shi, Hailong Zhang, Kaiwen Cheng, Yunjiang Lou, Zezheng Qi, Shibing Hao, Qianqian Zhang, Danyang Bao</span>
+            <b>单位：</b><span>深圳职业技术学院 · 哈尔滨工业大学（深圳）</span>
+            <b>基金：</b>
+            <div class="pub-funds">
+              <div>国家重点研发计划"自主搜救机器人在线检伤原理与技术"项目 <span class="no">（2020YFB1313900）</span></div>
+              <div>深圳市优秀科技创新人才培养计划 <span class="no">（RCBS20210706092213010）</span></div>
+              <div>深圳职业技术学院科研项目 <span class="no">（6022310021K）</span></div>
+            </div>
+          </div>
+          <div class="pub-card__actions">
+            <a class="pub-btn pub-btn--doi" href="https://doi.org/10.1007/978-981-99-6483-3_29" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i>论文原文 · DOI</a>
+            <button class="pub-btn" id="copyBib" title="复制 BibTeX 引用"><i class="fas fa-quote-right"></i>复制引用</button>
+          </div>
+        </div>
+      </div>
+      <div class="pub-card">
+        <div class="pub-card__body">
+          <span class="pub-card__venue"><i class="fas fa-feather"></i>深圳职业技术大学学报 · 2026 年第 1 期 · 99-105</span>
+          <div class="pub-card__t">面向失血性休克伤员快速检伤的蛇形机器人设计</div>
+          <div class="pub-card__t-cn">Design of a Snake Robot for Rapid Triage of Hemorrhagic Shock Casualties in Disaster Scenarios</div>
+          <div class="pub-card__meta">
+            <b>期刊：</b><span>《深圳职业技术大学学报》2026 年第 1 期 · 知网在线公开 2026.01</span>
+            <b>作者：</b><span>石然，张海龙，李志斌</span>
+            <b>单位：</b><span>深圳职业技术大学 机电工程学院</span>
+            <b>关键词：</b><span>失血性休克检伤 · 蛇形机器人 · 搜救机器人 · 原位在线检伤</span>
+            <b>基金：</b>
+            <div class="pub-funds">
+              <div>国家重点研发计划（2020 年度）智能机器人重点专项"自主搜救机器人在线检伤原理与技术" <span class="no">（SQ2020YFB130197）</span></div>
+              <div>深圳职业技术大学（2021 年度）科研启动项目"面向3C产业的柔性部件双臂装配机器人运动控制关键技术研究" <span class="no">（6022312001K）</span></div>
+              <div>深圳职业技术大学（2022 年度）青年创新项目"多轴伺服系统位姿轮廓误差耦合特性与解耦控制机理研究" <span class="no">（6022310021K）</span></div>
+            </div>
+          </div>
+          <div class="pub-card__actions">
+            <a class="pub-btn pub-btn--doi" href="https://doi.org/10.13899/j.cnki.szpuxb.2026.01.015" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i>知网原文 · DOI</a>
+            <button class="pub-btn" id="copyBib2" title="复制 BibTeX 引用"><i class="fas fa-quote-right"></i>复制引用</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="out-list">
+      <div class="out-card">
+        <div class="out-card__ic"><i class="fas fa-robot"></i></div>
+        <div>
+          <div class="out-card__t">四代样机完整迭代</div>
+          <div class="out-card__d">从结构验证机到正交关节模块化工程样机（GEN 0 → GEN 3），先后形成曲面盒中间体、仿蝎尾构造、正交关节模块三大结构方案。</div>
+        </div>
+      </div>
+      <div class="out-card">
+        <div class="out-card__ic"><i class="fas fa-clipboard-check"></i></div>
+        <div>
+          <div class="out-card__t">全地形运动性能验证</div>
+          <div class="out-card__d">草地、沙石、台阶、跨沟等复杂地形实测，7 项运动指标全部达标：0.28 m/s 行进、40° 爬坡、0.35 m 越障、0.5 m 越沟。</div>
+        </div>
+      </div>
+      <div class="out-card">
+        <div class="out-card__ic"><i class="fas fa-globe"></i></div>
+        <div>
+          <div class="out-card__t">Web 一体式控制系统</div>
+          <div class="out-card__d">树莓派部署 Web 服务，浏览器下发移动 / 拍照 / 录音指令，实时回传 RGB + 红外热成像双模态画面，支持无线遥操控。</div>
+        </div>
+      </div>
+      <div class="ip-head"><i class="fas fa-shield-halved"></i> 知识产权 · PATENTS &amp; COPYRIGHT</div>
+      <div class="ip-card">
+        <span class="ip-card__type ip-card__type--inv"><i class="fas fa-lightbulb"></i>发明专利 · INVENTION</span>
+        <div class="ip-card__t">可重构的移动机器人及其方法</div>
+        <div class="ip-card__no">专利号 <b>ZL 202310933056.1</b></div>
+      </div>
+      <div class="ip-card">
+        <span class="ip-card__type ip-card__type--um"><i class="fas fa-gears"></i>实用新型 · UTILITY MODEL</span>
+        <div class="ip-card__t">可重构的移动机器人</div>
+        <div class="ip-card__no">专利号 <b>ZL 202321997186.3</b></div>
+      </div>
+      <div class="ip-card">
+        <span class="ip-card__type ip-card__type--cr"><i class="fas fa-copyright"></i>著作权 · COPYRIGHT</span>
+        <div class="ip-card__t">一种可重构的移动机器人</div>
+        <div class="ip-card__no">登记号 <b>渝作登字-2023-J-00287194</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div><b>灵蛇工程 · 正交关节模块化蛇形搜救机器人</b></div>
+  <div>课题来源：国家重点研发计划"自主搜救机器人在线检伤原理与技术"项目（2020YFB1313900）</div>
+  <div>本页面为研究成果交互演示 · 数据均出自样机实测</div>
+</footer>
+
+<!-- 图片灯箱 -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox__close" id="lbClose" title="关闭 (Esc)"><i class="fas fa-xmark"></i></button>
+  <img class="lightbox__img" id="lbImg" src="" alt="">
+  <div class="lightbox__cap"><b id="lbGen"></b><span id="lbTitle"></span></div>
+  <div class="lightbox__nav">
+    <button class="lb-btn" id="lbPrev"><i class="fas fa-chevron-left"></i> 上一张</button>
+    <button class="lb-btn" id="lbNext">下一张 <i class="fas fa-chevron-right"></i></button>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   HERO 背景：蛇形轨迹波动画
+================================================================ */
+(function(){
+  const cv=document.getElementById('heroCanvas'),ctx=cv.getContext('2d');
+  let W,H,t=0;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  window.addEventListener('resize',resize);resize();
+  const trails=[];
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.012;
+    // 多条淡色蛇形波
+    const waves=[
+      {y:.28,amp:36,f:.010,sp:1.0,color:'rgba(255,107,26,.30)',w:2.2},
+      {y:.52,amp:52,f:.014,sp:0.7,color:'rgba(56,189,248,.22)',w:1.8},
+      {y:.74,amp:30,f:.012,sp:1.3,color:'rgba(61,220,132,.20)',w:1.6},
+      {y:.62,amp:44,f:.008,sp:0.5,color:'rgba(255,107,26,.10)',w:10},
+    ];
+    waves.forEach(wv=>{
+      ctx.beginPath();
+      for(let x=0;x<=W;x+=4){
+        const y=H*wv.y+Math.sin(x*wv.f - t*wv.sp*2)*wv.amp + Math.sin(x*wv.f*0.37 + t*wv.sp)*wv.amp*.4;
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle=wv.color;ctx.lineWidth=wv.w;ctx.lineCap='round';
+      if(wv.w>5){ctx.stroke();
+        ctx.strokeStyle='rgba(255,107,26,.05)';ctx.lineWidth=wv.w*3;ctx.stroke();
+      } else ctx.stroke();
+    });
+    // 网格点缀
+    ctx.fillStyle='rgba(138,151,165,.10)';
+    for(let i=0;i<40;i++){
+      const gx=(i*97+t*30)%W, gy=(i*61)%H;
+      ctx.fillRect(gx,gy,2,2);
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ================================================================
+   步态模拟器
+================================================================ */
+(function(){
+  const cv=document.getElementById('simCanvas'),ctx=cv.getContext('2d');
+  const wrap=document.getElementById('simCanvasWrap');
+  let W,H;
+  function resize(){W=cv.width=wrap.clientWidth;H=cv.height=Math.max(340,Math.min(420,wrap.clientWidth*.5));}
+  window.addEventListener('resize',resize);resize();
+
+  const S={mode:'serpentine',freq:1.6,amp:26,spd:1.8,phase:0};
+  const N=15, SEG=17;
+  const history=[]; // 头部轨迹点
+  let headX=W*0.2, headY=0, groundY=0, dist=0;
+
+  function reset(){history.length=0;headX=W*0.12;dist=0;}
+  reset();
+
+  const rubbles=Array.from({length:26},(_,i)=>({x:i*80+Math.random()*40,s:6+Math.random()*20}));
+
+  /* 蛇体绘制：沿历史轨迹回溯取点 */
+  function snakePoints(){
+    const pts=[]; let target=0;
+    if(history.length<2) return Array.from({length:N},(_,i)=>({x:headX-i*SEG,y:headY}));
+    // 从最新历史往前回溯弧长
+    let acc=0,pi=history.length-1;
+    pts.push({x:history[pi].x,y:history[pi].y});
+    while(pts.length<N && pi>0){
+      const a=history[pi],b=history[pi-1];
+      const d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(acc+d>=SEG){
+        const r=(SEG-acc)/d;
+        pts.push({x:a.x+(b.x-a.x)*r,y:a.y+(b.y-a.y)*r});
+        acc=0; pi--;
+      }else{acc+=d;pi--;}
+      if(pi<=0){while(pts.length<N)pts.push({x:pts[pts.length-1].x-SEG*.5,y:pts[pts.length-1].y});break;}
+    }
+    while(pts.length<N)pts.push({x:pts[pts.length-1].x,y:pts[pts.length-1].y});
+    return pts;
+  }
+
+  function drawModule(x,y,ang,i,isHead,lift){
+    ctx.save();ctx.translate(x,y);ctx.rotate(ang);
+    // 阴影
+    ctx.fillStyle='rgba(0,0,0,.35)';
+    ctx.beginPath();ctx.roundRect(-SEG/2+2,-6+4,SEG+2,14,4);ctx.fill();
+    // 主体
+    const g=ctx.createLinearGradient(0,-8,0,8);
+    if(isHead){g.addColorStop(0,'#2a333d');g.addColorStop(1,'#3ddc84');}
+    else{g.addColorStop(0,'#232b34');g.addColorStop(1,i%2?'#2f3a46':'#28323d');}
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.roundRect(-SEG/2,-8,SEG+3,16,5);ctx.fill();
+    ctx.strokeStyle=isHead?'#3ddc84':'#3a4552';ctx.lineWidth=1.2;ctx.stroke();
+    // 正交关节标记
+    if(!isHead){
+      ctx.fillStyle=i%2?'rgba(255,107,26,.85)':'rgba(56,189,248,.85)';
+      ctx.fillRect(-SEG/2+3,-2.5,3,5);
+      ctx.fillRect(SEG/2-6,-2.5,3,5);
+    }
+    // 轮子
+    ctx.strokeStyle='#55606c';ctx.lineWidth=2.4;
+    ctx.beginPath();ctx.arc(-4,10,4.6,0,7);ctx.stroke();
+    ctx.beginPath();ctx.arc(SEG/2-4,10,4.6,0,7);ctx.stroke();
+    // 头部相机
+    if(isHead){
+      ctx.fillStyle='#ffb020';
+      ctx.beginPath();ctx.arc(SEG/2-2,-3,3.4,0,7);ctx.fill();
+      ctx.strokeStyle='rgba(255,176,32,.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(SEG/2-2,-3,6.5,0,7);ctx.stroke();
+      // 视锥
+      ctx.fillStyle='rgba(255,176,32,.08)';
+      ctx.beginPath();ctx.moveTo(SEG/2,-3);ctx.lineTo(SEG/2+30,-14);ctx.lineTo(SEG/2+30,8);ctx.closePath();ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  let lastT=performance.now(),fpsAcc=0,fpsN=0;
+  function loop(now){
+    const dt=Math.min(.05,(now-lastT)/1000);lastT=now;
+    fpsAcc+=1/Math.max(dt,.001);fpsN++;
+    if(fpsN>=30){document.getElementById('simFps').textContent=Math.round(fpsAcc/fpsN)+' FPS';fpsAcc=0;fpsN=0;}
+
+    groundY=H*0.68;
+    // ---- 头部运动学 ----
+    if(S.mode==='serpentine'||S.mode==='hooktail'){
+      dist+=S.spd*60*dt;
+      headX+=S.spd*60*dt;
+      headY=groundY+Math.sin(headX*0.02*S.freq/1.6 - S.phase)*S.amp;
+      S.phase+=dt*S.freq*2.2;
+    }else if(S.mode==='straight'){
+      dist+=S.spd*120*dt;
+      headX+=S.spd*120*dt;
+      headY+= (groundY-headY)*.08;
+    }else{ // lookup 抬头侦察
+      dist+=S.spd*10*dt;
+      headX+=S.spd*10*dt;
+      headY+= (groundY-70-headY)*.05;
+    }
+    // 记录轨迹（限制长度）
+    history.push({x:headX,y:headY});
+    if(history.length>900)history.shift();
+    // 循环出界
+    if(headX>W+120){
+      reset();headX=W*0.12;
+    }
+
+    // ---- 绘制 ----
+    ctx.clearRect(0,0,W,H);
+    // 背景网格
+    ctx.strokeStyle='rgba(42,51,61,.35)';ctx.lineWidth=1;
+    for(let x=0;x<W;x+=44){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=44){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    // 地面 + 废墟
+    ctx.fillStyle='#12161b';ctx.fillRect(0,groundY+22,W,H);
+    ctx.strokeStyle='#2a333d';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,groundY+22);ctx.lineTo(W,groundY+22);ctx.stroke();
+    rubbles.forEach(r=>{
+      const rx=(r.x - dist*0.6)%(W+160); const x=rx<0?rx+W+160:rx;
+      ctx.fillStyle='rgba(58,69,82,.5)';
+      ctx.beginPath();ctx.moveTo(x-r.s,groundY+22);
+      ctx.lineTo(x-r.s*.3,groundY+22-r.s);ctx.lineTo(x+r.s*.5,groundY+22-r.s*.7);ctx.lineTo(x+r.s,groundY+22);
+      ctx.closePath();ctx.fill();
+    });
+    // 轨迹波痕
+    ctx.strokeStyle='rgba(255,107,26,.15)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(let i=Math.max(0,history.length-300);i<history.length;i+=3){
+      const p=history[i]; i===Math.max(0,history.length-300)?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);
+    }
+    ctx.stroke();
+
+    // 蛇体
+    const pts=snakePoints();
+    for(let i=N-1;i>=0;i--){
+      const p=pts[i];
+      const prev=pts[Math.max(0,i-1)],next=pts[Math.min(N-1,i+1)];
+      const ang=Math.atan2(next.y-prev.y,next.x-prev.x);
+      // lookup模式：前4节抬升
+      let lift=0;
+      if(S.mode==='lookup'&&i<4){lift=-i*0;}
+      drawModule(p.x,p.y+lift,ang,i,i===0);
+    }
+
+    // 勾尾式：平台 SR3 经连杆转到蛇身后侧（蝎尾构型）
+    if(S.mode==='hooktail'){
+      const tail=pts[N-1],tp=pts[N-2];
+      const baseAng=Math.atan2(tail.y-tp.y,tail.x-tp.x);   // 尾节方向
+      const sway=Math.sin(S.phase*0.9)*0.10;               // 随波形微摆
+      const pAng=baseAng+Math.PI+0.92+sway;                // 平台勾向身后侧方
+      const jx=tail.x+Math.cos(baseAng)*5, jy=tail.y+Math.sin(baseAng)*5;   // 连杆铰接点
+      const px=jx+Math.cos(pAng)*26, py=jy+Math.sin(pAng)*26;               // 平台中心
+      // 连杆（H形支架简化投影）
+      ctx.strokeStyle='#ffb020';ctx.lineWidth=4;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(jx,jy);ctx.lineTo(px,py);ctx.stroke();
+      ctx.lineWidth=1.4;ctx.strokeStyle='rgba(255,176,32,.55)';
+      ctx.beginPath();ctx.moveTo(jx,jy-4);ctx.lineTo(px,py-4);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(jx,jy+4);ctx.lineTo(px,py+4);ctx.stroke();
+      // 铰接点
+      ctx.fillStyle='#ffb020';
+      ctx.beginPath();ctx.arc(jx,jy,3.4,0,7);ctx.fill();
+      ctx.beginPath();ctx.arc(px,py,3.4,0,7);ctx.fill();
+      // 平台仓体（半包式 P1）
+      ctx.save();ctx.translate(px,py);ctx.rotate(pAng);
+      const pg=ctx.createLinearGradient(0,-9,0,9);pg.addColorStop(0,'#263039');pg.addColorStop(1,'#152e22');
+      ctx.fillStyle=pg;
+      ctx.beginPath();ctx.roundRect(-18,-9,36,18,4);ctx.fill();
+      ctx.strokeStyle='#3ddc84';ctx.lineWidth=1.6;ctx.stroke();
+      // 舵机标记
+      ctx.fillStyle='rgba(255,107,26,.9)';ctx.fillRect(-3.5,-12.5,7,4);
+      // 双主动轮 P3 / P5
+      ctx.strokeStyle='#7f8b98';ctx.lineWidth=2.4;
+      ctx.beginPath();ctx.arc(-9,10.5,4.6,0,7);ctx.stroke();
+      ctx.beginPath();ctx.arc(9,10.5,4.6,0,7);ctx.stroke();
+      // 相机视野扇形
+      ctx.fillStyle='rgba(255,176,32,.09)';
+      ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(46,-13);ctx.lineTo(46,13);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#ffb020';ctx.fillRect(15,-2.5,5,5);
+      ctx.restore();
+    }
+
+    // HUD 读数
+    const yawDeg=Math.round(Math.atan2(pts[0].y-pts[1].y,pts[0].x-pts[1].x)*180/Math.PI);
+    document.getElementById('roPhase').textContent=Math.round((S.phase*57.3)%360)+'°';
+    document.getElementById('roYaw').textContent='±'+Math.abs(yawDeg)+'°';
+    // 模式标签
+    ctx.font='700 12px JetBrains Mono';
+    ctx.fillStyle='rgba(255,107,26,.9)';
+    const modeTxt={serpentine:'MODE · SERPENTINE 蜿蜒',straight:'MODE · WHEEL DRIVE 轮式直行',lookup:'MODE · LOOKUP 抬头侦察',hooktail:'MODE · HOOK-TAIL 勾尾作业'}[S.mode];
+    ctx.fillText(modeTxt,14,24);
+    ctx.fillStyle='rgba(138,151,165,.8)';ctx.font='10px JetBrains Mono';
+    ctx.fillText('ORTHO-JOINT SERPENTINE ROBOT · GAIT SIM',14,40);
+    // 比例尺
+    ctx.strokeStyle='#8a97a5';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(W-90,H-22);ctx.lineTo(W-30,H-22);ctx.stroke();
+    ctx.fillStyle='#8a97a5';ctx.font='9px JetBrains Mono';
+    ctx.fillText('10 cm',W-72,H-30);
+
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  /* 控件 */
+  document.querySelectorAll('.mbtn').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');S.mode=b.dataset.mode;
+  }));
+  document.getElementById('freqSlider').addEventListener('input',e=>{S.freq=e.target.value/10;document.getElementById('freqVal').textContent=S.freq.toFixed(1)+' Hz';});
+  document.getElementById('ampSlider').addEventListener('input',e=>{S.amp=+e.target.value;document.getElementById('ampVal').textContent=S.amp+' px';});
+  document.getElementById('spdSlider').addEventListener('input',e=>{S.spd=e.target.value/10;document.getElementById('spdVal').textContent=S.spd.toFixed(1);});
+})();
+
+/* ================================================================
+   性能数字滚动 + 进度条
+================================================================ */
+(function(){
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(!e.isIntersecting)return;
+      const card=e.target;
+      const vEl=card.querySelector('.spec-card__v'),t=+vEl.dataset.target,dec=+vEl.dataset.dec;
+      const small=vEl.querySelector('small'),unit=small?small.outerHTML:'';
+      const bar=card.querySelector('.spec-bar__fill');
+      if(bar)bar.style.width=bar.dataset.w+'%';
+      const t0=performance.now();
+      (function anim(now){
+        const p=Math.min(1,(now-t0)/1200),ease=1-Math.pow(1-p,3);
+        vEl.innerHTML=(t*ease).toFixed(dec)+unit;
+        if(p<1)requestAnimationFrame(anim);
+      })(t0);
+      io.unobserve(card);
+    });
+  },{threshold:.4});
+  document.querySelectorAll('.spec-card').forEach(c=>io.observe(c));
+})();
+/* ================================================================
+   图片灯箱
+================================================================ */
+(function(){
+  const LB=[
+    {gen:'GEN 0',title:'结构验证样机 · STM32 + PS2 无线遥控架构'},
+    {gen:'GEN 1',title:'曲面盒装中间体轮式机器蛇'},
+    {gen:'GEN 2',title:'曲面盒装中间体连接仿蝎尾构造的轮式机器蛇'},
+    {gen:'GEN 3',title:'基于正交关节模块连接平台构件的轮式机器蛇（工程样机）'},
+    {gen:'PATENT FIG.1',title:'仿生蛇形机器人整体结构：SR1a / SR1b —— SR2 —— SR3'},
+    {gen:'PATENT FIG.3',title:'正交轴关节串联单元组 · 爆炸结构'},
+    {gen:'PATENT FIG.11',title:'连杆构件单元组 · H 形连杆支架（肋板 + 穿线槽）'},
+    {gen:'PATENT FIG.13',title:'平台机械单元组 · 整体结构'},
+    {gen:'PATENT FIG.16',title:'舒张式工作状态 · 常规行进'},
+    {gen:'PATENT FIG.17',title:'抬头式工作状态 · 高位侦察'},
+    {gen:'PATENT FIG.18',title:'勾尾式工作状态 · 原位作业（蝎尾构型）'}
+  ];
+  const lb=document.getElementById('lightbox'),lbImg=document.getElementById('lbImg'),lbGen=document.getElementById('lbGen'),lbTitle=document.getElementById('lbTitle');
+  const prev=document.getElementById('lbPrev'),next=document.getElementById('lbNext');
+  let cur=0;
+
+  function show(i){
+    cur=(i+LB.length)%LB.length;
+    const card=document.querySelector(`[data-lb="${cur}"]`);
+    const img=card.querySelector('img');
+    lbImg.src=img.src;
+    lbImg.alt=img.alt;
+    lbGen.textContent=LB[cur].gen;
+    lbTitle.textContent=LB[cur].title;
+    lb.classList.add('show');
+    document.body.style.overflow='hidden';
+  }
+  function hide(){
+    lb.classList.remove('show');
+    document.body.style.overflow='';
+  }
+
+  document.querySelectorAll('[data-lb]').forEach(el=>{
+    el.addEventListener('click',()=>show(+el.dataset.lb));
+  });
+  document.getElementById('lbClose').addEventListener('click',hide);
+  lb.addEventListener('click',e=>{ if(e.target===lb) hide(); });
+  prev.addEventListener('click',()=>show(cur-1));
+  next.addEventListener('click',()=>show(cur+1));
+  document.addEventListener('keydown',e=>{
+    if(!lb.classList.contains('show'))return;
+    if(e.key==='Escape')hide();
+    if(e.key==='ArrowLeft')show(cur-1);
+    if(e.key==='ArrowRight')show(cur+1);
+  });
+})();
+
+/* ================================================================
+   研究成果 · BibTeX 复制
+================================================================ */
+(function(){
+  const BIBS={
+    copyBib:[
+      '@inproceedings{shi2023snake,',
+      '  title     = {Design and Research of a Snake-Like Robot Based on Orthogonal Joint and Wheel Modules},',
+      '  author    = {Shi, Ran and Zhang, Hailong and Cheng, Kaiwen and Lou, Yunjiang and Qi, Zezheng and Hao, Shibing and Zhang, Qianqian and Bao, Danyang},',
+      '  booktitle = {Intelligent Robotics and Applications. ICIRA 2023. Lecture Notes in Computer Science, vol 14267},',
+      '  publisher = {Springer, Singapore},',
+      '  year      = {2023},',
+      '  doi       = {10.1007/978-981-99-6483-3_29}',
+      '}'
+    ].join('\n'),
+    copyBib2:[
+      '@article{shi2026shearxingsnake,',
+      '  title   = {面向失血性休克伤员快速检伤的蛇形机器人设计},',
+      '  author  = {石然 and 张海龙 and 李志斌},',
+      '  journal = {深圳职业技术大学学报},',
+      '  year    = {2026},',
+      '  number  = {1},',
+      '  pages   = {99--105},',
+      '  doi     = {10.13899/j.cnki.szpuxb.2026.01.015}',
+      '}'
+    ].join('\n')
+  };
+  Object.keys(BIBS).forEach(id=>{
+    const btn=document.getElementById(id);
+    if(!btn)return;
+    const BIB=BIBS[id];
+    btn.addEventListener('click',()=>{
+      const done=()=>{
+        const old=btn.innerHTML;
+        btn.innerHTML='<i class="fas fa-check"></i> 已复制 BibTeX';
+        setTimeout(()=>btn.innerHTML=old,1800);
+      };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(BIB).then(done);
+      }else{
+        const ta=document.createElement('textarea');
+        ta.value=BIB;document.body.appendChild(ta);ta.select();
+        document.execCommand('copy');document.body.removeChild(ta);done();
+      }
+    });
+  });
+})();
+</script>

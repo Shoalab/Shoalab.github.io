@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>履约中心 · Jike.HUB 即时零售调度</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1d1a17; --sub:#8a8178; --line:#ece5dc; --bg:#f6f2ec; --card:#fff;
+  --brand:#ff6a1a; --brand-d:#e2540a; --amber:#ffb020; --green:#12b76a; --red:#f04438; --blue:#2e90fa;
+  --mono:'JetBrains Mono',Consolas,monospace; --sans:'Noto Sans SC',sans-serif;
+  --shadow:0 10px 30px rgba(60,40,20,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--sans);color:var(--ink);background:var(--bg);min-height:100vh;
+  background-image:radial-gradient(circle at 12% -10%,rgba(255,106,26,.1),transparent 42%),
+                   radial-gradient(circle at 105% 8%,rgba(255,176,32,.12),transparent 40%);
+}
+::selection{background:var(--brand);color:#fff}
+a{text-decoration:none;color:inherit}
+
+.demo-bar{background:#1d1a17;color:#b8ada2;font-size:12px;display:flex;align-items:center;gap:9px;padding:6px 22px}
+.demo-bar b{color:var(--amber)}
+.demo-bar a{margin-left:auto;color:#e8ddd1}
+.demo-bar a:hover{color:var(--amber)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+
+/* ===== 头部 ===== */
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.hd .logo{display:flex;align-items:center;gap:13px}
+.logo-mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--brand),var(--amber));
+  display:flex;align-items:center;justify-content:center;font-size:23px;box-shadow:0 8px 20px rgba(255,106,26,.35)}
+.logo h1{font-size:23px;font-weight:900;letter-spacing:.01em}
+.logo h1 small{display:block;font-family:var(--mono);font-size:11px;color:var(--sub);font-weight:600;letter-spacing:.14em;margin-top:2px}
+.hd .badge{font-family:var(--mono);font-size:11.5px;color:var(--brand-d);background:rgba(255,106,26,.1);
+  border:1px solid rgba(255,106,26,.25);border-radius:99px;padding:6px 14px;font-weight:700}
+
+/* ===== 订单条 ===== */
+.orderbar{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+  padding:16px 22px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:18px}
+.ob-user{display:flex;align-items:center;gap:12px}
+.ob-ava{width:44px;height:44px;border-radius:50%;background:#fff1e7;display:flex;align-items:center;justify-content:center;font-size:22px}
+.ob-user b{font-size:15px;display:block}
+.ob-user small{font-size:12px;color:var(--sub)}
+.ob-sep{width:1px;height:34px;background:var(--line)}
+.ob-items{display:flex;gap:8px;flex-wrap:wrap}
+.chipped{font-size:12.5px;background:#faf6f1;border:1px solid var(--line);border-radius:99px;padding:5px 12px;color:#5c534a}
+.ob-meta{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{font-family:var(--mono);font-size:12px;border-radius:9px;padding:7px 13px;font-weight:700}
+.pill.gray{background:#f4efe9;color:#6f655b}
+.pill.green{background:rgba(18,183,106,.12);color:#0a9254}
+.pill.red{background:rgba(240,68,56,.12);color:var(--red)}
+
+/* ===== 主网格 ===== */
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.card-hd{padding:15px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
+.card-hd .tag-no{font-family:var(--mono);font-size:11px;background:var(--ink);color:#fff;border-radius:6px;padding:2px 8px}
+.card-hd .live{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--green);animation:bk 1.3s infinite}
+@keyframes bk{50%{opacity:.3}}
+
+/* ===== 地图 ===== */
+.map{position:relative;height:330px;margin:16px;border-radius:12px;overflow:hidden;
+  background:#f3ede4;border:1px solid var(--line)}
+.map svg{width:100%;height:100%;display:block}
+.node-label{font-size:11px;font-weight:700;fill:#6f655b;font-family:var(--sans)}
+.node-sub{font-size:9.5px;fill:#a2978c;font-family:var(--mono)}
+.rider{transition:transform 1.4s cubic-bezier(.45,0,.2,1)}
+.rider.wheel{animation:wheel .45s linear infinite}
+@keyframes wheel{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
+.map-hint{position:absolute;left:12px;bottom:10px;font-size:11px;color:#a2978c;background:rgba(255,255,255,.85);
+  border-radius:7px;padding:5px 10px;border:1px solid var(--line)}
+
+/* ETA 时间轴 */
+.etastrip{display:flex;align-items:center;gap:0;margin:0 16px 16px}
+.eta-node{flex:1;text-align:center;position:relative;font-size:11px;color:#b3a89c}
+.eta-node::before{content:'';position:absolute;top:-13px;left:0;right:0;height:3px;background:var(--line);z-index:0}
+.eta-node:first-child::before{left:50%}
+.eta-node:last-child::before{right:50%}
+.eta-node .dot{width:12px;height:12px;border-radius:50%;background:#e2d9ce;border:2px solid #fff;
+  position:relative;z-index:1;margin:0 auto -2px;transition:.3s}
+.eta-node.done{color:var(--ink);font-weight:700}
+.eta-node.done::before{background:var(--brand)}
+.eta-node.done .dot{background:var(--brand);box-shadow:0 0 0 4px rgba(255,106,26,.18)}
+.eta-node.cur .dot{background:var(--amber);box-shadow:0 0 0 5px rgba(255,176,32,.25);animation:bk 1.2s infinite}
+
+/* ===== 决策面板 ===== */
+.decision{padding:20px}
+.step-dots{display:flex;gap:7px;margin-bottom:16px}
+.step-dots i{width:26px;height:5px;border-radius:3px;background:#eee5da;transition:.3s}
+.step-dots i.on{background:var(--brand)}
+.q{font-size:17px;font-weight:900;line-height:1.5;margin-bottom:4px}
+.q-sub{font-size:12.5px;color:var(--sub);margin-bottom:16px;line-height:1.6}
+.opts{display:flex;flex-direction:column;gap:11px}
+.opt{border:2px solid var(--line);border-radius:13px;padding:14px 15px;cursor:pointer;transition:.18s;background:#fff;position:relative}
+.opt:hover{border-color:var(--amber);transform:translateY(-2px);box-shadow:0 8px 18px rgba(255,140,30,.13)}
+.opt.picked{border-color:var(--brand);background:#fff8f2;pointer-events:none}
+.opt.disabled{opacity:.45;pointer-events:none;filter:grayscale(.4)}
+.opt-top{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px}
+.opt-ic{width:34px;height:34px;border-radius:10px;background:#fff1e7;display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.opt.picked .opt-ic{background:var(--brand);color:#fff}
+.opt-top .pick{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:#fff;background:var(--brand);border-radius:5px;padding:2px 7px}
+.opt-desc{font-size:12.5px;color:var(--sub);line-height:1.6;margin:9px 0 8px 44px}
+.opt-tags{display:flex;gap:6px;flex-wrap:wrap;margin-left:44px}
+.tag{font-size:11px;border-radius:6px;padding:3px 9px;font-weight:600}
+.tag.good{background:rgba(18,183,106,.1);color:#0a9254}
+.tag.bad{background:rgba(240,68,56,.1);color:var(--red)}
+.tag.info{background:rgba(46,144,250,.1);color:#1a7ae0}
+.result{display:none;margin-top:14px;border-radius:11px;padding:12px 14px;font-size:13px;line-height:1.65;
+  border:1px solid;animation:slideIn .35s ease}
+.result.show{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.result.good{background:rgba(18,183,106,.07);border-color:rgba(18,183,106,.3);color:#0a7a48}
+.result.bad{background:rgba(240,68,56,.06);border-color:rgba(240,68,56,.28);color:#c23026}
+.result .delta{font-family:var(--mono);font-weight:800;font-size:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;
+  background:var(--ink);color:#fff;border:0;border-radius:11px;padding:13px;font-size:14px;font-weight:700;
+  font-family:var(--sans);cursor:pointer;transition:.18s}
+.btn:hover{background:var(--brand)}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--brand);color:var(--brand);background:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ETA 大数字 */
+.eta-now{display:flex;align-items:baseline;gap:10px;padding:14px 20px 4px}
+.eta-now .lab{font-size:12.5px;color:var(--sub)}
+.eta-now .num{font-family:var(--mono);font-size:34px;font-weight:800;line-height:1}
+.eta-now .num small{font-size:14px;color:var(--sub);font-weight:600}
+.eta-now .delta-tag{font-family:var(--mono);font-size:12.5px;font-weight:700;border-radius:7px;padding:3px 9px;opacity:0;transition:.3s}
+.eta-now .delta-tag.flash{opacity:1;animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.delta-tag.up{background:rgba(240,68,56,.12);color:var(--red)}
+.delta-tag.down{background:rgba(18,183,106,.12);color:var(--green)}
+.promise{margin:0 20px 14px;font-size:12px;color:var(--sub)}
+.promise b{font-family:var(--mono);color:var(--ink)}
+
+/* ===== 开始遮罩 ===== */
+.start-cover{position:absolute;inset:0;background:rgba(26,23,20,.55);backdrop-filter:blur(2px);z-index:10;
+  display:flex;align-items:center;justify-content:center;border-radius:0 0 12px 12px}
+.start-cover.hidden{display:none}
+.start-box{background:#fff;border-radius:16px;padding:26px 30px;text-align:center;box-shadow:var(--shadow);max-width:340px}
+.start-box .big{font-size:38px;margin-bottom:8px}
+.start-box h3{font-size:18px;font-weight:900;margin-bottom:7px}
+.start-box p{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:16px}
+.start-box .btn{width:auto;padding:12px 30px;margin:0}
+
+/* ===== 评分页 ===== */
+.score-card{display:none}
+.score-card.show{display:block;animation:slideIn .4s ease}
+.grade-hero{text-align:center;padding:26px 20px 18px}
+.grade{font-family:var(--mono);font-size:84px;font-weight:800;line-height:1;
+  background:linear-gradient(160deg,var(--brand),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grade.gS{background:linear-gradient(160deg,#ff6a1a,#ffb020);-webkit-background-clip:text;background-clip:text}
+.grade.gA{background:linear-gradient(160deg,#12b76a,#7be0a8);-webkit-background-clip:text;background-clip:text}
+.grade.gB{background:linear-gradient(160deg,#2e90fa,#9bc9ff);-webkit-background-clip:text;background-clip:text}
+.grade.gC{background:linear-gradient(160deg,#b7791f,#f3c969);-webkit-background-clip:text;background-clip:text}
+.grade.gD{background:linear-gradient(160deg,#f04438,#ff9b94);-webkit-background-clip:text;background-clip:text}
+.grade-hero .total{font-family:var(--mono);font-size:15px;color:var(--sub);margin-top:6px}
+.grade-hero .total b{font-size:22px;color:var(--ink)}
+.grade-hero .verdict{font-size:14px;font-weight:700;margin-top:8px}
+.dim-list{padding:4px 22px 18px;display:flex;flex-direction:column;gap:13px}
+.dim-row .dim-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.dim-top span:last-child{font-family:var(--mono);font-weight:700}
+.dim-track{height:9px;border-radius:5px;background:#f1eae1;overflow:hidden}
+.dim-fill{height:100%;border-radius:5px;width:0;transition:width 1s cubic-bezier(.2,.8,.3,1)}
+.recap{margin:0 22px 20px;border:1px dashed var(--line);border-radius:11px;padding:13px 15px;font-size:12.5px;
+  color:#6f655b;line-height:1.9;background:#fdfaf7}
+.recap b{color:var(--ink)}
+.score-actions{display:flex;gap:10px;padding:0 22px 22px}
+.score-actions .btn{margin-top:0}
+
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .ob-meta{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>作品集演示</b> Jike.HUB 履约中心 · 你将扮演即时零售调度系统，完成一单的多个关键调度决策
+  <a href="../sigma.html">← 返回 SIGMA</a>
+</div>
+
+<div class="wrap">
+  <header class="hd">
+    <div class="logo">
+      <div class="logo-mark">🛵</div>
+      <h1>履约中心
+        <small>JIKE.HUB · DISPATCH SIMULATOR</small>
+      </h1>
+    </div>
+    <div class="badge">核心动作：即时零售 · 履约调度</div>
+  </header>
+
+  <!-- 订单条 -->
+  <div class="orderbar">
+    <div class="ob-user">
+      <div class="ob-ava">🧑‍🦱</div>
+      <div><b id="custName">陈女士</b><small id="custAddr">文华苑 3 号楼 · 距商区 1.6km</small></div>
+    </div>
+    <div class="ob-sep"></div>
+    <div class="ob-items" id="itemChips"></div>
+    <div class="ob-meta">
+      <span class="pill gray" id="orderNo">NO. ----</span>
+      <span class="pill gray" id="promisePill">承诺 32 分钟</span>
+      <span class="pill green" id="statusPill">● 等待调度接单</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- 左：地图 + ETA -->
+    <div class="card">
+      <div class="card-hd">
+        <span>实时履约看板</span><span class="live"><i></i>调度中</span>
+      </div>
+
+      <div class="eta-now">
+        <span class="lab">预计送达</span>
+        <span class="num"><b id="etaNum">20</b><small>分钟</small></span>
+        <span class="delta-tag" id="etaDelta"></span>
+      </div>
+      <div class="promise">系统理想基线 <b>20</b> 分钟 · 用户承诺时效 <b id="promiseMin">32</b> 分钟 · <span id="slackTxt">目前余量充足</span></div>
+
+      <div class="map">
+        <svg viewBox="0 0 760 330" preserveAspectRatio="xMidYMid slice">
+          <!-- 街区底纹 -->
+          <defs>
+            <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
+              <path d="M46 0H0V46" fill="none" stroke="#e7ddce" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="760" height="330" fill="url(#grid)"/>
+          <!-- 路网 -->
+          <g stroke="#dccdb8" stroke-width="9" stroke-linecap="round" fill="none">
+            <path d="M-10 250 H770"/>
+            <path d="M150 -10 V340"/>
+            <path d="M470 -10 V340"/>
+            <path d="M-10 90 H770"/>
+          </g>
+          <g stroke="#fff" stroke-width="2" stroke-dasharray="10 10" fill="none">
+            <path d="M-10 250 H770"/><path d="M150 -10 V340"/><path d="M470 -10 V340"/><path d="M-10 90 H770"/>
+          </g>
+          <!-- 绿化块 -->
+          <rect x="180" y="120" width="70" height="52" rx="8" fill="#dcebd2"/>
+          <rect x="520" y="180" width="64" height="48" rx="8" fill="#dcebd2"/>
+
+          <!-- 远店 B -->
+          <g id="nodeFar">
+            <circle cx="70" cy="60" r="20" fill="#fff" stroke="#ffb020" stroke-width="2.5"/>
+            <text x="70" y="67" text-anchor="middle" font-size="18">🏬</text>
+            <text x="100" y="56" class="node-label">中心仓 B（远）</text>
+            <text x="100" y="70" class="node-sub">2.8km · 库存充足</text>
+          </g>
+          <!-- 近店 A -->
+          <g id="nodeNear">
+            <circle cx="215" cy="205" r="20" fill="#fff" stroke="#ff6a1a" stroke-width="2.5"/>
+            <text x="215" y="212" text-anchor="middle" font-size="18">🏪</text>
+            <text x="245" y="201" class="node-label">云仓 A（近）</text>
+            <text x="245" y="215" class="node-sub">1.0km · 该品缺货</text>
+          </g>
+
+          <!-- 拥堵点（第3阶段出现） -->
+          <g id="jamNode" style="opacity:0;transition:.5s">
+            <circle cx="455" cy="250" r="22" fill="rgba(240,68,56,.14)"/>
+            <text x="455" y="257" text-anchor="middle" font-size="18">🚧</text>
+            <text x="455" y="295" text-anchor="middle" class="node-label" fill="#f04438">主干道拥堵</text>
+          </g>
+          <!-- 绕行路 -->
+          <path id="detour" d="M380 250 q60 150 150 120 q70 -20 90 -90" fill="none"
+                stroke="#2e90fa" stroke-width="3.5" stroke-dasharray="7 7" opacity="0" style="transition:.5s"/>
+
+          <!-- 客户家 -->
+          <g>
+            <circle cx="680" cy="150" r="24" fill="#fff" stroke="#1d1a17" stroke-width="2.5"/>
+            <text x="680" y="159" text-anchor="middle" font-size="22">🏠</text>
+            <text x="680" y="200" text-anchor="middle" class="node-label">陈女士 · 文华苑</text>
+          </g>
+
+          <!-- 骑手 -->
+          <g class="rider" id="rider" transform="translate(215,180)">
+            <circle r="17" fill="#ff6a1a" opacity=".18"/>
+            <text y="7" text-anchor="middle" font-size="22">🛵</text>
+          </g>
+        </svg>
+        <div class="map-hint" id="mapHint">等待调度系统接单…</div>
+        <div class="start-cover" id="startCover">
+          <div class="start-box">
+            <div class="big">📦</div>
+            <h3>新订单来了</h3>
+            <p id="startOrderText">用户刚下单，履约时钟开始计时。<br>作为调度系统，你需要依次做出 <b>3 个决策</b>。</p>
+            <button class="btn" id="startBtn">开始调度 →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="etastrip">
+        <div class="eta-node" id="n0"><div class="dot"></div>下单</div>
+        <div class="eta-node" id="n1"><div class="dot"></div>拣货</div>
+        <div class="eta-node" id="n2"><div class="dot"></div>取餐</div>
+        <div class="eta-node" id="n3"><div class="dot"></div>配送</div>
+        <div class="eta-node" id="n4"><div class="dot"></div>送达</div>
+      </div>
+    </div>
+
+    <!-- 右：决策面板 / 评分 -->
+    <div class="card" id="decisionCard">
+      <div class="card-hd"><span class="tag-no" id="stepNo">01</span><span id="stepTitle">发货仓决策</span></div>
+      <div class="decision">
+        <div class="step-dots">
+          <i class="on"></i><i></i><i></i>
+        </div>
+        <div class="q" id="qText">用户下单了，从哪个仓发货？</div>
+        <div class="q-sub" id="qSub">库存与距离的权衡：近仓正在调货，远仓可立即拣货但路程更长。</div>
+        <div class="opts" id="opts"></div>
+        <div class="result" id="result"></div>
+        <button class="btn" id="nextBtn" disabled>请先做出选择</button>
+      </div>
+    </div>
+
+    <!-- 评分卡 -->
+    <div class="card score-card" id="scoreCard">
+      <div class="card-hd"><span>本单履约评分</span><span class="tag-no" style="background:var(--brand)">REPORT</span></div>
+      <div class="grade-hero">
+        <div class="grade" id="grade">A</div>
+        <div class="total">综合得分 <b id="totalScore">0</b> / 100</div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+      <div class="dim-list" id="dimList"></div>
+      <div class="recap" id="recap"></div>
+      <div class="score-actions">
+        <button class="btn" id="replayBtn">🔁 再来一单</button>
+        <a class="btn ghost" href="../sigma.html">返回 SIGMA</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 订单池（重玩随机） ================= */
+const ORDERS=[
+  {cust:'陈女士',addr:'文华苑 3 号楼 · 距商区 1.6km',no:'JK20260921-1842',
+   items:[{i:'🧋',t:'冰美式 ×1'},{i:'🥪',t:'火腿三明治 ×1'}],text:'冰美式 + 三明治，峰时订单'},
+  {cust:'林先生',addr:'科创大厦 B 座 · 距商区 1.9km',no:'JK20260921-2057',
+   items:[{i:'🍜',t:'招牌牛肉粉 ×1'},{i:'🥟',t:'蒸饺 ×1 笼'}],text:'热食一单，对时效和温度都敏感'},
+  {cust:'王女士',addr:'和平里 7 号楼 · 距商区 1.4km',no:'JK20260921-2231',
+   items:[{i:'💊',t:'退烧贴 ×1'},{i:'🌡️',t:'电子体温计 ×1'}],text:'夜间急用药品，用户等待容忍度低'},
+];
+const BASE=20, PROMISE=32;
+
+/* ================= 决策点队列（售后为条件分支，运行时追加） ================= */
+const STEPS=[
+  { id:'warehouse', node:1, title:'发货仓决策',
+    q:'用户下单了，从哪个仓发货？',
+    sub:'库存与距离的权衡：近仓该品缺货、需跨店调货；远仓库存充足但骑手路程更长。',
+    opts:[
+      {ic:'🏪',t:'云仓 A · 近仓（1.0km）',
+       desc:'距离用户最近，但该 SKU 缺货，需等待 200m 外门店调货后才能拣货。',
+       tags:[{t:'距离近',c:'good'},{t:'调货等待 ≈9 分钟',c:'bad'}],
+       dt:9,cost:0,sat:0,rider:0,
+       good:false,
+       rtxt:'调货花了 9 分钟才完成拣货——近仓的距离优势被缺货完全吃掉，<span class="delta">送达 +9 分钟</span>。'},
+      {ic:'🏬',t:'中心仓 B · 远仓（2.8km）',
+       desc:'库存充足、可立即拣货打包，骑手取餐快，但配送距离多 1.8km。',
+       tags:[{t:'立即拣货',c:'good'},{t:'配送距离 +1.8km',c:'info'},{t:'送达 +5 分钟',c:'bad'}],
+       dt:5,cost:-1,sat:0,rider:0,
+       good:true,
+       rtxt:'库存充足，拣货 3 分钟完成；远距路程使总时长 <span class="delta">+5 分钟</span>，多支出一笔远距配送成本。'}
+    ]},
+  { id:'rider', node:2, title:'骑手派单决策',
+    q:'餐已备好，派给哪个骑手？',
+    sub:'人效与体验的权衡：金牌骑手快但手头有 2 个顺路单；新人骑手空闲可直送，但车速较稳（慢）。',
+    opts:[
+      {ic:'⚡',t:'金牌骑手 · 阿峰（手头 2 单）',
+       desc:'车速快、路熟，但要先送两单顺路客，存在绕行与餐品温度风险。',
+       tags:[{t:'车速快 · 人效高',c:'good'},{t:'绕行 2 单',c:'bad'},{t:'冷饮/热食品质风险',c:'bad'}],
+       dt:4,cost:0,sat:-4,rider:3,
+       good:false,
+       rtxt:'阿峰先送了两单顺路客，<span class="delta">送达 +4 分钟</span>，餐品温度下降，用户给了差评预警。'},
+      {ic:'🆕',t:'新人骑手 · 小周（空闲直送）',
+       desc:'当前无单可立即取餐，直奔用户家；车速平稳，比金牌骑手慢约 2 分钟。',
+       tags:[{t:'零等待 · 直送',c:'good'},{t:'餐品状态好',c:'good'},{t:'车速略稳',c:'info'}],
+       dt:2,cost:0,sat:2,rider:-1,
+       good:true,
+       rtxt:'小周立刻取餐直送，仅因车速稳 <span class="delta">+2 分钟</span>，餐品完好，用户体验更佳。'}
+    ]},
+  { id:'merge', node:3, title:'顺路单合并决策',
+    q:'骑手取餐出发前，调度池弹出一条同方向新订单，要合并配送吗？',
+    sub:'人效与时效的二次权衡：合并可分摊配送成本、提升骑手单量，但需绕行，双方订单时效共享风险。',
+    opts:[
+      {ic:'🧺',t:'合并顺路单（一趟 2 单）',
+       desc:'同方向订单合并配送，配送成本双方分摊、骑手人效提升；但需先绕行一单，本单预计多 3 分钟。',
+       tags:[{t:'成本分摊 +¥3',c:'good'},{t:'骑手人效 +',c:'good'},{t:'绕行 ≈3 分钟',c:'bad'}],
+       dt:3,cost:3,sat:0,rider:2,
+       good:true,
+       rtxt:'合并成功：骑手一趟送两单，成本分摊抵掉部分远距支出，本单因绕行 <span class="delta">送达 +3 分钟</span>。'},
+      {ic:'🎯',t:'保持专送 · 不合并',
+       desc:'拒绝合并，骑手直奔用户家，本单时效不受影响；但骑手本趟只完成 1 单，资源利用率低。',
+       tags:[{t:'零延迟风险',c:'good'},{t:'用户体验 +',c:'good'},{t:'人效损失',c:'bad'}],
+       dt:0,cost:0,sat:1,rider:-1,
+       good:false,
+       rtxt:'骑手专送直奔用户家，时效无损、体验更稳，只是这一趟的人力成本全部由本单承担。'}
+    ]},
+  { id:'jam', node:3, title:'途中异常决策',
+    q:'配送途中主干道事故拥堵，怎么调度？',
+    sub:'前方预计堵 8 分钟以上：原地等待，还是立即改派绕行方案？',
+    opts:[
+      {ic:'⏳',t:'原地等待拥堵消散',
+       desc:'按导航数据约 8 分钟后疏通，不增加里程与补贴，但用户等待时间拉长。',
+       tags:[{t:'无额外成本',c:'good'},{t:'等待 ≈8 分钟',c:'bad'},{t:'用户催单风险',c:'bad'}],
+       dt:8,cost:0,sat:-5,rider:0,
+       good:false,
+       rtxt:'堵在原地 8 分钟，用户两次打开 App 查看位置，<span class="delta">送达 +8 分钟</span>，满意度显著下降。'},
+      {ic:'🔀',t:'立即改派 · 绕行村路',
+       desc:'切换 1.2km 城中村小路并主动给用户发进度通知，增加少量里程补贴。',
+       tags:[{t:'仅 +3 分钟',c:'good'},{t:'主动安抚用户',c:'good'},{t:'绕行里程成本',c:'bad'}],
+       dt:3,cost:-2,sat:1,rider:2,
+       good:true,
+       rtxt:'果断绕行 + 主动推送进度，<span class="delta">送达仅 +3 分钟</span>，用户对处理方式表示理解，产生少量绕行补贴。'}
+    ]}
+];
+
+/* 条件分支：金牌骑手（绕行 2 单）配送时餐品洒漏概率高 → 送达后触发售后决策 */
+const AFTER_STEP={ id:'after', node:4, title:'送达售后决策',
+  q:'已送达，但用户反馈饮品洒漏了约三分之一，怎么处理？',
+  sub:'骑手多单绕行导致颠簸洒漏：主动赔付能快速挽回体验，转工单则可能激化情绪。',
+  opts:[
+    {ic:'🧋',t:'主动致歉 · 立即赔付红包',
+     desc:'调度系统直接下发赔付红包并致电致歉，用户通常当场撤销差评；平台承担小额补偿成本。',
+     tags:[{t:'差评当场逆转',c:'good'},{t:'补偿成本 ¥2',c:'bad'}],
+     dt:0,cost:-2,sat:5,rider:0,
+     good:true,
+     rtxt:'用户收到红包和道歉后撤销差评、改评五星——一次小成本投入换回了口碑。'},
+    {ic:'📋',t:'转交客服工单处理',
+     desc:'按标准流程生成售后工单，24 小时内由客服跟进；不产生即时成本，但用户可能觉得被推诿。',
+     tags:[{t:'零即时成本',c:'good'},{t:'响应慢 24h',c:'bad'},{t:'差评风险高',c:'bad'}],
+     dt:0,cost:0,sat:-3,rider:0,
+     good:false,
+     rtxt:'工单次日才有人跟进，用户觉得被推诿，最终给出了差评并减少复购。'}
+  ]};
+
+/* ================= 状态 ================= */
+let state, order;
+const $=s=>document.querySelector(s);
+
+function init(){
+  order=ORDERS[Math.floor(Math.random()*ORDERS.length)];
+  state={step:0,eta:BASE,cost:0,sat:0,rider:0,picks:[],queue:STEPS.slice(),started:false,done:false};
+  // 订单条
+  $('#custName').textContent=order.cust;
+  $('#custAddr').textContent=order.addr;
+  $('#orderNo').textContent=order.no;
+  $('#itemChips').innerHTML=order.items.map(x=>`<span class="chipped">${x.i} ${x.t}</span>`).join('');
+  $('#startOrderText').innerHTML=`${order.text}。<br>作为调度系统，你需要依次做出 <b>4 个决策</b>——途中还可能突发状况，追加临时决策。`;
+  // 复位 UI
+  $('#startCover').classList.remove('hidden');
+  $('#scoreCard').classList.remove('show');
+  $('#decisionCard').style.display='';
+  $('#statusPill').className='pill green';$('#statusPill').textContent='● 等待调度接单';
+  $('#promisePill').className='pill gray';$('#promisePill').textContent='承诺 32 分钟';
+  setEta(BASE,0);
+  $('#etaDelta').classList.remove('flash');
+  for(let i=0;i<5;i++) $('#n'+i).className='eta-node'+(i===0?' done':'');
+  $('#rider').setAttribute('transform','translate(215,180)');
+  $('#rider').classList.remove('wheel');
+  $('#jamNode').style.opacity=0;$('#detour').style.opacity=0;
+  $('#mapHint').textContent='等待调度系统接单…';
+  $('#startBtn').disabled=false;$('#startBtn').textContent='开始调度 →';
+}
+
+function setEta(val,delta){
+  $('#etaNum').textContent=val;
+  const late=val-PROMISE;
+  $('#promisePill').className='pill '+(late>0?'red':'gray');
+  $('#promisePill').textContent=late>0?`预计超时 ${late} 分钟`:'承诺 32 分钟';
+  $('#slackTxt').innerHTML=late>0
+    ? `<b style="color:var(--red)">已超出承诺 ${late} 分钟</b>`
+    : `目前还剩 <b>${-late} 分钟</b> 余量`;
+  if(delta!==0){
+    const t=$('#etaDelta');
+    t.textContent=(delta>0?'+':'')+delta+' min';
+    t.className='delta-tag flash '+(delta>0?'up':'down');
+  }
+}
+
+function startGame(){
+  state.started=true;
+  $('#startCover').classList.add('hidden');
+  $('#statusPill').className='pill green';$('#statusPill').textContent='● 调度进行中';
+  $('#mapHint').textContent='订单进入调度池：第一步，选择发货仓';
+  renderStep();
+}
+
+function renderStep(){
+  const s=state.queue[state.step];
+  $('#stepNo').textContent=String(state.step+1).padStart(2,'0');
+  $('#stepTitle').textContent=s.title;
+  $('#qText').textContent=s.q;
+  $('#qSub').textContent=s.sub;
+  // 步骤指示点（决策数动态）
+  document.querySelector('.step-dots').innerHTML=
+    state.queue.map((_,i)=>`<i class="${i<=state.step?'on':''}"></i>`).join('');
+  $('#opts').innerHTML=s.opts.map((o,i)=>`
+    <div class="opt" data-i="${i}">
+      <div class="opt-top">
+        <span class="opt-ic">${o.ic}</span>${o.t}
+      </div>
+      <div class="opt-desc">${o.desc}</div>
+      <div class="opt-tags">${o.tags.map(t=>`<span class="tag ${t.c}">${t.t}</span>`).join('')}</div>
+    </div>`).join('');
+  $('#result').className='result';$('#result').innerHTML='';
+  const nb=$('#nextBtn');nb.disabled=true;nb.textContent='请先做出选择';
+  document.querySelectorAll('.opt').forEach(el=>el.addEventListener('click',()=>pick(parseInt(el.dataset.i))));
+  // 时间轴：node 之前的全部标完成，当前 node 闪烁
+  for(let i=1;i<=4;i++){
+    const el=$('#n'+i);
+    el.classList.remove('cur');
+    el.classList.toggle('done',i<s.node);
+    if(i===s.node) el.classList.add('cur');
+  }
+  // 地图前置状态
+  if(s.id==='jam'||s.id==='after') $('#jamNode').style.opacity=1;
+  if(s.id==='merge') $('#mapHint').textContent='骑手已取餐，等待合并单决策…';
+  if(s.id==='after'){
+    $('#jamNode').style.opacity=0;
+    $('#rider').classList.add('wheel');
+    $('#rider').setAttribute('transform','translate(680,122)');
+    $('#statusPill').className='pill gray';$('#statusPill').textContent='● 已送达 · 售后处理中';
+    $('#mapHint').textContent='订单已送达，出现售后问题…';
+  }
+}
+
+function pick(i){
+  const s=state.queue[state.step],o=s.opts[i];
+  state.picks.push(i);
+  state.eta+=o.dt;state.cost+=o.cost;state.sat+=o.sat;state.rider+=o.rider;
+  document.querySelectorAll('.opt').forEach((el,idx)=>{
+    el.classList.add('disabled');
+    if(idx===i) el.classList.add('picked');
+  });
+  const picked=document.querySelectorAll('.opt')[i];
+  picked.classList.remove('disabled');
+  picked.querySelector('.opt-top').insertAdjacentHTML('beforeend','<span class="pick">已选择</span>');
+  // 结果
+  const r=$('#result');
+  r.className='result show '+(o.good?'good':'bad');
+  r.innerHTML=o.rtxt;
+  setEta(state.eta,o.dt);
+  // 地图联动
+  if(s.id==='warehouse'){
+    const x=i===0?215:70, y=i===0?205:60;
+    $('#rider').setAttribute('transform',`translate(${x},${y-25})`);
+    $('#mapHint').textContent=i===0?'就近派单：等待门店调货中…':'跨区派单：骑手前往中心仓 B 取餐';
+  }
+  if(s.id==='rider'){
+    $('#rider').classList.add('wheel');
+    $('#rider').setAttribute('transform','translate(330,235)');
+    $('#mapHint').textContent=i===0?'阿峰带着 3 单在路上，绕行中…':'小周取餐后直送用户家';
+  }
+  if(s.id==='merge'){
+    $('#rider').setAttribute('transform','translate(405,240)');
+    $('#mapHint').textContent=i===0?'已接合并单：先送同方向订单，再送本单':'保持专送：直奔用户家';
+  }
+  if(s.id==='jam'){
+    if(i===1){ $('#detour').style.opacity=1;$('#rider').setAttribute('transform','translate(560,290)'); }
+    else { $('#rider').setAttribute('transform','translate(455,222)'); }
+    $('#mapHint').textContent=i===0?'车队堵在主干道，倒计时等待…':'已切换绕行路线，并向用户推送进度';
+  }
+  if(s.id==='after'){
+    $('#mapHint').textContent=i===0?'赔付红包已到账，用户撤销差评':'售后工单已生成，24 小时内跟进';
+  }
+  const nb=$('#nextBtn');nb.disabled=false;
+  nb.textContent=state.step===state.queue.length-1?'完成履约，查看履约评分 →':'下一步决策 →';
+}
+
+function next(){
+  // 离开骑手决策后：若选了金牌骑手（绕行 2 单），送达后追加售后分支
+  const s=state.queue[state.step];
+  if(s.id==='rider'&&state.picks[state.step]===0&&!state.queue.includes(AFTER_STEP)){
+    state.queue.push(AFTER_STEP);
+  }
+  if(state.step<state.queue.length-1){
+    state.step++;renderStep();
+  }else{
+    finish();
+  }
+}
+
+/* ================= 送达动画 + 评分 ================= */
+function finish(){
+  state.done=true;
+  $('#n3').classList.remove('cur');$('#n3').classList.add('done');
+  $('#n4').classList.add('cur');
+  $('#jamNode').style.opacity=0;
+  $('#rider').classList.add('wheel');
+  $('#rider').setAttribute('transform','translate(680,122)');
+  $('#mapHint').textContent='订单送达，正在生成履约报告…';
+  $('#statusPill').className='pill gray';$('#statusPill').textContent='● 已送达';
+  setTimeout(showScore,1500);
+}
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+
+function showScore(){
+  const e=state.eta,late=e-PROMISE;
+  // 时效 40
+  const tScore=e<=PROMISE ? 36+clamp(PROMISE-e,0,4) : clamp(36-late*5,12,40);
+  // 成本 20
+  const cScore=clamp(20+state.cost*4,0,20);
+  // 满意度 25
+  const sScore=clamp(18+state.sat*3,0,25);
+  // 调度（骑手资源）15
+  const rScore=clamp(10+state.rider,0,15);
+  const total=Math.round(tScore+cScore+sScore+rScore);
+  const grade=total>=90?['S','调度大师']:total>=80?['A','优秀调度']:total>=65?['B','合格调度员']:total>=50?['C','勉强达标']:['D','需要复盘'];
+  const verdictMap={
+    S:'全程最优解，时效、成本与体验全部拉满！',
+    A:'决策整体合理，用户按时收到了完好的订单。',
+    B:'订单完成了，但在个别环节还有明显优化空间。',
+    C:'虽然送达，但超时或体验损失较大，建议复盘链路。',
+    D:'这单履约事故较多——缺货、绕行、等待本可避免。'
+  };
+
+  $('#grade').textContent=grade[0];
+  $('#grade').className='grade g'+grade[0];
+  $('#totalScore').textContent=total;
+  $('#verdict').textContent=grade[1]+' · '+verdictMap[grade[0]];
+
+  const dims=[
+    {n:'时效达成',v:tScore,m:40,c:'var(--brand)'},
+    {n:'履约成本',v:cScore,m:20,c:'var(--blue)'},
+    {n:'客户满意度',v:sScore,m:25,c:'var(--green)'},
+    {n:'骑手资源调度',v:rScore,m:15,c:'var(--amber)'}
+  ];
+  $('#dimList').innerHTML=dims.map(d=>`
+    <div class="dim-row">
+      <div class="dim-top"><span>${d.n}</span><span>${Math.round(d.v)} / ${d.m}</span></div>
+      <div class="dim-track"><div class="dim-fill" data-w="${(d.v/d.m*100).toFixed(1)}" style="background:${d.c}"></div></div>
+    </div>`).join('');
+
+  const names=state.queue.map((s,i)=>s.opts[state.picks[i]].t.split(' · ')[0]);
+  $('#recap').innerHTML=
+    `<b>最终送达：</b>${e} 分钟（${late>0?`<span style="color:var(--red)">超时 ${late} 分钟</span>`:`<span style="color:var(--green)">准时，余 ${-late} 分钟</span>`}）<br>
+     <b>调度路径：</b>${names.join(' → ')}<br>
+     <b>系统建议：</b>${hintForPicks()}`;
+
+  $('#scoreCard').classList.add('show');
+  $('#decisionCard').style.display='none';
+  $('#n4').classList.remove('cur');$('#n4').classList.add('done');
+  setTimeout(()=>document.querySelectorAll('.dim-fill').forEach(f=>f.style.width=f.dataset.w+'%'),80);
+  $('#scoreCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function hintForPicks(){
+  const h=[];
+  state.queue.forEach((s,i)=>{
+    const pick=state.picks[i];
+    if(s.id==='warehouse') h.push(pick===0?'缺货场景应优先选择可立即拣货的仓，调货等待通常比远距更伤时效':'选择有货仓是正确的——库存确定性优先于距离');
+    if(s.id==='rider') h.push(pick===0?'顺路单过多时，时效敏感订单应派给空闲骑手直送':'空闲直送保障了餐品品质，新人资源也得到了利用');
+    if(s.id==='merge') h.push(pick===0?'时效余量充足时合并顺路单可显著摊薄成本，是调度系统的增效首选':'时效紧张时保持专送是对的——合并绕行的风险大于收益');
+    if(s.id==='jam') h.push(pick===0?'拥堵超 5 分钟时，主动绕行 + 用户告知优于原地等待':'快速改派绕行并同步用户，是异常处理的标准动作');
+    if(s.id==='after') h.push(pick===0?'洒漏属履约事故：即时赔付的成本远低于差评与流失损失':'售后推给工单会放大情绪，一线问题应一线解决');
+  });
+  return h.join('；')+'。';
+}
+
+/* ================= 绑定 ================= */
+$('#startBtn').addEventListener('click',startGame);
+$('#nextBtn').addEventListener('click',next);
+$('#replayBtn').addEventListener('click',()=>{init();window.scrollTo({top:0,behavior:'smooth'})});
+
+init();
+</script>
+</body>
+</html>

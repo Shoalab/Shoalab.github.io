@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中广生物资产数字监管平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07151d; --bg2:#0b1d28; --panel:rgba(13,34,46,.72); --panel-s:rgba(16,42,56,.85);
+  --cyan:#2de2c8; --cyan-d:#17a99a; --blue:#39a6ff; --amber:#ffc24b; --red:#ff5d5d; --green:#3ddc84;
+  --line:rgba(45,226,200,.22); --line-soft:rgba(120,200,220,.12);
+  --text:#dceef2; --sub:#7fa6b4;
+  --mono:'JetBrains Mono',Consolas,monospace; --sans:'Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 70% 45% at 50% -8%,rgba(45,226,200,.13),transparent 70%),
+    linear-gradient(rgba(45,226,200,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(45,226,200,.028) 1px,transparent 1px);
+  background-size:100% 100%,44px 44px,44px 44px;
+}
+::selection{background:var(--cyan);color:#04222b}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:rgba(45,226,200,.35);border-radius:4px}
+a{color:var(--cyan);text-decoration:none}
+
+/* ===== 顶部演示条 ===== */
+.demo-bar{
+  background:#041018;color:#8fb8c4;font-size:12px;display:flex;align-items:center;gap:9px;
+  padding:5px 20px;border-bottom:1px solid var(--line-soft);
+}
+.demo-bar b{color:var(--amber);font-weight:700}
+.demo-bar a{margin-left:auto}
+
+/* ===== 大屏头部 ===== */
+.screen{min-height:100vh;display:flex;flex-direction:column;padding:0 18px 16px}
+.hd{
+  height:72px;display:flex;align-items:center;gap:16px;position:relative;flex:none;
+  padding:0 4px;
+  background:linear-gradient(180deg,rgba(45,226,200,.08),transparent);
+  border-bottom:1px solid var(--line);
+}
+.hd::after{content:'';position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);
+  width:420px;max-width:60%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  box-shadow:0 0 14px var(--cyan)}
+.hd__side{display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:13px;color:var(--sub);flex:none;white-space:nowrap}
+.hd__side.r{justify-content:flex-end}
+.hd__side .live{display:flex;align-items:center;gap:7px;color:var(--green);font-weight:700;
+  border:1px solid rgba(61,220,132,.35);background:rgba(61,220,132,.08);border-radius:99px;padding:5px 13px;font-size:12.5px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.hd h1{
+  flex:1;min-width:0;text-align:center;
+  font-size:clamp(20px,2vw,30px);font-weight:900;letter-spacing:.12em;white-space:nowrap;
+  background:linear-gradient(180deg,#eafffb 30%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 26px rgba(45,226,200,.35);
+}
+.hd h1 small{display:block;text-align:center;font-size:11px;letter-spacing:.34em;color:var(--sub);
+  -webkit-text-fill-color:var(--sub);margin-top:3px;font-weight:500;white-space:normal}
+.hd .ico{width:34px;height:34px;border:1px solid var(--line);border-radius:7px;display:flex;
+  align-items:center;justify-content:center;color:var(--cyan);cursor:pointer;background:rgba(45,226,200,.05)}
+.hd .ico:hover{background:rgba(45,226,200,.16)}
+
+/* ===== KPI ===== */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:15px 0;flex:none}
+.kpi{
+  position:relative;background:var(--panel);border:1px solid var(--line);
+  border-radius:6px;padding:15px 20px;display:flex;align-items:center;gap:16px;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--cyan),transparent)}
+.kpi__ic{width:46px;height:46px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;background:rgba(45,226,200,.1);border:1px solid rgba(45,226,200,.3);flex:none}
+.kpi__t{font-size:12.5px;color:var(--sub);letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+.kpi__t small{font-family:var(--mono);font-size:10px;color:#5d8494;border:1px solid var(--line-soft);border-radius:4px;padding:1px 6px}
+.kpi__n{font-family:var(--mono);font-size:27px;font-weight:800;color:#eafffb;line-height:1.25;margin-top:2px;text-shadow:0 0 18px rgba(45,226,200,.3)}
+.kpi__n em{font-size:15px;font-style:normal;color:var(--cyan);margin:0 3px}
+.kpi__bar{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:9px;height:44px;border-radius:3px;
+  background:rgba(45,226,200,.14);overflow:hidden}
+.kpi__bar i{display:block;width:100%;background:linear-gradient(180deg,var(--cyan),var(--blue));height:100%;
+  animation:barPulse 2.6s ease-in-out infinite alternate}
+@keyframes barPulse{from{opacity:.45}to{opacity:1}}
+.kpi__trend{position:absolute;right:14px;bottom:10px;font-family:var(--mono);font-size:11px;color:var(--green)}
+
+/* ===== 面板通用 ===== */
+.body-grid{flex:1;display:grid;grid-template-columns:370px 1fr 392px;grid-template-rows:1fr 248px;gap:14px;min-height:0}
+.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:6px;
+  display:flex;flex-direction:column;min-height:0;position:relative;
+  backdrop-filter:blur(3px);
+}
+.panel::before,.panel::after{content:'';position:absolute;width:12px;height:12px;pointer-events:none}
+.panel::before{left:-1px;top:-1px;border-left:2px solid var(--cyan);border-top:2px solid var(--cyan)}
+.panel::after{right:-1px;bottom:-1px;border-right:2px solid var(--cyan);border-bottom:2px solid var(--cyan)}
+.panel__hd{display:flex;align-items:center;gap:9px;padding:11px 16px;border-bottom:1px solid var(--line-soft);flex:none}
+.panel__hd h2{font-size:14.5px;font-weight:700;letter-spacing:.08em}
+.panel__hd h2::before{content:'▸';color:var(--cyan);margin-right:7px}
+.panel__hd .ext{margin-left:auto;font-size:11.5px;color:var(--sub);cursor:pointer;font-family:var(--mono)}
+.panel__hd .ext:hover{color:var(--cyan)}
+.panel__bd{flex:1;min-height:0;padding:12px 16px;overflow:hidden;position:relative}
+.span-map{grid-row:1/2;grid-column:2/3}
+/* 左右堆叠列占满两行；中下部（趋势+清点）位于第二行中列 */
+.l-stack{grid-row:1/3;grid-column:1/2}
+.r-stack{grid-row:1/3;grid-column:3/4}
+.mid-bot{grid-row:2/3;grid-column:2/3;min-height:0;display:grid;grid-template-columns:1.15fr 1fr;gap:14px}
+
+/* ===== 警报日志 ===== */
+.alert-list{height:100%;overflow:hidden;display:flex;flex-direction:column;gap:8px}
+.alert-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--sub)}
+.alert-item{
+  display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line-soft);border-left-width:3px;
+  border-radius:5px;padding:9px 12px;background:rgba(10,28,38,.6);font-size:12.5px;
+  animation:slideIn .45s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.alert-item.red{border-left-color:var(--red)}
+.alert-item.amber{border-left-color:var(--amber)}
+.alert-item.cyan{border-left-color:var(--cyan)}
+.alert-item .tm{font-family:var(--mono);font-size:11px;color:var(--sub);white-space:nowrap;margin-top:1px}
+.alert-item .lv{font-size:10.5px;font-weight:700;border-radius:3px;padding:1px 7px;white-space:nowrap;margin-top:1px}
+.lv-red{background:rgba(255,93,93,.16);color:var(--red)}
+.lv-amber{background:rgba(255,194,75,.16);color:var(--amber)}
+.lv-cyan{background:rgba(45,226,200,.16);color:var(--cyan)}
+.alert-item .tx{flex:1;line-height:1.5}
+.alert-item .tx b{font-weight:700}
+
+/* ===== TOP5 资产认证项目 ===== */
+.rank{display:flex;flex-direction:column;height:100%;gap:2px;justify-content:space-around}
+.rank-head,.rank-row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr) minmax(0,1.1fr) minmax(0,.9fr);gap:8px;align-items:center;font-size:12px}
+.rank-head{color:var(--sub);padding:0 8px 6px;border-bottom:1px solid var(--line-soft)}
+.rank-row{padding:7px 8px;border-radius:5px;background:rgba(10,28,38,.5);border:1px solid transparent}
+.rank-row:hover{border-color:var(--line)}
+.rank-no{font-family:var(--mono);font-weight:800;width:22px;height:22px;border-radius:4px;display:flex;
+  align-items:center;justify-content:center;font-size:11.5px;background:rgba(45,226,200,.12);color:var(--cyan)}
+.rank-row:nth-child(2) .rank-no{background:var(--amber);color:#3a2a00}
+.rank-name{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-name span{overflow:hidden;text-overflow:ellipsis}
+.rank-num{font-family:var(--mono);color:#bfe9ff;font-weight:500}
+.risk-ok{color:var(--green);font-size:11.5px;display:flex;align-items:center;gap:5px}
+.risk-warn{color:var(--amber);font-size:11.5px}
+.risk-warn::before{content:'⚠ '}
+.risk-ok::before{content:'● '}
+.rank-money{font-family:var(--mono);color:var(--cyan);font-weight:700;text-align:right}
+
+/* ===== 监管地图（自绘 SVG） ===== */
+.map-wrap{position:relative;height:100%;border-radius:4px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 42%,#0e2c3a 0%,#081a24 75%)}
+.map-wrap svg{width:100%;height:100%;display:block}
+.map-search{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:5;
+  display:flex;align-items:center;background:rgba(8,24,33,.85);border:1px solid var(--line);border-radius:6px;
+  padding:7px 14px;gap:9px;width:min(380px,62%)}
+.map-search input{background:none;border:0;outline:0;color:var(--text);font-size:12.5px;flex:1;font-family:var(--sans)}
+.map-search input::placeholder{color:#6d92a0}
+.map-legend{position:absolute;left:12px;bottom:10px;z-index:5;display:flex;flex-wrap:wrap;gap:8px 14px;font-size:11.5px;color:var(--sub);
+  max-width:calc(100% - 24px);
+  background:rgba(8,24,33,.72);border:1px solid var(--line-soft);border-radius:6px;padding:7px 13px}
+.map-legend i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+.map-tip{position:absolute;z-index:6;background:rgba(6,20,28,.95);border:1px solid var(--cyan);border-radius:7px;
+  padding:10px 13px;font-size:12px;line-height:1.7;min-width:172px;pointer-events:none;opacity:0;
+  transform:translate(-50%,calc(-100% - 14px));transition:opacity .18s;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+.map-tip.show{opacity:1}
+.map-tip b{font-size:13px;color:#eafffb}
+.map-tip .mono{font-family:var(--mono);color:var(--cyan)}
+.pulse-dot{cursor:pointer}
+.scan-ring{fill:none;stroke-width:2;transform-origin:center;animation:ring 2.6s ease-out infinite}
+@keyframes ring{0%{opacity:.9;stroke-width:2.5}100%{opacity:0;stroke-width:.5}}
+
+/* ===== 趋势折线 ===== */
+.trend-svg{width:100%;height:calc(100% - 26px)}
+.trend-legend{display:flex;gap:18px;font-size:11.5px;color:var(--sub);margin-bottom:4px}
+.trend-legend i{width:14px;height:3px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:middle}
+
+/* ===== 右栏：设备 ===== */
+.dev-tabs{margin-left:auto;display:flex;gap:5px}
+.dev-tabs span{font-size:11px;padding:3px 11px;border-radius:99px;border:1px solid var(--line-soft);color:var(--sub);cursor:pointer}
+.dev-tabs span.on{background:rgba(45,226,200,.14);color:var(--cyan);border-color:var(--cyan)}
+.dev-row{display:flex;align-items:center;gap:12px;padding:10px 6px;border-bottom:1px dashed var(--line-soft)}
+.dev-row:last-child{border-bottom:0}
+.dev-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;
+  background:rgba(45,226,200,.09);border:1px solid rgba(45,226,200,.25);flex:none}
+.dev-row .info{flex:1}
+.dev-row .info b{font-size:13px;font-weight:700;display:block}
+.dev-row .info small{font-size:11px;color:var(--sub);font-family:var(--mono)}
+.dev-num{font-family:var(--mono);font-weight:800;font-size:18px;color:var(--cyan)}
+.dev-num i{font-style:normal;font-size:11.5px;color:var(--sub);font-weight:400}
+.go{width:24px;height:22px;border-radius:5px;background:rgba(45,226,200,.1);border:1px solid var(--line);
+  color:var(--cyan);font-size:11px;display:flex;align-items:center;justify-content:center}
+
+/* ===== 一周事件分布 ===== */
+.week-row{display:flex;align-items:center;gap:10px;margin-bottom:13px;font-size:12.5px}
+.week-row:last-child{margin-bottom:0}
+.week-row .lb{width:84px;color:var(--sub);white-space:nowrap}
+.week-track{flex:1;height:7px;border-radius:4px;background:rgba(120,200,220,.08);overflow:hidden}
+.week-fill{height:100%;border-radius:4px;width:0;transition:width 1.2s cubic-bezier(.2,.8,.3,1)}
+.week-val{width:74px;text-align:right;font-family:var(--mono);font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.week-val.up{color:var(--cyan)}
+
+/* ===== 项目运行监测 ===== */
+.proj-tabs{margin-left:auto;display:flex;gap:6px;font-size:11px}
+.proj-tabs span{padding:3px 12px;border-radius:99px;cursor:pointer;border:1px solid var(--line-soft);color:var(--sub)}
+.proj-tabs span.on.ok{color:var(--green);border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1)}
+.proj-card{border:1px solid var(--line-soft);border-radius:6px;padding:10px 13px;margin-bottom:9px;
+  background:rgba(10,28,38,.55);display:flex;align-items:center;gap:12px}
+.proj-card .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);flex:none}
+.proj-card.warn .dot{background:var(--amber);box-shadow:0 0 9px var(--amber)}
+.proj-card .nm{font-size:13px;font-weight:700}
+.proj-card .meta{font-size:11px;color:var(--sub);font-family:var(--mono);margin-top:2px}
+.proj-card .st{margin-left:auto;font-size:11.5px;color:var(--green);font-weight:700}
+.proj-card.warn .st{color:var(--amber)}
+.mini-gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.gauge{text-align:center;border:1px solid var(--line-soft);border-radius:6px;padding:9px 4px;background:rgba(10,28,38,.5)}
+.gauge b{font-family:var(--mono);font-size:18px;color:var(--cyan);display:block}
+.gauge small{font-size:10.5px;color:var(--sub)}
+
+/* ===== 当日清点日志 ===== */
+.count-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:10px}
+.count-cell{border:1px solid var(--line-soft);border-radius:6px;background:rgba(10,28,38,.5);padding:9px 11px;text-align:center}
+.count-cell b{font-family:var(--mono);font-size:21px;font-weight:800;display:block}
+.count-cell.in b{color:var(--blue)} .count-cell.out b{color:var(--amber)} .count-cell.on b{color:var(--green)}
+.count-cell small{font-size:11px;color:var(--sub)}
+.log-line{font-family:var(--mono);font-size:11.5px;color:#9cc4d2;padding:4px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-line .t{color:#5d8494}
+.log-line .ok{color:var(--green)}
+
+/* 右侧列垂直堆叠 */
+.r-stack{display:flex;flex-direction:column;gap:14px;min-height:0}
+.r-stack .panel{flex:1;min-height:0}
+.l-stack{display:flex;flex-direction:column;gap:14px;min-height:0}
+.l-stack .panel{flex:1;min-height:0}
+
+@media(max-width:1360px){
+  .body-grid{grid-template-columns:300px 1fr 320px}
+  .hd__side .weather,.hd__side .sep{display:none}
+  .hd h1{font-size:clamp(18px,2.2vw,26px);letter-spacing:.08em}
+  .hd h1 small{letter-spacing:.2em}
+  .kpi__n{font-size:23px}
+}
+@media(max-width:1100px){
+  .body-grid{display:flex;flex-direction:column}
+  .panel{min-height:320px}
+  .mid-bot{display:flex;flex-direction:column}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .hd__side{display:none}
+}
+@media(max-width:560px){
+  .screen{padding:0 10px 12px}
+  .kpis{grid-template-columns:1fr}
+  .kpi__n{font-size:22px}
+  .hd{height:62px}
+  .hd h1{font-size:19px;letter-spacing:.05em}
+  .hd h1 small{font-size:9px;letter-spacing:.12em}
+  .demo-bar{font-size:11px;padding:5px 12px}
+  .demo-bar a{display:none}
+  .mini-gauges{grid-template-columns:1fr 1fr}
+  .week-row .lb{width:64px;font-size:11.5px}
+  .week-val{width:62px;font-size:11.5px}
+  .map-search{width:calc(100% - 20px)}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>作品集演示</b> 中广生物资产数字监管平台 · 高保真原型，数据为脱敏模拟数据，实时刷新效果由前端模拟
+  <a href="../sigma.html">← 返回 SIGMA</a>
+</div>
+
+<div class="screen">
+  <!-- ===== 头部 ===== -->
+  <header class="hd">
+    <div class="hd__side">
+      <span id="clock">--:--:--</span>
+      <span id="date">----年--月--日</span>
+      <span style="color:#5d8494" class="sep">|</span><span class="weather">多云 26℃</span>
+    </div>
+    <h1>中广生物资产数字监管平台
+      <small>ZHONGGUANG · BIO-ASSET DIGITAL SUPERVISION</small>
+    </h1>
+    <div class="hd__side r">
+      <span class="live"><i></i>数据链路正常</span>
+      <span class="ico">⛶</span>
+      <span class="ico">⚙</span>
+    </div>
+  </header>
+
+  <!-- ===== KPI ===== -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="kpi__ic">¥</div>
+      <div><div class="kpi__t">总活体金额 <small>全年统计</small></div><div class="kpi__n" data-n="4370" data-pre="¥" data-suf="万">¥0</div></div>
+      <div class="kpi__bar"><i></i></div>
+      <div class="kpi__trend">▲ 8.6% 同比</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__ic">🐄</div>
+      <div><div class="kpi__t">总抵押物数量 <small>头 · 全年</small></div><div class="kpi__n" data-n="4710" data-round="1">0</div></div>
+      <div class="kpi__bar"><i></i></div>
+      <div class="kpi__trend">▲ 210 头 环比</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__ic">📈</div>
+      <div><div class="kpi__t">总项目数量 <small>在贷项目</small></div><div class="kpi__n" data-n="36" data-round="1">0</div></div>
+      <div class="kpi__bar"><i></i></div>
+      <div class="kpi__trend" style="color:var(--sub)">覆盖 11 省 36 个牧场</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__ic">％</div>
+      <div><div class="kpi__t">月活体抵押趋势 <small>按月统计</small></div><div class="kpi__n"><em>0</em>万 <em style="font-size:13px;color:var(--green)">100%↓</em></div></div>
+      <div class="kpi__bar"><i></i></div>
+      <div class="kpi__trend" style="color:var(--green)">较上月 -100.0%</div>
+    </div>
+  </section>
+
+  <!-- ===== 主体三列 ===== -->
+  <section class="body-grid">
+
+    <!-- 左列 -->
+    <div class="l-stack">
+      <div class="panel span-alert">
+        <div class="panel__hd"><h2>警报日志</h2><span class="ext" id="alertFilter">查看当天全部 ▸</span></div>
+        <div class="panel__bd">
+          <div class="alert-list" id="alertList"></div>
+        </div>
+      </div>
+
+      <div class="panel span-top">
+        <div class="panel__hd"><h2>TOP 5 数字资产认证项目</h2><span class="ext">已认证 ▾</span></div>
+        <div class="panel__bd">
+          <div class="rank">
+            <div class="rank-head"><div>项目名称</div><div>抵押数量</div><div>风险状态</div><div style="text-align:right">抵押金额</div></div>
+            <div class="rank-row">
+              <div class="rank-name"><span class="rank-no">1</span><span>呈南益禾原畜牧有限公司</span></div>
+              <div class="rank-num">500</div><div class="risk-warn">AI 重新风险评估</div><div class="rank-money">¥300.0万</div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-name"><span class="rank-no">2</span><span>呈南益众畜牧养殖有限公司</span></div>
+              <div class="rank-num">480</div><div class="risk-ok">正常</div><div class="rank-money">¥286.0万</div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-name"><span class="rank-no">3</span><span>东北黑牛产业·哈尔滨牧场</span></div>
+              <div class="rank-num">420</div><div class="risk-ok">正常</div><div class="rank-money">¥251.0万</div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-name"><span class="rank-no">4</span><span>松辽肉牛养殖合作社</span></div>
+              <div class="rank-num">360</div><div class="risk-ok">正常</div><div class="rank-money">¥208.8万</div>
+            </div>
+            <div class="rank-row">
+              <div class="rank-name"><span class="rank-no">5</span><span>中原牧业·驻马店示范场</span></div>
+              <div class="rank-num">300</div><div class="risk-ok">正常</div><div class="rank-money">¥176.5万</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中列 -->
+    <div class="panel span-map">
+      <div class="panel__hd"><h2>监管地图</h2><span class="ext">共定位牧场 36 · 在线 34</span></div>
+      <div class="panel__bd" style="padding:0">
+        <div class="map-wrap">
+          <div class="map-search">🔍<input placeholder="搜索项目 / 牧场 / 耳标号…"></div>
+          <svg viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <radialGradient id="land" cx="50%" cy="45%" r="75%">
+                <stop offset="0%" stop-color="#0e2a38"/><stop offset="100%" stop-color="#081a24"/>
+              </radialGradient>
+            </defs>
+            <rect width="1000" height="560" fill="url(#land)"/>
+            <!-- 经纬网格 -->
+            <g stroke="rgba(120,200,220,.08)" stroke-width="1">
+              <path d="M0 140H1000 M0 280H1000 M0 420H1000 M200 0V560 M400 0V560 M600 0V560 M800 0V560"/>
+            </g>
+            <!-- 中国轮廓（示意） -->
+            <path d="M205 158 L238 108 L286 82 L342 66 L402 78 L452 62 L508 74 L560 60 L622 70 L676 58 L736 66 L786 84 L824 118 L806 158 L826 188 L792 212 L762 204 L744 232 L716 242 L726 266 L704 272 L716 288 L746 298 L732 314 L750 332 L732 352 L714 362 L708 386 L686 406 L670 426 L638 440 L614 434 L588 448 L542 442 L508 416 L454 394 L402 374 L346 362 L294 332 L246 302 L208 260 L190 216 Z"
+                  fill="rgba(45,226,200,.045)" stroke="#e8c84a" stroke-width="2.2" stroke-linejoin="round"/>
+            <!-- 海南岛、台湾岛 -->
+            <path d="M586 452 q16 -6 22 8 q2 14 -14 18 q-16 -2 -10 -26 Z" fill="rgba(45,226,200,.045)" stroke="#e8c84a" stroke-width="1.6"/>
+            <path d="M726 372 q10 4 8 18 q-8 12 -16 4 q-6 -14 8 -22 Z" fill="rgba(45,226,200,.045)" stroke="#e8c84a" stroke-width="1.6"/>
+            <!-- 地理标注 -->
+            <g font-family="var(--sans)" fill="#9fc2cf" font-size="15">
+              <text x="300" y="108">亚洲</text>
+            </g>
+            <g font-family="var(--sans)" fill="#7fa6b4" font-size="12.5">
+              <text x="690" y="262">渤海</text>
+              <text x="688" y="318">黄海</text>
+              <text x="706" y="404">东海</text>
+            </g>
+            <!-- 东北牧场集群 -->
+            <g>
+              <circle cx="752" cy="150" r="11" fill="#ff5d5d" opacity=".85"/>
+              <circle cx="730" cy="172" r="13" fill="#ff5d5d" opacity=".85"/>
+              <circle cx="748" cy="186" r="9" fill="#ff5d5d" opacity=".85"/>
+              <circle cx="712" cy="196" r="12" fill="#ff5d5d" opacity=".85"/>
+            </g>
+            <!-- 华北点 -->
+            <circle cx="638" cy="228" r="10" fill="#ff5d5d" opacity=".85"/>
+            <!-- 华中主集群 -->
+            <g>
+              <circle cx="556" cy="292" r="12" fill="#ff5d5d" opacity=".85"/>
+              <circle cx="578" cy="300" r="15" fill="#ff5d5d" opacity=".9"/>
+              <circle cx="596" cy="312" r="10" fill="#ff5d5d" opacity=".85"/>
+            </g>
+            <!-- 西北 / 西南散点 -->
+            <circle cx="392" cy="200" r="8" fill="#ff5d5d" opacity=".8"/>
+            <circle cx="452" cy="330" r="9" fill="#ff5d5d" opacity=".8"/>
+            <!-- 主项目：呈南益禾原（华中，黑色核心点 + 脉冲） -->
+            <g class="pulse-dot" data-name="呈南益禾原畜牧有限公司" data-cow="500 头" data-cam="0 在线 / 6 路" data-money="¥300.0 万" data-x="578" data-y="300">
+              <circle class="scan-ring" cx="578" cy="300" r="16" stroke="#ff5d5d"/>
+              <circle class="scan-ring" cx="578" cy="300" r="16" stroke="#ff5d5d" style="animation-delay:1.3s"/>
+              <circle cx="578" cy="300" r="11" fill="#12303d" stroke="#ff5d5d" stroke-width="2.5"/>
+              <circle cx="578" cy="300" r="4" fill="#ff8a8a"/>
+            </g>
+            <g class="pulse-dot" data-name="呈南益众畜牧养殖有限公司" data-cow="480 头" data-cam="3 路在线" data-money="¥286.0 万" data-x="730" data-y="172">
+              <circle cx="730" cy="172" r="4" fill="#fff" opacity=".9"/>
+            </g>
+            <!-- 飞线意象：监管中心 → 全国牧场 -->
+            <g fill="none" stroke-width="1.3" stroke-dasharray="4 6" opacity=".7">
+              <path d="M578 300 Q660 220 730 172" stroke="#2de2c8">
+                <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.2s" repeatCount="indefinite"/>
+              </path>
+              <path d="M578 300 Q610 260 638 228" stroke="#39a6ff">
+                <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="3.6s" begin=".6s" repeatCount="indefinite"/>
+              </path>
+              <path d="M578 300 Q480 250 392 200" stroke="#39a6ff">
+                <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="4s" begin="1.1s" repeatCount="indefinite"/>
+              </path>
+            </g>
+            <g transform="translate(160,486)">
+              <rect x="-52" y="-16" width="104" height="22" rx="5" fill="rgba(8,24,33,.85)" stroke="var(--line)"/>
+              <text x="0" y="0" text-anchor="middle" font-family="var(--sans)" font-size="11.5" fill="#8fb8c4">🏦 监管中心 · 银行</text>
+            </g>
+          </svg>
+          <div class="map-tip" id="mapTip"></div>
+          <div class="map-legend">
+            <span><i style="background:#ff5d5d"></i>监管主牧场</span>
+            <span><i style="background:#39a6ff"></i>联网牧场</span>
+            <span><i style="background:rgba(255,194,75,.8)"></i>干线道路</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中列下：趋势 + 清点 -->
+    <div class="mid-bot">
+      <div class="panel" style="min-height:0">
+        <div class="panel__hd"><h2>近 7 日活体资产价值趋势</h2><span class="ext">单位：万元</span></div>
+        <div class="panel__bd">
+          <div class="trend-legend">
+            <span><i style="background:var(--cyan)"></i>活体评估总值</span>
+            <span><i style="background:var(--amber)"></i>抵押金额</span>
+          </div>
+          <svg class="trend-svg" viewBox="0 0 460 150" preserveAspectRatio="none">
+            <g stroke="rgba(120,200,220,.1)" stroke-width="1">
+              <line x1="34" y1="20" x2="452" y2="20"/><line x1="34" y1="60" x2="452" y2="60"/>
+              <line x1="34" y1="100" x2="452" y2="100"/><line x1="34" y1="140" x2="452" y2="140"/>
+            </g>
+            <g fill="#5d8494" font-size="9.5" font-family="var(--mono)">
+              <text x="2" y="24">4500</text><text x="2" y="64">4400</text><text x="2" y="104">4300</text><text x="2" y="144">4200</text>
+            </g>
+            <path d="M40,118 L110,104 L180,110 L250,86 L320,70 L390,58 L446,46 L446,140 L40,140 Z"
+                  fill="url(#area)" opacity=".55"/>
+            <defs>
+              <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(45,226,200,.5)"/><stop offset="100%" stop-color="transparent"/>
+              </linearGradient>
+            </defs>
+            <polyline points="40,118 110,104 180,110 250,86 320,70 390,58 446,46"
+                      fill="none" stroke="var(--cyan)" stroke-width="2.4"
+                      stroke-dasharray="700" stroke-dashoffset="700">
+              <animate attributeName="stroke-dashoffset" from="700" to="0" dur="1.8s" fill="freeze"/>
+            </polyline>
+            <polyline points="40,128 110,122 180,124 250,112 320,104 390,98 446,92"
+                      fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="4 5" opacity=".85"/>
+            <g fill="#eafffb">
+              <circle cx="40" cy="118" r="3.4"/><circle cx="110" cy="104" r="3.4"/><circle cx="180" cy="110" r="3.4"/>
+              <circle cx="250" cy="86" r="3.4"/><circle cx="320" cy="70" r="3.4"/><circle cx="390" cy="58" r="3.4"/>
+              <circle cx="446" cy="46" r="4.5"><animate attributeName="r" values="4.5;6.5;4.5" dur="1.8s" repeatCount="indefinite"/></circle>
+            </g>
+            <g fill="#5d8494" font-size="9.5" font-family="var(--sans)" text-anchor="middle">
+              <text x="40" y="150">09-14</text><text x="180" y="150">09-16</text><text x="320" y="150">09-18</text><text x="446" y="150">09-20</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel" style="grid-column:auto;grid-row:auto;min-height:0">
+        <div class="panel__hd"><h2>当日数量清点日志</h2><span class="ext">AI 视觉盘点</span></div>
+        <div class="panel__bd">
+          <div class="count-grid">
+            <div class="count-cell in"><b id="cIn">0</b><small>今日入栏</small></div>
+            <div class="count-cell out"><b id="cOut">0</b><small>今日出栏</small></div>
+            <div class="count-cell on"><b id="cOn">0</b><small>在场总数</small></div>
+          </div>
+          <div id="countLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右列 -->
+    <div class="r-stack">
+      <div class="panel span-dev">
+        <div class="panel__hd"><h2>设备统计</h2>
+          <div class="dev-tabs"><span class="on">在线</span><span>离线</span></div>
+        </div>
+        <div class="panel__bd" id="devBd"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__hd"><h2>一周事件分布</h2><span class="ext">09.14 - 09.20</span></div>
+        <div class="panel__bd" id="weekBd"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__hd"><h2>项目运行情况监测</h2>
+          <div class="proj-tabs"><span class="on ok">✓ 正常</span><span>× 异常</span></div>
+        </div>
+        <div class="panel__bd">
+          <div class="mini-gauges">
+            <div class="gauge"><b id="gRate">100%</b><small>盘点一致率</small></div>
+            <div class="gauge"><b id="gCam">99.8%</b><small>耳标在线率</small></div>
+            <div class="gauge"><b id="gAlert">2</b><small>今日预警</small></div>
+          </div>
+          <div class="proj-card">
+            <span class="dot"></span>
+            <div><div class="nm">呈南益众畜牧养殖有限公司</div><div class="meta">480 头 · ¥286.0万 · 贷中监控</div></div>
+            <span class="st">正常</span>
+          </div>
+          <div class="proj-card warn">
+            <span class="dot"></span>
+            <div><div class="nm">呈南益禾原畜牧有限公司</div><div class="meta">500 头 · ¥300.0万 · AI 重新风险评估</div></div>
+            <span class="st">复评中</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ================= 时钟 ================= */
+function tick(){
+  const n=new Date(),p=x=>String(x).padStart(2,'0');
+  document.getElementById('clock').textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+  document.getElementById('date').textContent=`${n.getFullYear()}年${p(n.getMonth()+1)}月${p(n.getDate())}日 周${'日一二三四五六'[n.getDay()]}`;
+}
+tick();setInterval(tick,1000);
+
+/* ================= KPI 数字滚动 ================= */
+document.querySelectorAll('.kpi__n[data-n]').forEach(el=>{
+  const target=parseFloat(el.dataset.n),round=el.dataset.round;
+  const pre=el.dataset.pre||'',suf=el.dataset.suf||'';
+  const dec=(el.dataset.n.split('.')[1]||'').length;
+  let cur=0;const step=target/60;
+  const t=setInterval(()=>{
+    cur+=step;
+    if(cur>=target){cur=target;clearInterval(t)}
+    el.textContent=pre+(round?Math.round(cur):cur.toFixed(dec))+suf;
+  },16);
+});
+
+/* ================= 警报日志（实时模拟） ================= */
+const ALERT_POOL=[
+  {lv:'cyan',cls:'cyan',name:'AI 盘点完成',tx:'呈南益禾原牧场 <b>本次盘点 500/500 头，账实一致</b>，耗时 6 分 48 秒'},
+  {lv:'amber',cls:'amber',name:'行为预警',tx:'耳标 <b>HB-042</b> 反刍时长低于基准 22%，已通知驻场兽医核查'},
+  {lv:'amber',cls:'amber',name:'区域滞留',tx:'北栏 A-03 有 <b>3 头</b>牛只滞留超 6 小时，疑似通道门未归位'},
+  {lv:'red',cls:'red',name:'出入栏异常',tx:'东门识别到 <b>未登记牛只离栏尝试</b>，已联动门禁拦截并推送管理员'},
+  {lv:'cyan',cls:'cyan',name:'设备恢复',tx:'3 号计量单元网络恢复，离线时长 7 分 40 秒，数据已补传'},
+  {lv:'amber',cls:'amber',name:'体况评分',tx:'本轮体况评分 <b>2 头偏瘦（BCS≤2.5）</b>，建议调整日粮结构'},
+  {lv:'cyan',cls:'cyan',name:'抵押巡检',tx:'银行端发起远程巡检，<b>联网计量单元轮巡完成</b>，活体在位率 100%'},
+  {lv:'red',cls:'red',name:'数量异常',tx:'午间自动盘点较晨间 <b>少 1 头</b>，系统已触发二次交叉盘点复核'},
+  {lv:'cyan',cls:'cyan',name:'入栏登记',tx:'新入栏荷斯坦牛 <b>HB-061</b> 完成牛脸建档、耳标绑定与资产入账'},
+  {lv:'amber',cls:'amber',name:'设备离线',tx:'青贮区摄像头 CAM-17 心跳丢失，最近在线 1 分钟前，已派单'},
+];
+const alertList=document.getElementById('alertList');
+function nowStr(){
+  const n=new Date(),p=x=>String(x).padStart(2,'0');
+  return `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+}
+function pushAlert(a){
+  const d=document.createElement('div');
+  d.className='alert-item '+a.cls;
+  d.innerHTML=`<span class="tm">${nowStr()}</span><span class="lv lv-${a.cls}">${a.name}</span><span class="tx">${a.tx}</span>`;
+  alertList.prepend(d);
+  while(alertList.children.length>6) alertList.lastChild.remove();
+}
+[0,1,2,3].forEach(i=>setTimeout(()=>pushAlert(ALERT_POOL[i]),250+i*260));
+let ai=4;
+setInterval(()=>{pushAlert(ALERT_POOL[ai%ALERT_POOL.length]);ai++},4200);
+
+/* ================= 设备统计 ================= */
+const DEVS=[
+  {ic:'📷',n:'在线摄像头',s:'更新于 1 分钟前',v:0,t:0},
+  {ic:'📡',n:'在线计量单元',s:'更新于 1 分钟前',v:3,t:3},
+  {ic:'📶',n:'电子耳标在线',s:'NB-IoT 回传',v:4700,t:4710},
+  {ic:'⚖️',n:'智能称重节点',s:'更新于 3 分钟前',v:31,t:32},
+];
+document.getElementById('devBd').innerHTML=DEVS.map(d=>`
+  <div class="dev-row">
+    <div class="dev-ic">${d.ic}</div>
+    <div class="info"><b>${d.n}</b><small>${d.s}</small></div>
+    <div class="dev-num">${d.v}<i>/${d.t}</i></div>
+    <div class="go">›</div>
+  </div>`).join('');
+
+/* ================= 一周事件分布 ================= */
+const WEEK=[
+  {lb:'摄像头活体',v:106805,color:'#2de2c8'},
+  {lb:'设备离线',v:576,color:'#ffc24b'},
+  {lb:'数量异常',v:20382,color:'#3ddc84'},
+  {lb:'出入栏事件',v:446347,color:'#39a6ff'},
+];
+const maxV=Math.max(...WEEK.map(w=>w.v));
+document.getElementById('weekBd').innerHTML=WEEK.map(w=>`
+  <div class="week-row">
+    <span class="lb">${w.lb}</span>
+    <div class="week-track"><div class="week-fill" data-w="${(w.v/maxV*100).toFixed(1)}" style="background:linear-gradient(90deg,${w.color}55,${w.color})"></div></div>
+    <span class="week-val up" style="color:${w.color}">↑ ${w.v.toLocaleString()}</span>
+  </div>`).join('');
+setTimeout(()=>document.querySelectorAll('.week-fill').forEach(f=>f.style.width=f.dataset.w+'%'),200);
+
+/* ================= 当日清点 ================= */
+const cIn=document.getElementById('cIn'),cOut=document.getElementById('cOut'),cOn=document.getElementById('cOn');
+let inN=126,outN=48,onN=4710;
+function countUp(el,target){
+  let cur=0;const step=Math.max(1,Math.ceil(target/40));
+  const t=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(t)}el.textContent=cur},20);
+}
+countUp(cIn,inN);countUp(cOut,outN);countUp(cOn,onN);
+
+const countLog=document.getElementById('countLog');
+const GATE=['东门','西门','北门'];
+function addCountLog(type){
+  if(type==='in'){inN++;cIn.textContent=inN;onN++;cOn.textContent=onN}
+  else{outN++;cOut.textContent=outN;onN--;cOn.textContent=onN}
+  const g=GATE[Math.floor(Math.random()*3)];
+  const id='HB-'+String(40+Math.floor(Math.random()*30)).padStart(3,'0');
+  const d=document.createElement('div');
+  d.className='log-line';
+  d.innerHTML=`<span class="t">${nowStr()}</span> ${g} ${type==='in'?'入栏':'出栏'} <b style="color:${type==='in'?'var(--blue)':'var(--amber)'}">${type==='in'?'IN':'OUT'}</b> · 牛脸+耳标双核验 <span class="ok">✓ 一致</span> · ${id}`;
+  countLog.prepend(d);
+  while(countLog.children.length>5) countLog.lastChild.remove();
+}
+['西门 入栏 IN · 牛脸+耳标双核验 ✓ 一致 · HB-058',
+ '东门 出栏 OUT · 牛脸+耳标双核验 ✓ 一致 · HB-011',
+ '北门 入栏 IN · 牛脸+耳标双核验 ✓ 一致 · HB-059']
+  .forEach((x,i)=>{const d=document.createElement('div');d.className='log-line';
+    d.innerHTML=`<span class="t">0${8+i}:1${i}2</span> ${x}`;countLog.appendChild(d)});
+setInterval(()=>addCountLog(Math.random()>.4?'in':'out'),5200);
+
+/* ================= 地图悬浮提示 ================= */
+const tip=document.getElementById('mapTip');
+document.querySelectorAll('.pulse-dot').forEach(p=>{
+  p.addEventListener('mousemove',e=>{
+    const r=document.querySelector('.map-wrap').getBoundingClientRect();
+    tip.style.left=(p.dataset.x/1000*r.width)+'px';
+    tip.style.top=(p.dataset.y/560*r.height)+'px';
+    tip.innerHTML=`<b>${p.dataset.name}</b><br>
+      <span class="mono">活体存栏　${p.dataset.cow}</span><br>
+      <span class="mono">摄像头　　${p.dataset.cam}</span><br>
+      <span class="mono">抵押金额　${p.dataset.money}</span>`;
+    tip.classList.add('show');
+  });
+  p.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+});
+
+/* 预警数字轻微跳动（实时感） */
+setInterval(()=>{
+  const g=document.getElementById('gAlert');
+  if(Math.random()>.6){g.textContent=parseInt(g.textContent)+1;
+    setTimeout(()=>g.textContent=2,3000)}
+},9000);
+</script>
+</body>
+</html>

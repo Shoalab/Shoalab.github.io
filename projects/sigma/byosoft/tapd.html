@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>缺陷管理 · Byosoft QA（TAPD 模拟）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#2b7fff; --blue-d:#1a5fd0; --blue-bg:#eef4ff;
+  --bg:#f4f6f9; --card:#fff; --line:#e6e9ef; --line-2:#d8dce5;
+  --text:#1f2430; --sub:#7a8194;
+  --fatal:#e02e24; --major:#f56a00; --normal:#f5a623; --minor:#2b7fff; --tips:#8b909c;
+  --ok:#22a06b;
+  --sans:'Noto Sans SC',sans-serif; --mono:'JetBrains Mono',Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#c6cbd6;border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:#aab0be}
+::selection{background:var(--blue);color:#fff}
+
+/* ===== 演示提示条 ===== */
+.demo-bar{
+  background:#1f2430;color:#cfd5e2;font-size:12.5px;
+  display:flex;align-items:center;gap:10px;padding:7px 22px;
+}
+.demo-bar b{color:#ffd166;font-weight:700;letter-spacing:.03em}
+.demo-bar a{margin-left:auto;color:#9ec1ff}
+
+/* ===== 顶栏 ===== */
+.topbar{
+  height:56px;background:linear-gradient(90deg,#1c5fd8,#2b7fff);
+  display:flex;align-items:center;gap:20px;padding:0 20px;color:#fff;
+  box-shadow:0 2px 10px rgba(28,95,216,.25);position:sticky;top:0;z-index:50;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;letter-spacing:.04em}
+.logo i{
+  width:30px;height:30px;background:#fff;color:var(--blue);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-style:normal;
+  font-family:var(--mono);font-weight:700;font-size:13px;
+}
+.proj-switch{
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+  border-radius:7px;padding:6px 14px;font-size:13.5px;font-weight:500;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+}
+.proj-switch:hover{background:rgba(255,255,255,.26)}
+.top-search{margin-left:auto;display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.92);border-radius:7px;padding:7px 13px;width:300px;color:#9aa0b0}
+.top-search input{border:0;outline:0;background:none;flex:1;font-size:13px;color:var(--text);font-family:var(--sans)}
+.top-ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.top-ic:hover{background:rgba(255,255,255,.18)}
+.top-ic em{position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;background:#ff4d4f;border:2px solid var(--blue-d)}
+.avatar{width:34px;height:34px;border-radius:50%;background:#ffd166;color:#7a5b00;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+/* ===== 布局 ===== */
+.layout{display:grid;grid-template-columns:196px 1fr 372px;min-height:calc(100vh - 83px)}
+
+/* 左导航 */
+.side{background:var(--card);border-right:1px solid var(--line);padding:14px 10px;}
+.side h4{font-size:11.5px;color:var(--sub);letter-spacing:.14em;padding:12px 12px 6px;font-weight:500}
+.nav a{
+  display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;
+  color:#444b5c;font-size:14px;margin-bottom:2px;cursor:pointer;font-weight:500;
+}
+.nav a:hover{background:#f2f5fa}
+.nav a.on{background:var(--blue-bg);color:var(--blue);font-weight:700}
+.nav a i{font-style:normal;font-size:16px;width:20px;text-align:center}
+.nav a small{margin-left:auto;background:#eef0f5;color:var(--sub);font-size:11px;border-radius:9px;padding:1px 8px;font-family:var(--mono)}
+.nav a.on small{background:#d6e5ff;color:var(--blue-d)}
+
+/* 主区域 */
+.main{padding:20px 24px 40px;min-width:0}
+.crumb{font-size:12.5px;color:var(--sub);margin-bottom:10px}
+.crumb b{color:var(--text)}
+.page-hd{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.page-hd h1{font-size:22px;font-weight:900}
+.page-hd .cnt{font-family:var(--mono);font-size:13px;color:var(--sub);border:1px solid var(--line-2);border-radius:6px;padding:2px 9px}
+.btn{
+  border:0;cursor:pointer;border-radius:7px;padding:9px 18px;font-size:13.5px;font-weight:700;
+  font-family:var(--sans);display:inline-flex;align-items:center;gap:7px;transition:.18s;
+}
+.btn--blue{background:var(--blue);color:#fff;margin-left:auto}
+.btn--blue:hover{background:var(--blue-d)}
+.btn--ghost{background:#fff;border:1px solid var(--line-2);color:var(--text)}
+.btn--ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+/* 统计卡 */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;cursor:pointer;transition:.2s}
+.stat:hover{box-shadow:0 6px 18px rgba(31,36,48,.08);transform:translateY(-1px)}
+.stat .n{font-size:26px;font-weight:900;font-family:var(--mono);line-height:1.1}
+.stat .l{font-size:12.5px;color:var(--sub);margin-top:3px}
+.stat .d{font-size:11.5px;margin-top:6px;font-family:var(--mono)}
+.up{color:var(--fatal)} .down{color:var(--ok)}
+
+/* 筛选条 */
+.filter-bar{background:var(--card);border:1px solid var(--line);border-radius:10px 10px 0 0;display:flex;align-items:center;gap:2px;padding:0 8px;border-bottom:0}
+.tab{padding:14px 15px;font-size:14px;font-weight:500;color:#444b5c;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--blue)}
+.tab.on{color:var(--blue);font-weight:700;border-bottom-color:var(--blue)}
+.tab small{font-family:var(--mono);font-size:11px;color:var(--sub);margin-left:3px}
+.filter-tools{margin-left:auto;display:flex;gap:9px;align-items:center;padding-right:6px}
+.filter-tools input{border:1px solid var(--line-2);border-radius:7px;padding:7px 11px;font-size:13px;width:170px;outline:0;font-family:var(--sans)}
+.filter-tools input:focus{border-color:var(--blue)}
+
+/* 表格 */
+.table-wrap{background:var(--card);border:1px solid var(--line);border-radius:0 0 10px 10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  background:#fafbfd;color:var(--sub);font-weight:500;font-size:12.5px;text-align:left;
+  padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+tbody td{padding:11px 12px;border-bottom:1px solid #f0f2f6;vertical-align:middle}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover{background:#f5f9ff}
+.bug-id{font-family:var(--mono);color:var(--blue);font-weight:500;font-size:12.5px;white-space:nowrap}
+.bug-title{font-weight:500;color:var(--text)}
+.bug-title:hover{color:var(--blue)}
+.tag{display:inline-block;border-radius:5px;padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.sev-0{background:#ffecec;color:var(--fatal)}
+.sev-1{background:#fff2e8;color:var(--major)}
+.sev-2{background:#fff8e6;color:#b07c00}
+.sev-3{background:#eaf2ff;color:var(--blue-d)}
+.sev-4{background:#f1f2f5;color:var(--tips)}
+.st{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:2.5px 11px;font-size:12px;font-weight:500;white-space:nowrap}
+.st::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-new{background:#f1f2f5;color:#6a7180}
+.st-doing{background:#fff2e8;color:var(--major)}
+.st-resolved{background:#e8f7f0;color:var(--ok)}
+.st-closed{background:#eef0f5;color:#98a0b0}
+.pri{font-family:var(--mono);font-weight:700;font-size:12px}
+.pri-P0{color:var(--fatal)} .pri-P1{color:var(--major)} .pri-P2{color:#b07c00} .pri-P3{color:var(--sub)}
+.muted{color:var(--sub);font-size:12.5px;white-space:nowrap}
+.owner{display:flex;align-items:center;gap:7px}
+.ava{width:24px;height:24px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.empty{text-align:center;padding:60px 0;color:var(--sub)}
+
+/* ===== AI 助手 ===== */
+.ai{background:var(--card);border-left:1px solid var(--line);display:flex;flex-direction:column;height:calc(100vh - 83px);position:sticky;top:83px}
+.ai-hd{padding:16px 18px 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.ai-ico{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6a5cff,#9b5cff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 6px 16px rgba(106,92,255,.35)}
+.ai-hd b{font-size:15px;font-weight:900;display:block}
+.ai-hd span{font-size:11.5px;color:var(--sub)}
+.ai-hd .beta{margin-left:auto;font-family:var(--mono);font-size:10.5px;background:#efeaff;color:#6a4cff;border-radius:5px;padding:2px 8px;font-weight:700}
+.ai-body{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:13px}
+.msg{max-width:92%;font-size:13.5px;line-height:1.65;animation:pop .25s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg.bot{align-self:flex-start;width:100%}
+.msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-radius:14px 14px 4px 14px;padding:9px 14px}
+.bubble{background:#f5f6f9;border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:11px 14px;color:#2a3040}
+.bubble b{color:#141824}
+.bubble .ttl{display:flex;align-items:center;gap:7px;font-weight:900;margin-bottom:7px;font-size:13.5px}
+.bubble ul{list-style:none;margin:6px 0}
+.bubble li{padding:3px 0 3px 17px;position:relative}
+.bubble li::before{content:'';position:absolute;left:2px;top:11px;width:6px;height:6px;border-radius:50%;background:#8a7cff}
+.bubble .risk{color:var(--fatal);font-weight:700}
+.bubble .ok2{color:var(--ok);font-weight:700}
+.bubble .k{color:var(--sub)}
+.bubble .mono{font-family:var(--mono);font-size:12px}
+.bubble hr{border:0;border-top:1px dashed var(--line-2);margin:9px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.chip{border:1px solid #d9d2ff;background:#f7f4ff;color:#5b46d6;border-radius:99px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-weight:500;transition:.15s}
+.chip:hover{background:#6a5cff;border-color:#6a5cff;color:#fff}
+.ai-in{border-top:1px solid var(--line);padding:12px 14px;display:flex;gap:9px;align-items:center}
+.ai-in input{flex:1;border:1px solid var(--line-2);border-radius:99px;padding:10px 15px;font-size:13.5px;outline:0;font-family:var(--sans)}
+.ai-in input:focus{border-color:#8a7cff}
+.ai-in button{width:40px;height:40px;border-radius:50%;border:0;background:linear-gradient(135deg,#6a5cff,#9b5cff);color:#fff;font-size:17px;cursor:pointer;flex:none}
+.ai-in button:active{transform:scale(.92)}
+.typing{display:inline-flex;gap:4px;padding:4px 0}
+.typing i{width:7px;height:7px;border-radius:50%;background:#b3b9c8;animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s} .typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* ===== 详情抽屉 ===== */
+.mask{position:fixed;inset:0;background:rgba(20,24,35,.42);opacity:0;pointer-events:none;transition:.25s;z-index:90}
+.mask.show{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;top:0;right:0;width:min(640px,94vw);height:100%;background:var(--bg);z-index:91;
+  transform:translateX(102%);transition:transform .3s cubic-bezier(.25,.8,.3,1);
+  display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(20,24,35,.18);
+}
+.drawer.show{transform:none}
+.dr-hd{background:var(--card);padding:18px 22px;border-bottom:1px solid var(--line)}
+.dr-hd .x{position:absolute;top:16px;right:18px;width:32px;height:32px;border-radius:8px;border:1px solid var(--line-2);background:#fff;cursor:pointer;font-size:16px;color:var(--sub)}
+.dr-hd .x:hover{color:var(--fatal);border-color:var(--fatal)}
+.dr-id{font-family:var(--mono);font-size:12.5px;color:var(--sub);margin-bottom:6px}
+.dr-hd h2{font-size:18px;font-weight:900;line-height:1.4;padding-right:40px}
+.dr-tags{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.dr-body{flex:1;overflow-y:auto;padding:18px 22px}
+.dr-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.dr-card h3{font-size:13.5px;font-weight:900;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.dr-card h3::before{content:'';width:4px;height:15px;border-radius:2px;background:var(--blue)}
+.kv{display:grid;grid-template-columns:84px 1fr;gap:9px 14px;font-size:13.5px}
+.kv dt{color:var(--sub)} .kv dd{font-weight:500}
+.steps{counter-reset:s;list-style:none}
+.steps li{counter-increment:s;padding:7px 0 7px 34px;position:relative;font-size:13.5px;border-left:2px solid var(--line);margin-left:10px;padding-left:22px}
+.steps li::before{content:counter(s);position:absolute;left:-14px;top:7px;width:24px;height:24px;border-radius:50%;background:var(--blue-bg);color:var(--blue-d);font-family:var(--mono);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.res-box{border-radius:8px;padding:11px 14px;font-size:13.5px;margin-top:6px}
+.res-exp{background:#e8f7f0;color:#176b49;border:1px solid #bfe6d3}
+.res-act{background:#ffecec;color:#9c2118;border:1px solid #f6c9c6}
+.att{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.att span{border:1px dashed var(--line-2);border-radius:8px;padding:18px 16px;font-size:12px;color:var(--sub);text-align:center;width:104px;line-height:1.5}
+.att span i{font-style:normal;font-size:22px;display:block;margin-bottom:5px}
+.timeline{list-style:none;position:relative;padding-left:18px}
+.timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.timeline li{position:relative;padding:0 0 15px 14px;font-size:13px}
+.timeline li::before{content:'';position:absolute;left:-18px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--blue);border:2px solid #fff;box-shadow:0 0 0 2px var(--blue-bg)}
+.timeline li.muted2::before{background:#aab0be;box-shadow:0 0 0 2px var(--line)}
+.timeline .t{color:var(--sub);font-size:11.5px;font-family:var(--mono)}
+.dr-ft{background:var(--card);border-top:1px solid var(--line);padding:13px 22px;display:flex;gap:10px}
+.btn--ai{background:linear-gradient(135deg,#6a5cff,#9b5cff);color:#fff}
+.btn--ai:hover{filter:brightness(1.07)}
+.btn--ok{background:var(--ok);color:#fff}
+.btn--ok:hover{filter:brightness(1.07)}
+
+@media(max-width:1280px){.layout{grid-template-columns:180px 1fr}.ai{display:none}}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:none}.stats{grid-template-columns:repeat(2,1fr)}.col-hide{display:none}}
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <b>作品集演示</b> 本页面为 Byosoft.QA 工具链的高保真原型，模拟 TAPD 缺陷管理平台 + AI 测试助手，数据均为脱敏演示数据
+  <a href="../sigma.html">← 返回 SIGMA</a>
+</div>
+
+<header class="topbar">
+  <div class="logo"><i>T</i>TAPD</div>
+  <div class="proj-switch">星陨战线 MMO <span style="font-size:11px">▾</span></div>
+  <div class="top-search">🔍<input placeholder="搜索缺陷编号 / 标题 / 模块…"></div>
+  <div class="top-ic">＋</div>
+  <div class="top-ic">🔔<em></em></div>
+  <div class="avatar">张</div>
+</header>
+
+<div class="layout">
+  <!-- 左导航 -->
+  <nav class="side">
+    <h4>协作</h4>
+    <div class="nav">
+      <a><i>▦</i>工作台</a>
+      <a><i>📋</i>需求<small>46</small></a>
+      <a><i>🔁</i>迭代<small>4</small></a>
+      <a><i>✓</i>任务<small>128</small></a>
+      <a class="on"><i>🐞</i>缺陷<small id="nav-cnt">27</small></a>
+    </div>
+    <h4>质量</h4>
+    <div class="nav">
+      <a><i>🧪</i>测试用例<small>1832</small></a>
+      <a><i>📅</i>测试计划</a>
+      <a><i>📊</i>质量报表</a>
+    </div>
+    <h4>知识</h4>
+    <div class="nav">
+      <a><i>📚</i>Wiki</a>
+      <a><i>⚙️</i>项目设置</a>
+    </div>
+  </nav>
+
+  <!-- 主区域 -->
+  <main class="main">
+    <div class="crumb">星陨战线 MMO / 迭代 Sprint 24（09.15-09.27）/ <b>缺陷</b></div>
+    <div class="page-hd">
+      <h1>缺陷</h1>
+      <span class="cnt" id="page-cnt">共 27 条</span>
+      <button class="btn btn--blue">＋ 新建缺陷</button>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="filter-bar">
+      <div class="tab on" data-st="all">全部<small id="c-all">0</small></div>
+      <div class="tab" data-st="new">待处理<small id="c-new">0</small></div>
+      <div class="tab" data-st="doing">处理中<small id="c-doing">0</small></div>
+      <div class="tab" data-st="resolved">已解决<small id="c-resolved">0</small></div>
+      <div class="tab" data-st="closed">已关闭<small id="c-closed">0</small></div>
+      <div class="filter-tools">
+        <input id="kw" placeholder="筛选标题 / 编号 / 模块">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:96px">编号</th>
+          <th>缺陷标题</th>
+          <th style="width:78px">严重</th>
+          <th style="width:82px">优先级</th>
+          <th style="width:96px">状态</th>
+          <th class="col-hide" style="width:120px">模块</th>
+          <th class="col-hide" style="width:110px">处理人</th>
+          <th class="col-hide" style="width:96px">创建</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="empty" style="display:none">没有符合条件的缺陷 🐞</div>
+    </div>
+  </main>
+
+  <!-- AI 助手 -->
+  <aside class="ai">
+    <div class="ai-hd">
+      <div class="ai-ico">✦</div>
+      <div><b>AI 测试助手</b><span>缺陷分诊 · 日报生成 · 风险预警</span></div>
+      <span class="beta">BETA</span>
+    </div>
+    <div class="ai-body" id="aiBody"></div>
+    <div class="ai-in">
+      <input id="aiInput" placeholder="问我缺陷分析、分诊建议、日报…">
+      <button id="aiSend">➤</button>
+    </div>
+  </aside>
+</div>
+
+<!-- 详情抽屉 -->
+<div class="mask" id="mask"></div>
+<aside class="drawer" id="drawer">
+  <div class="dr-hd">
+    <button class="x" id="drClose">✕</button>
+    <div class="dr-id" id="drId"></div>
+    <h2 id="drTitle"></h2>
+    <div class="dr-tags" id="drTags"></div>
+  </div>
+  <div class="dr-body">
+    <div class="dr-card">
+      <h3>基本信息</h3>
+      <dl class="kv" id="drKv"></dl>
+    </div>
+    <div class="dr-card">
+      <h3>复现步骤</h3>
+      <ol class="steps" id="drSteps"></ol>
+      <div class="res-box res-exp" id="drExpect"></div>
+      <div class="res-box res-act" id="drActual" style="margin-top:9px"></div>
+    </div>
+    <div class="dr-card">
+      <h3>附件与日志</h3>
+      <div class="att">
+        <span><i>🎬</i>录屏 00:42<br>iOS17-iP15</span>
+        <span><i>📄</i>crash-3391.log<br>182 KB</span>
+        <span><i>🖼️</i>截图 ×3</span>
+        <span><i>📈</i>性能曲线.csv</span>
+      </div>
+    </div>
+    <div class="dr-card">
+      <h3>活动记录</h3>
+      <ul class="timeline" id="drTimeline"></ul>
+    </div>
+  </div>
+  <div class="dr-ft">
+    <button class="btn btn--ai" id="btnTriage">✦ AI 智能分诊</button>
+    <button class="btn btn--ok" id="btnResolve">标记已解决</button>
+    <button class="btn btn--ghost" id="btnAssign">转派</button>
+  </div>
+</aside>
+
+<script>
+/* ================= 演示数据（脱敏） ================= */
+const SEV=[['sev-0','致命'],['sev-1','严重'],['sev-2','一般'],['sev-3','提示'],['sev-4','建议']];
+const ST={new:['st-new','待处理'],doing:['st-doing','处理中'],resolved:['st-resolved','已解决'],closed:['st-closed','已关闭']};
+const BUGS=[
+ {id:'BUG-1042',t:'iOS 17 登录后点击「开始游戏」必现闪退（SIGABRT）',s:0,p:'P0',st:'new',mod:'客户端·登录',rep:'李楠',own:'未指派',d:'09-20 10:22',
+  dev:'iPhone 15 Pro / iOS 17.4 / 包体 v2.4.1(8831)',
+  steps:['使用正式账号登录，等待加载到主城','点击「开始游戏」匹配入口','在二级确认弹窗点「确认」','约 1.2s 后应用闪退回到桌面'],
+  exp:'正常进入匹配队列，停留在组队准备界面。',act:'应用整体闪退，crash 栈顶为 LoginTokenStore.write 空指针，崩溃率 100%（5/5）。',
+  tl:[['09-20 10:22','李楠 提交缺陷，严重=致命',''],['09-20 10:40','自动化回归流水线复现成功，已挂 crash log','muted2']]},
+ {id:'BUG-1041',t:'法师「冰霜新星」暴击伤害异常，实际伤害约为预期 2 倍',s:1,p:'P1',st:'doing',mod:'战斗·技能',rep:'王琦',own:'陈默',d:'09-20 09:48',
+  dev:'Android 全机型 / v2.4.1',
+  steps:['法师装备 0 暴击加成测试套装','对训练假人释放「冰霜新星」','对比伤害面板数值与公式表'],
+  exp:'暴击伤害 = 基础 × 1.5 = 1520。',act:'实际暴击伤害 3040，疑似暴击倍率被二次乘算，影响竞技场公平性。',
+  tl:[['09-20 09:48','王琦 提交缺陷，严重=严重',''],['09-20 10:05','陈默 认领，初步定位 CritMultiplier 叠加','muted2']]},
+ {id:'BUG-1040',t:'充值 648 元「星辉补给包」成功扣款后道具延迟到账',s:1,p:'P1',st:'doing',mod:'支付·商城',rep:'赵雪',own:'高翔',d:'09-19 21:13',
+  dev:'iOS / Android 均现 / 微信支付',
+  steps:['商城购买「星辉补给包」¥648','完成微信支付并收到扣款短信','返回游戏等待发货'],
+  exp:'支付成功后 10s 内道具与钻石到账并弹出发货提示。',act:'约 40% 订单延迟 2~5 分钟，补偿流程被重复触发，客诉 12 起。',
+  tl:[['09-19 21:13','赵雪 提交缺陷',''],['09-19 22:02','高翔 认领，排查发货回调超时','muted2']]},
+ {id:'BUG-1039',t:'副本「沉没神殿」Boss 二阶段可卡出空气墙脱离战斗区域',s:1,p:'P1',st:'new',mod:'副本·场景',rep:'李楠',own:'未指派',d:'09-19 18:40',
+  dev:'全平台 / v2.4.1',
+  steps:['组队进入「沉没神殿」（困难）','Boss 血量降至 50% 进入二阶段','在东南角石柱与船体夹角连续翻滚 3 次'],
+  exp:'角色被空气墙阻挡，始终在战斗区域内。',act:'角色穿出气墙后 Boss 脱战回血，可重复白嫖大招 CD，存在刷本风险。',
+  tl:[['09-19 18:40','李楠 提交缺陷，附路线录屏','']]},
+ {id:'BUG-1035',t:'大世界同屏 40+ 玩家时帧率从 60 跌至 22fps（发热降频）',s:1,p:'P1',st:'doing',mod:'性能·渲染',rep:'周晨',own:'陈默',d:'09-18 16:05',
+  dev:'iPhone 13 / Android 骁龙 8 Gen1',
+  steps:['晚高峰进入 1 线主城广场（同屏约 45 人）','开启 60fps + 高画质','静置观察 10 分钟帧率与温度'],
+  exp:'稳定 ≥ 55fps，机背温度 ≤ 42℃。',act:'2 分钟后降至 31fps，8 分钟后 22fps，温度 47.3℃，掉帧伴随技能输入延迟。',
+  tl:[['09-18 16:05','周晨 提交性能缺陷',''],['09-18 17:20','陈默 认领，怀疑骨骼合批失效','muted2'],['09-20 09:00','已超期 2 天，助手已标记风险','']]},
+ {id:'BUG-1037',t:'PvP 竞技场匹配到离线玩家，战斗无法结算且扣星',s:2,p:'P2',st:'new',mod:'PvP·匹配',rep:'王琦',own:'未指派',d:'09-19 14:22',
+  dev:'全平台 / v2.4.1',
+  steps:['单人排位点击匹配','对手加载完成后原地不动 60s','对局倒计时结束未触发结算'],
+  exp:'对手离线应在 30s 内判负或本局不计分。',act:'对局卡死，玩家被强制退出后扣除 1 星，已出现 7 例同类反馈。',
+  tl:[['09-19 14:22','王琦 提交缺陷','']]},
+ {id:'BUG-1034',t:'公会会长转让后成员权限列表未即时刷新',s:2,p:'P2',st:'resolved',mod:'公会·权限',rep:'赵雪',own:'林可',d:'09-18 11:30',
+  dev:'全平台 / v2.4.1',
+  steps:['会长 A 将会长转让给成员 B','B 留在公会管理界面不重进','查看管理成员按钮权限'],
+  exp:'B 即时获得会长权限，A 降为普通成员。',act:'需退出公会界面重进一次权限才刷新。',
+  tl:[['09-18 11:30','赵雪 提交缺陷',''],['09-19 15:40','林可 提交修复，等待回归','muted2']]},
+ {id:'BUG-1030',t:'每日任务「完成 3 场对局」进度偶发不增加',s:2,p:'P2',st:'resolved',mod:'任务·日常',rep:'周晨',own:'高翔',d:'09-17 20:14',
+  dev:'Android / v2.4.1',
+  steps:['连续完成 3 场 5v5 对局（其中 1 场跨天 00:02）','返回日常任务面板查看进度'],
+  exp:'跨天对局计入次日进度，当日进度准确为 2/3。',act:'跨天对局被计入前一天导致进度显示错乱，重登后恢复。',
+  tl:[['09-17 20:14','周晨 提交缺陷',''],['09-19 11:08','高翔 修复时区切分逻辑','muted2']]},
+ {id:'BUG-1032',t:'设置界面「高帧率模式」开关文案被截断为「高帧率模…」',s:3,p:'P3',st:'new',mod:'UI·设置',rep:'孙怡',own:'未指派',d:'09-19 10:02',
+  dev:'iPhone SE2（小屏）',
+  steps:['使用 4.7 英寸小屏机型','进入 设置 → 画面','观察高帧率开关文案'],
+  exp:'文案完整显示或自适应缩小字号。',act:'文案截断，开关含义不明确。',
+  tl:[['09-19 10:02','孙怡 提交缺陷','']]},
+ {id:'BUG-1028',t:'Loading 页 Tips 错别字：「装备曾强」应为「装备强化」',s:3,p:'P3',st:'closed',mod:'UI·文案',rep:'孙怡',own:'林可',d:'09-16 15:46',
+  dev:'全平台',
+  steps:['重启游戏进入加载页','连续切换 3 条 Tips','定位含「曾强」的一条'],
+  exp:'显示「装备强化可大幅提升战力」。',act:'显示为「装备曾强」。',
+  tl:[['09-16 15:46','孙怡 提交缺陷',''],['09-17 09:30','林可 修复并合入','muted2'],['09-18 14:00','回归验证通过，关闭','muted2']]},
+ {id:'BUG-1025',t:'弱网下背包道具拖动排序偶发回滚到旧位置',s:2,p:'P2',st:'closed',mod:'背包·交互',rep:'周晨',own:'高翔',d:'09-15 19:38',dev:'弱网 200ms/20%丢包',
+  steps:['弱网工具模拟 200ms 延迟 + 20% 丢包','背包内拖动道具交换位置','快速连续拖动 5 次'],
+  exp:'所有排序最终与服务端同步成功。',act:'约 30% 概率排序回滚，无失败提示。',
+  tl:[['09-15 19:38','周晨 提交缺陷',''],['09-17 18:20','修复乐观锁冲突重试','muted2'],['09-19 10:00','回归通过关闭','muted2']]},
+];
+const COLORS=['#2b7fff','#22a06b','#f56a00','#8b5cf6','#e02e24','#0ea5e9','#f59e0b'];
+const initials=n=>n[0];
+let curSt='all', curBug=null;
+
+/* ================= 统计 + 列表 ================= */
+function counts(){
+  const c={all:BUGS.length,new:0,doing:0,resolved:0,closed:0};
+  BUGS.forEach(b=>c[b.st]++);
+  return c;
+}
+function renderStats(){
+  const c=counts();
+  const fatalOpen=BUGS.filter(b=>b.s===0&&(b.st==='new'||b.st==='doing')).length;
+  const data=[
+    ['待处理',c.new,'#f56a00','<span class="up">▲ 2</span> 较昨日'],
+    ['处理中',c.doing,'#2b7fff','平均修复 4.2h'],
+    ['已解决',c.resolved,'#22a06b','<span class="down">▼ 待回归</span>'],
+    ['已关闭',c.closed,'#98a0b0','本周闭环率 92%'],
+    ['致命未解决',fatalOpen,'#e02e24',fatalOpen?'<span class="up">需立即处理</span>':'<span class="down">清零 👏</span>'],
+  ];
+  document.getElementById('stats').innerHTML=data.map(d=>`
+    <div class="stat"><div class="n" style="color:${d[2]}">${d[1]}</div><div class="l">${d[0]}</div><div class="d" style="color:#9aa1b0">${d[3]}</div></div>`).join('');
+  ['all','new','doing','resolved','closed'].forEach(k=>document.getElementById('c-'+k).textContent=c[k]);
+  document.getElementById('nav-cnt').textContent=c.all;
+  document.getElementById('page-cnt').textContent='共 '+c.all+' 条';
+}
+function renderRows(){
+  const kw=document.getElementById('kw').value.trim().toLowerCase();
+  const list=BUGS.filter(b=>(curSt==='all'||b.st===curSt)&&
+    (!kw||(b.id+b.t+b.mod+b.own).toLowerCase().includes(kw)));
+  document.getElementById('tbody').innerHTML=list.map(b=>{
+    const ci=BUGS.indexOf(b);
+    return `<tr data-i="${ci}">
+      <td><span class="bug-id">${b.id}</span></td>
+      <td><span class="bug-title">${b.t}</span></td>
+      <td><span class="tag ${SEV[b.s][0]}">${SEV[b.s][1]}</span></td>
+      <td><span class="pri pri-${b.p}">${b.p}</span></td>
+      <td><span class="st ${ST[b.st][0]}">${ST[b.st][1]}</span></td>
+      <td class="muted col-hide">${b.mod}</td>
+      <td class="col-hide"><div class="owner"><span class="ava" style="background:${b.own==='未指派'?'#aab0be':COLORS[b.own.charCodeAt(0)%COLORS.length]}">${initials(b.own)}</span><span style="font-size:12.5px">${b.own}</span></div></td>
+      <td class="muted col-hide">${b.d.slice(5,11)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('empty').style.display=list.length?'none':'block';
+  document.querySelectorAll('#tbody tr').forEach(tr=>tr.onclick=()=>openDrawer(BUGS[tr.dataset.i]));
+}
+renderStats();renderRows();
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');curSt=t.dataset.st;renderRows();
+});
+document.getElementById('kw').oninput=renderRows;
+
+/* ================= 详情抽屉 ================= */
+const $=id=>document.getElementById(id);
+function openDrawer(b){
+  curBug=b;
+  $('drId').textContent=b.id+' · '+b.dev;
+  $('drTitle').textContent=b.t;
+  $('drTags').innerHTML=`<span class="tag ${SEV[b.s][0]}">严重：${SEV[b.s][1]}</span>
+    <span class="pri pri-${b.p}" style="font-size:13px">优先级 ${b.p}</span>
+    <span class="st ${ST[b.st][0]}">${ST[b.st][1]}</span>`;
+  $('drKv').innerHTML=`
+    <dt>所属模块</dt><dd>${b.mod}</dd>
+    <dt>报告人</dt><dd>${b.rep}</dd>
+    <dt>处理人</dt><dd id="drOwn">${b.own}</dd>
+    <dt>创建时间</dt><dd style="font-family:var(--mono);font-size:12.5px">${b.d}</dd>
+    <dt>复现概率</dt><dd>必现 / 高概率</dd>`;
+  $('drSteps').innerHTML=b.steps.map(s=>`<li>${s}</li>`).join('');
+  $('drExpect').innerHTML='<b>预期结果：</b>'+b.exp;
+  $('drActual').innerHTML='<b>实际结果：</b>'+b.act;
+  $('drTimeline').innerHTML=b.tl.map(x=>`<li class="${x[2]}"><div>${x[1]}</div><div class="t">${x[0]}</div></li>`).join('');
+  $('btnResolve').style.display=b.st==='resolved'||b.st==='closed'?'none':'';
+  $('drawer').classList.add('show');$('mask').classList.add('show');
+}
+function closeDrawer(){$('drawer').classList.remove('show');$('mask').classList.remove('show')}
+$('drClose').onclick=closeDrawer;$('mask').onclick=closeDrawer;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+$('btnResolve').onclick=()=>{
+  if(!curBug)return;
+  curBug.st='resolved';curBug.own=curBug.own==='未指派'?'张屹':curBug.own;
+  curBug.tl.push([new Date().toISOString().slice(5,16).replace('T',' '),'演示：标记为已解决，等待回归验证','']);
+  renderStats();renderRows();openDrawer(curBug);
+  addBot(tplResolve(curBug));
+};
+
+/* ================= AI 助手 ================= */
+const aiBody=$('aiBody');
+function addUser(t){
+  const d=document.createElement('div');d.className='msg user';d.textContent=t;
+  aiBody.appendChild(d);aiBody.scrollTop=aiBody.scrollHeight;
+}
+function addBot(html){
+  const typing=document.createElement('div');typing.className='msg bot';
+  typing.innerHTML='<div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>';
+  aiBody.appendChild(typing);aiBody.scrollTop=aiBody.scrollHeight;
+  setTimeout(()=>{typing.querySelector('.bubble').innerHTML=html;aiBody.scrollTop=aiBody.scrollHeight;},650+Math.random()*400);
+}
+function tplTriage(b){
+  return `<div class="ttl">✦ 智能分诊完成 · ${b.id}</div>
+  <ul>
+    <li><b>根因推测：</b>${b.s===0?'登录态 Token 在 iOS17 Keychain 写入存在竞态，开始游戏时鉴权读到空值触发空指针崩溃（栈顶 LoginTokenStore.write）':b.mod.includes('战斗')?'暴击倍率 CritMultiplier 在被动技能结算时被二次乘算':b.mod.includes('性能')?'同屏多人时角色骨骼合批失效，Draw Call 由 280 飙升至 1900+':'结合历史相似缺陷，疑似状态同步时序与服务端回调竞态'}</li>
+    <li><b>建议优先级：</b><span class="${b.p==='P0'||b.p==='P1'?'risk':'ok2'}">${b.p} · ${b.p==='P0'?'阻塞主流程，建议 2h 内介入':b.p==='P1'?'本迭代必须修复':'排入下个迭代'}</span></li>
+    <li><b>推荐处理人：</b>${b.mod.includes('战斗')||b.mod.includes('性能')?'陈默（近 30 天同类缺陷 6 个，平均修复 4.2h）':b.mod.includes('支付')||b.mod.includes('任务')||b.mod.includes('背包')?'高翔（支付/服务端方向）':'张屹（客户端通用）'}，匹配度 94%</li>
+    <li><b>相似缺陷：</b><span class="mono">BUG-0987</span>（同崩溃签名，已关闭）、<span class="mono">BUG-0972</span></li>
+    <li><b>回归建议：</b>补充用例 <span class="mono">TC-2281 / TC-2282</span>，纳入冒烟集，自动化流水线增加该路径断言</li>
+  </ul>
+  <div class="chips"><span class="chip" data-act="assign">一键指派给推荐人</span><span class="chip" data-act="case">生成测试用例草稿</span></div>`;
+}
+function tplResolve(b){
+  return `<div class="ttl">✅ 状态已流转</div>
+  <ul><li><b>${b.id}</b> 已标记为 <span class="ok2">已解决</span>，处理人：${b.own}</li>
+  <li>已自动通知报告人 <b>${b.rep}</b> 安排回归验证；超过 24h 未验证将自动提醒</li>
+  <li>建议回归通过后关联迭代 <span class="mono">Sprint 24</span> 并关闭缺陷</li></ul>`;
+}
+function tplReport(){
+  const c=counts();
+  return `<div class="ttl">📊 今日缺陷日报 · 09-20</div>
+  <ul>
+    <li>新增 <b>3</b> / 解决 <b>1</b> / 关闭 <b>0</b>，当前未解决 <b>${c.new+c.doing}</b></li>
+    <li class="risk">致命 1：BUG-1042 iOS 登录闪退（待处理），建议立即升级为 P0 并拉作战群</li>
+    <li>严重 3：伤害翻倍 BUG-1041、支付延迟 BUG-1040、帧率暴跌 BUG-1035（均处理中）</li>
+    <li class="risk">风险：BUG-1035 已超期 2 天，建议今日站会同步修复进展</li>
+    <li>正向：公会权限、日常任务 2 个缺陷已修复待回归，闭环率走势 ↑</li>
+  </ul>
+  <div class="chips"><span class="chip" data-act="standup">生成站会口播稿</span><span class="chip" data-act="mail">发送日报到测试组</span></div>`;
+}
+function tplAssess(){
+  return `<div class="ttl">🧭 严重程度评估 · BUG-1035</div>
+  <ul>
+    <li><b>影响面：</b>晚高峰全量中高端机型，覆盖约 <b>62%</b> DAU 机型组合</li>
+    <li><b>业务损失：</b>帧率 22fps + 输入延迟直接造成对局失败与差评，近 7 日相关差评 9 条</li>
+    <li><b>规避手段：</b>无（玩家无法自行缓解）</li>
+    <li><b>评估结论：</b><span class="risk">严重（Major）</span>，若发布前仍未解决建议升级为发布阻塞项</li>
+  </ul>`;
+}
+const WELCOME=`<div class="ttl">✦ 你好，我是 AI 测试助手</div>
+  我已接入本迭代的缺陷、用例与构建数据，可以帮你做智能分诊、严重度评估、日报/周报生成与风险预警。
+  <div class="chips">
+    <span class="chip" data-q="分诊 BUG-1042">🚨 分诊致命缺陷 BUG-1042</span>
+    <span class="chip" data-q="生成本周缺陷日报">📊 生成本周缺陷日报</span>
+    <span class="chip" data-q="评估 BUG-1035 严重程度">🧭 评估性能缺陷严重度</span>
+  </div>`;
+addBot(WELCOME);
+
+function answer(q){
+  addUser(q);
+  const m=q.match(/BUG-(\d+)/);
+  if(/分诊|分析/.test(q)&&m){
+    const b=BUGS.find(x=>x.id.endsWith(m[1]));addBot(b?tplTriage(b):'未找到该缺陷编号，请检查后重试。');
+  }else if(/日报|周报|报告/.test(q)){addBot(tplReport());
+  }else if(/评估|严重/.test(q)&&m){addBot(tplAssess());
+  }else if(/致命|闪退|P0/.test(q)){addBot(tplTriage(BUGS[0]));
+  }else{
+    addBot(`我可以帮你：<ul>
+      <li>「分诊 BUG-1042」——给出根因推测、优先级与推荐处理人</li>
+      <li>「生成本周缺陷日报」——自动汇总新增/解决/风险项</li>
+      <li>「评估 BUG-1035 严重程度」——按影响面/损失/规避手段评级</li>
+      <li>也可以直接在缺陷详情里点 <b>AI 智能分诊</b></li></ul>`);
+  }
+}
+$('aiSend').onclick=()=>{const v=$('aiInput').value.trim();if(!v)return;$('aiInput').value='';answer(v)};
+$('aiInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('aiSend').click()});
+aiBody.addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  if(c.dataset.q)answer(c.dataset.q);
+  else if(c.dataset.act==='assign'&&curBug){
+    curBug.own=curBug.mod.includes('战斗')||curBug.mod.includes('性能')?'陈默':'张屹';
+    curBug.st='doing';renderStats();renderRows();openDrawer(curBug);
+    addBot(`已将 <b>${curBug.id}</b> 指派给 <b>${curBug.own}</b>，状态流转为「处理中」，企微通知已发送 ✅`);
+  }else if(c.dataset.act==='case'){
+    addBot(`已生成 3 条用例草稿（前置/正常/边界），已写入用例库待评审：<ul>
+      <li class="mono">TC-2281 iOS17 正式账号登录→开始游戏 不闪退</li>
+      <li class="mono">TC-2282 弱网下登录态恢复后进入战斗</li>
+      <li class="mono">TC-2283 杀进程重登 Token 一致性校验</li></ul>`);
+  }else if(c.dataset.act==='standup'){
+    addBot(`站会口播稿：<ul><li>昨日新增 3，1 个致命（登录闪退）今日优先处理</li><li>支付延迟与帧率问题处理中，帧率项已超期今天给结论</li><li>2 个修复待回归，会后冒烟覆盖</li></ul>`);
+  }else if(c.dataset.act==='mail'){addBot('日报已汇总为邮件草稿，收件人：测试组邮件组（含开发/PM 抄送），点击发送前你可以再编辑 ✉️');}
+});
+$('btnTriage').onclick=()=>{if(curBug){closeDrawer();setTimeout(()=>answer('分诊 '+curBug.id),260)}};
+</script>
+</body>
+</html>

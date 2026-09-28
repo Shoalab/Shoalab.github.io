@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIGMA · 事业项目</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Caveat:wght@600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f3ef;
+  --card:#e9e7e1;
+  --card2:#dfddd6;
+  --line:rgba(26,26,24,.12);
+  --text:#1a1a18;
+  --sub:#70706a;
+  --sans:'Noto Sans SC',sans-serif;
+  --serif:'Playfair Display','Noto Serif SC',serif;
+  --mono:'JetBrains Mono',Consolas,monospace;
+  --accent:#000091;
+  --hand:'Caveat',cursive;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.75;overflow-x:hidden}
+::selection{background:#1a1a18;color:#f4f3ef}
+
+/* ========== 左右布局 ========== */
+.layout{
+  display:grid;
+  grid-template-columns:minmax(340px,420px) 1fr;
+  max-width:1500px;
+  margin:0 auto;
+  min-height:100vh;
+}
+
+/* ---- 左栏（sticky 固定） ---- */
+.side{
+  position:sticky;top:0;
+  align-self:start;
+  height:100vh;
+  padding:42px 48px 36px;
+  border-right:1px solid var(--line);
+  overflow:hidden;
+}
+.brand{position:relative}
+.brand__mark{
+  width:58px;height:58px;border-radius:4px;
+  background:#1a1a18;color:#f4f3ef;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-weight:700;font-size:24px;font-style:italic;
+  margin-bottom:22px;
+  box-shadow:0 10px 24px rgba(26,26,24,.14);
+}
+.brand__name{
+  font-family:var(--serif);
+  font-size:clamp(40px,3.8vw,54px);
+  font-weight:700;line-height:1.05;
+  letter-spacing:.01em;
+}
+.brand__name em{display:block;font-style:italic;color:#8a897f}
+.brand__sub{
+  font-size:15px;color:var(--sub);
+  margin-top:10px;font-weight:500;
+}
+.brand__sub .hand{
+  font-family:var(--hand);font-size:1.25em;color:#1a1a18;
+  margin-left:6px;transform:rotate(-4deg);display:inline-block;
+}
+
+/* 页签指示器 */
+.toc{display:flex;flex-direction:column;gap:1px;margin-top:24px}
+.toc a{
+  display:flex;align-items:center;gap:12px;
+  text-decoration:none;color:var(--sub);
+  font-size:13px;font-weight:500;
+  padding:5px 12px;border-radius:6px;
+  transition:.25s;border:1px solid transparent;
+}
+.toc a i{
+  font-style:normal;font-family:var(--mono);font-size:11px;
+  letter-spacing:.06em;
+  color:var(--sub);opacity:.6;transition:.25s;min-width:20px;
+}
+.toc a em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toc a:hover{color:var(--text);background:rgba(26,26,24,.05)}
+.toc a.on{
+  color:#000;background:#fff;
+  border-color:rgba(26,26,24,.14);
+  box-shadow:0 4px 14px rgba(26,26,24,.06);
+  font-weight:700;
+}
+.toc a.on i{color:#000;opacity:.85}
+
+/* ---- 右栏：滚动项目流 ---- */
+.feed{
+  padding:44px clamp(20px,3.6vw,56px) 56px;
+  display:flex;flex-direction:column;gap:clamp(38px,5.5vh,64px);
+}
+.entry{
+  background:var(--card);
+  border:1px solid rgba(26,26,24,.07);
+  border-radius:10px;
+  padding:14px 14px 0;
+  scroll-margin-top:20px;
+  transition:box-shadow .35s;
+}
+.entry:hover{box-shadow:0 22px 48px rgba(26,26,24,.10)}
+.entry__media{
+  position:relative;aspect-ratio:16/9;
+  overflow:hidden;border-radius:6px;
+  background:var(--card2);
+}
+/* 大编号水印：mix-blend-mode 叠加，呼应 hermes 的图片混合手法 */
+.entry__media::after{
+  content:attr(data-num);
+  position:absolute;right:10px;bottom:-18px;z-index:1;
+  font-family:var(--mono);font-weight:700;font-size:92px;line-height:1;
+  letter-spacing:-.04em;
+  color:#fff;opacity:.32;mix-blend-mode:overlay;
+  pointer-events:none;
+}
+.entry__media img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:blur(14px) saturate(.85);opacity:.35;transform:scale(1.07);
+  transition:filter 1.1s cubic-bezier(.2,.7,.3,1),opacity 1.1s,transform 1.1s;
+}
+.entry.active .entry__media img{
+  filter:blur(0) saturate(1);opacity:1;transform:scale(1);
+  animation:kenburns 16s ease-in-out infinite alternate;
+}
+@keyframes kenburns{
+  from{transform:scale(1)}
+  to{transform:scale(1.06) translate(.8%,-.8%)}
+}
+/* 资料完善后把 <img> 换成
+   <video src="xx.mp4" autoplay muted loop playsinline></video> 即为真动图 */
+.entry__idx{
+  position:absolute;top:14px;left:14px;z-index:2;
+  font-family:var(--mono);font-style:normal;font-weight:500;font-size:12px;
+  letter-spacing:.08em;
+  color:#fff;background:rgba(26,26,24,.82);
+  border-radius:2px;padding:4px 12px;
+}
+.entry__status{
+  position:absolute;top:14px;right:14px;z-index:2;
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.08em;
+  color:var(--accent);
+  background:rgba(244,243,239,.94);
+  border:1px solid rgba(26,26,24,.14);
+  border-radius:2px;padding:3px 11px;
+}
+.entry__body{padding:22px 12px 26px}
+.entry__meta{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.entry__tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent);font-weight:500}
+.entry__name{
+  font-family:var(--serif);
+  font-size:clamp(26px,2.7vw,36px);font-weight:700;line-height:1.15;
+}
+.entry__name em{
+  display:block;font-style:normal;
+  font-family:var(--sans);font-weight:500;font-size:14px;
+  color:var(--sub);letter-spacing:.03em;margin-top:7px;
+}
+.entry__desc{color:var(--sub);font-size:14.5px;margin-top:8px}
+.entry__tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.tool-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  text-decoration:none;font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:.05em;
+  color:var(--text);background:#fff;
+  border:1px solid rgba(26,26,24,.18);
+  border-radius:5px;padding:9px 18px;transition:.22s;
+}
+.tool-btn i{font-style:normal;transition:transform .22s;color:var(--sub)}
+.tool-btn:hover{background:#1a1a18;color:#f4f3ef;border-color:#1a1a18}
+.tool-btn:hover i{transform:translateX(3px);color:#f4f3ef}
+
+/* ==== Cartesius ViMow 俯视割草动画 ==== */
+.mow{display:block;width:100%;height:100%;
+  filter:blur(14px);opacity:.35;transform:scale(1.07);
+  transition:filter 1.1s cubic-bezier(.2,.7,.3,1),opacity 1.1s,transform 1.1s}
+.entry.active .mow{filter:none;opacity:1;transform:none}
+.entry .mow .an{animation-play-state:paused}
+.entry.active .mow .an{animation-play-state:running}
+.mow-robot{animation:mowRobot 9s linear infinite}
+.mow-trail{transform-box:fill-box;transform-origin:100% 50%;animation:mowTrail 9s linear infinite}
+.mow-shake{transform-box:fill-box;transform-origin:center;animation:mowShake .5s ease-in-out infinite alternate}
+.mow-spin{transform-box:fill-box;transform-origin:center;animation:mowSpin 4s linear infinite}
+.mow-chip{animation:mowChip 1.1s linear infinite}
+@keyframes mowRobot{
+  0%  {opacity:1;transform:translate(1620px,340px);animation-timing-function:cubic-bezier(.22,.65,.16,1)}
+  56% {opacity:1;transform:translate(430px,340px)}
+  90% {opacity:1;transform:translate(430px,340px);animation-timing-function:ease-in}
+  95% {opacity:0;transform:translate(430px,340px)}
+  96% {opacity:0;transform:translate(1620px,340px);animation-timing-function:ease-out}
+  100%{opacity:1;transform:translate(1620px,340px)}
+}
+@keyframes mowTrail{
+  0%  {opacity:1;transform:scaleX(0);animation-timing-function:cubic-bezier(.22,.65,.16,1)}
+  56% {opacity:1;transform:scaleX(1)}
+  90% {opacity:1;transform:scaleX(1)}
+  95% {opacity:0;transform:scaleX(1)}
+  96% {opacity:0;transform:scaleX(0);animation-timing-function:linear}
+  100%{opacity:1;transform:scaleX(0)}
+}
+@keyframes mowShake{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(1.1px) rotate(.22deg)}}
+@keyframes mowSpin{to{transform:rotate(360deg)}}
+@keyframes mowChip{0%{transform:translate(0,0);opacity:0}18%{opacity:.85}100%{transform:translate(95px,-16px);opacity:0}}
+
+/* ==== Hamuna 牛脸识别动画（手机取景器视角） ==== */
+.cam-bg{transform-box:fill-box;transform-origin:center;animation:camDrift 11s ease-in-out infinite alternate}
+@keyframes camDrift{from{transform:scale(1)}to{transform:scale(1.045) translate(-12px,9px)}}
+.cam-rec{animation:camRec 1.3s linear infinite}
+@keyframes camRec{0%,55%{opacity:1}56%,100%{opacity:.15}}
+.cam-corners{transform-box:fill-box;transform-origin:center;animation:camCorners 9s ease-out infinite}
+@keyframes camCorners{0%{opacity:0;transform:scale(1.5)}10%{opacity:1;transform:scale(1)}88%{opacity:1;transform:scale(1)}94%{opacity:0;transform:scale(1.08)}100%{opacity:0;transform:scale(1.5)}}
+.cam-scan{transform-box:fill-box;animation:camScan 9s infinite}
+@keyframes camScan{0%{opacity:0;transform:translateY(0);animation-timing-function:ease-in-out}3%{opacity:1;animation-timing-function:ease-in-out}16%{opacity:1;transform:translateY(272px);animation-timing-function:ease-in-out}32%{opacity:1;transform:translateY(0)}35%{opacity:0}100%{opacity:0;transform:translateY(0)}}
+.cam-hint{animation:camHint 9s linear infinite}
+@keyframes camHint{0%{opacity:0}3%{opacity:1}30%{opacity:1}34%{opacity:0}100%{opacity:0}}
+.cam-badge{transform-box:fill-box;transform-origin:center;animation:camBadge 9s linear infinite}
+@keyframes camBadge{0%{opacity:0;transform:scale(0)}36%{opacity:0;transform:scale(0);animation-timing-function:cubic-bezier(.34,1.56,.64,1)}42%{opacity:1;transform:scale(1.12)}45%{opacity:1;transform:scale(1)}88%{opacity:1;transform:scale(1);animation-timing-function:ease-in}93%{opacity:0;transform:scale(.55)}100%{opacity:0;transform:scale(0)}}
+.cam-card{animation:camCard 9s linear infinite}
+@keyframes camCard{0%{opacity:0;transform:translateY(130px)}40%{opacity:0;transform:translateY(130px);animation-timing-function:cubic-bezier(.2,.85,.3,1.05)}48%{opacity:1;transform:translateY(0)}88%{opacity:1;transform:translateY(0);animation-timing-function:ease-in}93%{opacity:0;transform:translateY(70px)}100%{opacity:0;transform:translateY(130px)}}
+.cam-row{transform-box:fill-box;animation:camRow 9s linear infinite}
+@keyframes camRow{0%{opacity:0;transform:translateX(-16px)}46%{opacity:0;transform:translateX(-16px)}52%{opacity:1;transform:translateX(0)}100%{opacity:1;transform:translateX(0)}}
+
+/* 关于 & 联系 */
+.block{
+  background:#fff;
+  border:1px solid rgba(26,26,24,.09);
+  border-radius:10px;padding:clamp(24px,3.2vw,42px);
+  scroll-margin-top:20px;
+}
+.block h3{font-family:var(--serif);font-size:clamp(22px,2.2vw,29px);font-weight:700;margin-bottom:12px}
+.block h3 em{font-style:italic;font-weight:500;color:#8a897f}
+.block p{color:var(--sub);font-size:14.5px}
+.block p+p{margin-top:10px}
+.block__row{display:flex;gap:11px;flex-wrap:wrap;margin-top:22px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  text-decoration:none;font-weight:600;font-size:13px;
+  font-family:var(--mono);letter-spacing:.08em;
+  border-radius:4px;padding:12px 24px;transition:.25s;
+}
+.btn--dark{background:#1a1a18;color:#f4f3ef}
+.btn--dark:hover{background:#000;transform:translateY(-2px)}
+.btn--ghost{border:1px solid rgba(26,26,24,.16);color:var(--text);background:#fff}
+.btn--ghost:hover{background:#1a1a18;color:#f4f3ef}
+
+footer{border-top:1px solid var(--line);padding:30px 0 42px;text-align:center;color:var(--sub);font-size:13px}
+footer .links{display:flex;gap:22px;justify-content:center;margin-bottom:8px;flex-wrap:wrap}
+footer a{color:var(--sub);text-decoration:none;transition:.2s}
+footer a:hover{color:#000}
+
+/* 进场动画 */
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.fade-up.in{opacity:1;transform:none}
+
+/* ========== 响应式 ========== */
+@media (max-width:1020px){
+  .layout{grid-template-columns:1fr}
+  .side{
+    position:relative;height:auto;
+    border-right:none;border-bottom:1px solid var(--line);
+    padding:42px clamp(20px,5vw,40px) 28px;
+  }
+  .toc{display:none}
+  .side__stats{margin-top:18px}
+  .feed{padding:36px clamp(14px,4vw,40px) 46px}
+}
+</style>
+</head>
+<body>
+
+<div class="layout" id="top">
+
+  <!-- ===== 左栏：固定信息面板 ===== -->
+  <aside class="side">
+    <div class="brand">
+      <div class="brand__mark">S</div>
+      <h1 class="brand__name">Sigma <em>事业项目</em></h1>
+      <div class="brand__sub">事业项目与成果沉淀<span class="hand">Sigma Showcase</span></div>
+      <nav class="toc" id="toc"></nav>
+    </div>
+  </aside>
+
+  <!-- ===== 右栏：滚动项目流（滚到即呈现高清动图） ===== -->
+  <main class="feed" id="feed"></main>
+</div>
+
+<footer>
+  <div class="links">
+    <a href="../../index.html">George Zhang · 主页</a>
+    <a href="../atlas/atlas.html">ATLAS</a>
+    <a href="../orion/orion.html">ORION</a>
+    <a href="#top">SIGMA</a>
+  </div>
+  <div>© 2026 George Zhang · SIGMA Showcase</div>
+</footer>
+
+<script>
+/* ===== 企业项目数据：tools 中配置工具入口按钮（label/href），有资料后再补详情页 href ===== */
+const PROJECTS = [
+  { idx:'01', name:'牛只特征识别与智慧监管系统', en:'Hamuna.AI', tag:'AI · 智慧畜牧', href:'', anim:'cow',
+    desc:'面向畜牧场景的 AI 视觉系统：牛只个体特征识别、行为监测与数字化监管，助力牧场智能化管理。',
+    tools:[{label:'活体资产管理', href:'hamuna/hawkeye.html'}] },
+  { idx:'02', name:'智能割草机器人与场景解决方案', en:'Cartesius.BOT', tag:'机器人 · 智慧园林', href:'', anim:'mow',
+    desc:'面向家庭与商用草坪的智能割草机器人，涵盖自主导航、边界感知与场景化解决方案。' },
+  { idx:'03', name:'科创企业投融资顾问及赋能平台', en:'Tsinghua.FA', tag:'FA · 投融资顾问', href:'',
+    desc:'面向科创企业的财务顾问（FA）工作：投融资顾问、行业研究、材料梳理与交易全流程支持。' },
+  { idx:'04', name:'即时零售履约与调度枢纽', en:'Jike.HUB', tag:'即时零售', href:'',
+    desc:'连接门店、骑手与用户的即时零售系统：订单聚合、智能调度与履约全链路管理。',
+    tools:[{label:'履约中心', href:'jike/fulfill.html'}] },
+  { idx:'05', name:'餐饮食材供应链与食杂零售平台', en:'Kuailv.SUP', tag:'供应链平台', href:'',
+    desc:'覆盖餐饮食材采购、仓储与配送的一站式供应链平台，服务食杂零售与 B 端餐饮客户。' },
+  { idx:'06', name:'游戏测试与质量保障服务', en:'Byosoft.QA', tag:'游戏测试 · QA', href:'',
+    desc:'面向游戏产品的测试与质量保障服务：功能、性能、安全测试与测试工具链建设。',
+    tools:[{label:'缺陷管理', href:'byosoft/tapd.html'}] },
+  { idx:'07', name:'企业项目 · 待定', en:'Project Seven',  tag:'CLASSIFIED', href:'',
+    desc:'项目资料整理中，将围绕项目背景、我的角色、技术方案与交付成果四个维度展开。' },
+  { idx:'08', name:'企业项目 · 待定', en:'Project Eight', tag:'CLASSIFIED', href:'',
+    desc:'项目资料整理中，将围绕项目背景、我的角色、技术方案与交付成果四个维度展开。' },
+];
+/* 高清媒体（现为占位生成图；未来替换为项目实拍 / 录屏 GIF / MP4） */
+const MEDIA = [
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=dairy%20farm%20with%20cattle%2C%20computer%20vision%20detection%20boxes%20identifying%20each%20cow%2C%20smart%20farming%20AI%20technology%2C%20golden%20hour%20light%2C%20photorealistic&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=robotic%20lawn%20mower%20on%20perfectly%20trimmed%20green%20lawn%2C%20modern%20smart%20garden%20technology%2C%20clean%20design%2C%20bright%20daylight%2C%20photorealistic&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20bright%20office%20desk%20with%20laptop%20showing%20charts%2C%20printed%20reports%20and%20a%20cup%20of%20coffee%2C%20purple%20stationery%20accent%2C%20clean%20workspace%20near%20window%2C%20soft%20daylight%2C%20photorealistic&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=food%20delivery%20rider%20with%20insulated%20backpack%20riding%20through%20city%20street%20at%20dusk%2C%20smartphone%20order%20app%2C%20dynamic%20urban%20logistics%2C%20photorealistic&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=fresh%20food%20supply%20chain%20warehouse%2C%20crates%20of%20vegetables%20and%20cold%20chain%20logistics%2C%20clean%20modern%20industrial%20interior%2C%20photorealistic&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=game%20testing%20workstation%20with%20multiple%20monitors%20showing%20game%20scenes%20and%20bug%20tracking%20dashboard%2C%20dark%20professional%20room%2C%20photorealistic&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=abstract%20dark%20texture%20with%20subtle%20grid%20lines%2C%20minimal%20placeholder%20visual%2C%20elegant%20monochrome&image_size=landscape_16_9',
+  'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=abstract%20dark%20texture%20with%20subtle%20grid%20lines%2C%20minimal%20placeholder%20visual%2C%20elegant%20monochrome&image_size=landscape_16_9',
+];
+
+/* Cartesius ViMow 俯视动画场景：机器人右进→左停，身后留下割草痕迹 */
+function mowScene(){
+  return `<svg class="mow" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-label="ViMow 俯视割草动画">
+  <defs>
+    <linearGradient id="grassG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5aa64d"/><stop offset=".55" stop-color="#478e3c"/><stop offset="1" stop-color="#3a7a32"/>
+    </linearGradient>
+    <pattern id="grassT" width="52" height="52" patternUnits="userSpaceOnUse">
+      <path d="M8 44l4-14M20 40l3-12M34 46l4-13M45 38l3-10" stroke="#2c6527" stroke-width="1.6" opacity=".4" fill="none"/>
+      <path d="M14 12l3-9M40 18l3-8" stroke="#79c465" stroke-width="1.4" opacity=".35" fill="none"/>
+    </pattern>
+    <pattern id="mowP" width="80" height="30" patternUnits="userSpaceOnUse">
+      <rect width="80" height="30" fill="#83bd60"/>
+      <rect y="27" width="80" height="3" fill="#6da74e"/>
+      <rect y="13" width="80" height="1.6" fill="#8fc76c" opacity=".7"/>
+    </pattern>
+    <filter id="soft3" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="soft8" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="soft36" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="36"/></filter>
+  </defs>
+
+  <!-- 草地背景 -->
+  <rect width="1600" height="900" fill="url(#grassG)"/>
+  <rect width="1600" height="900" fill="url(#grassT)"/>
+  <ellipse cx="380" cy="190" rx="330" ry="150" fill="#7ec46a" opacity=".16" filter="url(#soft36)"/>
+  <ellipse cx="1180" cy="680" rx="380" ry="180" fill="#8fd07a" opacity=".12" filter="url(#soft36)"/>
+  <ellipse cx="920" cy="120" rx="260" ry="120" fill="#a4d98e" opacity=".1" filter="url(#soft36)"/>
+
+  <!-- 割草痕迹：右端锚定画面右缘，scaleX 从 0→1，左端始终贴合机器人尾部 -->
+  <rect class="mow-trail an" x="565" y="248" width="1035" height="404" fill="url(#mowP)" filter="url(#soft3)"/>
+
+  <!-- 机器人（实机产品图抠像，水平翻转朝左） -->
+  <g class="mow-robot an">
+    <g class="mow-shake an">
+      <ellipse cx="10" cy="148" rx="225" ry="40" fill="#10240d" opacity=".22" filter="url(#soft8)"/>
+      <image href="cartesius/mower_cut.png" x="-262" y="-146" width="524" height="304" transform="scale(-1,1) translate(0,-2)"/>
+      <!-- 草屑后抛 -->
+      <circle class="mow-chip an" cx="236" cy="-46" r="4" fill="#9ccc70" style="animation-delay:0s"/>
+      <circle class="mow-chip an" cx="248" cy="8" r="3" fill="#8abf60" style="animation-delay:.35s"/>
+      <circle class="mow-chip an" cx="238" cy="50" r="3.4" fill="#a5d47c" style="animation-delay:.7s"/>
+    </g>
+  </g>
+</svg>`;
+}
+
+/* Hamuna 牛脸识别动画：手机取景器视角，扫描牛脸 → 识别成功 → 个体档案浮现 */
+function cowScene(){
+  return `<svg class="mow" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-label="Hamuna.AI 牛脸识别动画">
+  <defs>
+    <linearGradient id="cBarnG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#86ab63"/><stop offset="1" stop-color="#587c42"/>
+    </linearGradient>
+    <linearGradient id="cScanG" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2ee6a8" stop-opacity="0"/>
+      <stop offset=".18" stop-color="#2ee6a8"/>
+      <stop offset=".5" stop-color="#eafff6"/>
+      <stop offset=".82" stop-color="#2ee6a8"/>
+      <stop offset="1" stop-color="#2ee6a8" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="cVig" cx=".5" cy=".46" r=".78">
+      <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#04120b" stop-opacity=".44"/>
+    </radialGradient>
+    <filter id="cb2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="cb8" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="cb6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
+    <filter id="cb24" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="24"/></filter>
+  </defs>
+
+  <!-- 取景画面：写实牛只影像（轻微手持漂移） -->
+  <g class="cam-bg an">
+    <rect width="1600" height="900" fill="#6f8f55"/>
+    <image href="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Photorealistic%20full%20body%20side%20view%20of%20a%20black%20and%20white%20Holstein%20dairy%20cow%20standing%20and%20facing%20left%2C%20head%20in%20upper%20left%20area%2C%20four%20legs%20visible%2C%20clean%20modern%20dairy%20barn%20with%20wooden%20fence%2C%20soft%20natural%20daylight%2C%20shallow%20depth%20of%20field%20blurred%20background%2C%20professional%20photography%2C%20ultra%20detailed%20fur&image_size=landscape_16_9" x="0" y="0" width="1600" height="900" preserveAspectRatio="xMidYMid slice"/>
+  </g>
+
+  <!-- 取景器常驻 UI -->
+  <rect width="1600" height="900" fill="url(#cVig)"/>
+  <rect x="0" y="0" width="1600" height="96" fill="#08120c" opacity=".4"/>
+  <text x="44" y="62" font-family="JetBrains Mono,Noto Sans SC,monospace" font-size="30" fill="#eaf6ee" letter-spacing="2">Hamuna.AI · 牛脸识别</text>
+  <circle class="cam-rec an" cx="1478" cy="52" r="9" fill="#ff5f52"/>
+  <text x="1496" y="63" font-family="JetBrains Mono,monospace" font-size="26" fill="#eaf6ee">REC</text>
+
+  <!-- 识别框：锁定牛头部 + 扫描线 + 提示 -->
+  <path class="cam-corners an" d="M150 252 L150 210 L192 210 M418 210 L460 210 L460 252 M150 468 L150 510 L192 510 M418 510 L460 510 L460 468" fill="none" stroke="#2ee6a8" stroke-width="11" stroke-linecap="round"/>
+  <rect class="cam-scan an" x="164" y="224" width="282" height="8" rx="4" fill="url(#cScanG)" filter="url(#cb2)"/>
+  <text class="cam-hint an" x="305" y="566" text-anchor="middle" font-family="JetBrains Mono,Noto Sans SC,monospace" font-size="30" fill="#f2f7f0" letter-spacing="3">对准牛脸 · 自动识别</text>
+
+  <!-- 识别成功徽章 -->
+  <g class="cam-badge an">
+    <circle cx="460" cy="210" r="44" fill="#2ee6a8"/>
+    <path d="M439 210 l15 16 l28 -32" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- 个体档案卡 -->
+  <g class="cam-card an">
+    <rect x="428" y="530" width="760" height="318" rx="18" fill="#0c1410" opacity=".25" filter="url(#cb8)"/>
+    <rect x="420" y="520" width="760" height="318" rx="18" fill="#ffffff" opacity=".95"/>
+    <circle cx="472" cy="576" r="9" fill="#2ee6a8"/>
+    <text x="494" y="587" font-family="JetBrains Mono,Noto Sans SC,monospace" font-size="31" font-weight="700" fill="#1d221e">识别成功 · 个体档案</text>
+    <rect x="460" y="612" width="680" height="2" fill="#e4e2da"/>
+    <text class="cam-row an" x="470" y="668" font-size="27" font-family="JetBrains Mono,Noto Sans SC,monospace"><tspan fill="#8a8a82">编号</tspan><tspan dx="20" fill="#22261f" font-weight="700">HB-042</tspan><tspan x="850" fill="#8a8a82">耳标</tspan><tspan dx="20" fill="#22261f" font-weight="700">6402</tspan></text>
+    <text class="cam-row an" x="470" y="722" font-size="27" font-family="JetBrains Mono,Noto Sans SC,monospace" style="animation-delay:.18s"><tspan fill="#8a8a82">品种</tspan><tspan dx="20" fill="#22261f" font-weight="700">荷斯坦</tspan><tspan x="850" fill="#8a8a82">月龄</tspan><tspan dx="20" fill="#22261f" font-weight="700">22 个月</tspan></text>
+    <text class="cam-row an" x="470" y="776" font-size="27" font-family="JetBrains Mono,Noto Sans SC,monospace" style="animation-delay:.36s"><tspan fill="#8a8a82">体重</tspan><tspan dx="20" fill="#22261f" font-weight="700">612 kg</tspan><tspan x="850" fill="#8a8a82">状态</tspan><tspan dx="14" fill="#1fae78" font-weight="700">● 健康</tspan></text>
+    <text class="cam-row an" x="470" y="820" font-size="22" font-family="JetBrains Mono,Noto Sans SC,monospace" style="animation-delay:.54s"><tspan fill="#9a988e">最近采食 14.2 kg · 反刍 512 min · 定位 北栏 A-03</tspan></text>
+  </g>
+</svg>`;
+}
+
+const feed = document.getElementById('feed');
+feed.innerHTML = PROJECTS.map((p,i)=>`
+  <article class="entry fade-up" id="p${i+1}" data-idx="${i}">
+    <div class="entry__media" data-num="${p.idx}">
+      ${p.anim === 'mow' ? mowScene() : p.anim === 'cow' ? cowScene() : `<img data-src="${MEDIA[i]}" alt="项目 ${p.idx} 高清展示">`}
+      <span class="entry__idx">No.${p.idx}</span>
+      <span class="entry__status">资料整理中</span>
+    </div>
+    <div class="entry__body">
+      <div class="entry__meta"><span class="entry__tag">${p.tag}</span></div>
+      <h2 class="entry__name">${p.en}<em>${p.name}</em></h2>
+      <p class="entry__desc">${p.desc}</p>
+      ${p.tools ? `<div class="entry__tools">${p.tools.map(t=>`<a class="tool-btn" href="${t.href}">${t.label}<i>→</i></a>`).join('')}</div>` : ''}
+    </div>
+  </article>`).join('') + `
+  <section class="block fade-up" id="about">
+    <h3>关于 <em>SIGMA 计划</em></h3>
+    <p>把企业项目变成可展示的资产：将参与或主导的企业项目按统一规格归档——项目背景、我的角色、技术方案、关键难点与交付成果。</p>
+    <p>区别于个人作品，这些项目更强调工程化、协作与真实业务约束。目前资料仍在整理与脱敏处理中，将按批次逐步公开。</p>
+  </section>
+  <section class="block fade-up" id="contact">
+    <h3>项目合作与<em>交流</em></h3>
+    <p>如需了解某个项目的详细情况，欢迎通过主页联系方式与我沟通。</p>
+    <div class="block__row">
+      <a class="btn btn--dark" href="../../index.html#about">通过主页联系我</a>
+      <a class="btn btn--ghost" href="../orion/orion.html">工程项目 ORION</a>
+      <a class="btn btn--ghost" href="../atlas/atlas.html">旅行志 ATLAS</a>
+    </div>
+  </section>`;
+
+/* 左栏页签指示器 */
+const toc = document.getElementById('toc');
+toc.innerHTML = PROJECTS.map((p,i)=>`
+  <a href="#p${i+1}" data-idx="${i}"><i>${p.idx}</i><em>${p.name}</em></a>`).join('');
+
+/* 懒加载 + 高清呈现：滚动检测，媒体进入视口 88% 线即呈现 */
+const medias = [...document.querySelectorAll('.entry__media')];
+const entries = [...document.querySelectorAll('.entry')];
+function checkMedia(){
+  medias.forEach(m=>{
+    if(m.classList.contains('active')) return;
+    const rc = m.getBoundingClientRect();
+    if(rc.top < innerHeight * 0.88 && rc.bottom > 0){
+      const img = m.querySelector('img');
+      if(img && img.dataset.src){
+        const base = img.dataset.src;
+        let tries = 0;
+        const load = ()=>{
+          img.onload = ()=>{
+            /* 生成接口偶发返回 1832×1832 “生成中”占位图：自动延时重试，最多 6 次 */
+            if(img.naturalWidth === 1832 && tries < 6){
+              tries++;
+              setTimeout(load, 3500);
+            }
+          };
+          /* 时间戳绕缓存：让接口重新执行生成流程 */
+          img.src = base + (base.includes('?') ? '&' : '?') + 'r=' + Date.now();
+        };
+        load();
+        delete img.dataset.src;
+      }
+      m.classList.add('active');
+      /* active 同时标记到卡片根节点，供 .entry.active 系列样式（浮现/动画启动）使用 */
+      const ent = m.closest('.entry');
+      if(ent) ent.classList.add('active');
+    }
+  });
+}
+/* scrollspy：视口中线所在的项目 → 左栏页签高亮 */
+function checkSpy(){
+  let cur = null;
+  entries.forEach(en=>{
+    const rc = en.getBoundingClientRect();
+    if(rc.top <= innerHeight * 0.5 && rc.bottom >= innerHeight * 0.5) cur = en.dataset.idx;
+  });
+  toc.querySelectorAll('a').forEach(a=>a.classList.toggle('on', a.dataset.idx === cur));
+}
+addEventListener('scroll', ()=>{ checkMedia(); checkSpy(); }, {passive:true});
+addEventListener('resize', ()=>{ checkMedia(); checkSpy(); });
+checkMedia(); checkSpy();
+/* 轮询兜底：某些环境（后台标签/省电模式）scroll 事件可能被节流 */
+setInterval(()=>{ checkMedia(); checkSpy(); }, 400);
+
+/* 进场动画（IO + 滚动兜底） */
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}),{threshold:.08});
+document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

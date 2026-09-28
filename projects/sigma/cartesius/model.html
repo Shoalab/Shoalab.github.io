@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartesius · ViMOW X1 整机建模</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17181b; --sub:#70747c; --line:#d9dce1; --bg:#eef0f2; --card:#fff;
+  --brand:#f2701d; --amber:#ffb020;
+  --mono:'JetBrains Mono',Consolas,monospace; --sans:'Noto Sans SC',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--sans);color:var(--ink);min-height:100vh;background-color:var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg,rgba(23,24,27,.045) 0 1px,transparent 1px 28px),
+    repeating-linear-gradient(90deg,rgba(23,24,27,.045) 0 1px,transparent 1px 28px);
+}
+::selection{background:var(--brand);color:#fff}
+a{text-decoration:none;color:inherit}
+
+.demo-bar{background:#17181b;color:#b8ada2;font-size:12px;display:flex;align-items:center;gap:9px;padding:6px 22px}
+.demo-bar b{color:var(--amber)}
+.demo-bar a{margin-left:auto;color:#e8ddd1}
+.demo-bar a:hover{color:var(--amber)}
+
+.wrap{max-width:1300px;margin:0 auto;padding:26px 26px 70px}
+
+/* ===== 头部 ===== */
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.hd h1{font-size:24px;font-weight:900;letter-spacing:.01em}
+.hd h1 small{display:block;font-family:var(--mono);font-size:11px;color:var(--sub);font-weight:600;letter-spacing:.16em;margin-top:4px}
+.hd .badge{font-family:var(--mono);font-size:11.5px;color:var(--brand);background:rgba(242,112,29,.09);
+  border:1px solid rgba(242,112,29,.3);border-radius:99px;padding:6px 14px;font-weight:700}
+
+/* ===== 布局 ===== */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:18px;align-items:start}
+.colL{display:flex;flex-direction:column;gap:18px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(23,24,27,.06);
+  animation:rise .5s ease both}
+.card:nth-child(2){animation-delay:.08s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card-hd{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;flex-wrap:wrap}
+.card-hd .tag-no{font-family:var(--mono);font-size:11px;background:var(--ink);color:#fff;border-radius:6px;padding:2px 8px}
+.card-hd .spec{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--sub);letter-spacing:.08em}
+.svgbox{padding:12px 14px}
+.svgbox svg{width:100%;height:auto;display:block}
+.hint{padding:0 20px 14px;font-size:11.5px;color:var(--sub)}
+.hint b{color:var(--brand)}
+
+/* ===== 部件清单 ===== */
+.parts{position:sticky;top:18px;max-height:calc(100vh - 36px);display:flex;flex-direction:column;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(23,24,27,.06);
+  animation:rise .5s .05s ease both}
+.pl-list{overflow:auto;padding:8px 10px 14px;scrollbar-width:thin}
+.pl-item{display:flex;gap:11px;padding:10px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:.15s}
+.pl-item:hover,.pl-item.on{background:#fff6ee;border-color:rgba(242,112,29,.35)}
+.pl-no{width:24px;height:24px;border-radius:50%;background:#17181b;color:#fff;font:700 11.5px var(--mono);
+  display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px;transition:.15s}
+.pl-item.on .pl-no{background:var(--brand)}
+.pl-en{font:600 9.5px var(--mono);letter-spacing:.07em;color:var(--sub);text-transform:uppercase}
+.pl-zh{font-weight:700;font-size:13.5px;line-height:1.35}
+.pl-desc{font-size:11.5px;color:var(--sub);line-height:1.55;margin-top:2px}
+.pl-top-tag{font-family:var(--mono);font-size:9px;color:var(--brand);border:1px solid rgba(242,112,29,.35);
+  border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+
+/* ===== SVG 交互 ===== */
+.part-g{transition:filter .2s}
+.part-g.lit{filter:drop-shadow(0 0 7px rgba(242,112,29,.95))}
+.hs{cursor:pointer}
+.hs .hs-hit{fill:rgba(0,0,0,0)}
+.hs .hs-bg{fill:#17181b;stroke:var(--brand);stroke-width:1.6;transition:.18s}
+.hs text{fill:#fff;font:700 10px var(--mono);text-anchor:middle;pointer-events:none}
+.hs .hs-ring{fill:none;stroke:var(--brand);stroke-width:2;opacity:0;transition:.18s}
+.hs.on .hs-bg{fill:var(--brand);stroke:#17181b}
+.hs.on .hs-ring{opacity:1;animation:pulse 1.1s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.82);opacity:.9}70%{transform:scale(1.35);opacity:0}100%{opacity:0}}
+.hs-ring{transform-box:fill-box;transform-origin:center}
+
+/* ===== NEXT 条 ===== */
+.next{display:flex;align-items:center;gap:14px;padding:15px 20px;flex-wrap:wrap}
+.next .nx-tag{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#fff;background:var(--brand);border-radius:6px;padding:4px 10px;letter-spacing:.08em}
+.next p{font-size:12.5px;color:var(--sub)}
+.next p b{color:var(--ink)}
+
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .parts{position:static;max-height:none}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-bar"><b>作品集演示</b> · 脱敏数据 · Cartesius 整机建模 <a href="../sigma.html">← 返回 SIGMA</a></div>
+
+<div class="wrap">
+  <header class="hd">
+    <h1>Cartesius · ViMOW X1 整机建模
+      <small>ENGINEERING VECTOR MODEL · 与工程图 / 渲染图对齐 · 13 部件交互标注</small>
+    </h1>
+    <span class="badge">STEP 1 / 割草互动游戏 · 基准模型</span>
+  </header>
+
+  <div class="layout">
+    <!-- ============ 左列：双视图 ============ -->
+    <div class="colL">
+
+      <!-- ===== 45° 渲染视角 ===== -->
+      <div class="card">
+        <div class="card-hd"><span class="tag-no">VIEW A</span> 45° 渲染视角 <span class="spec">SCALE 1:6 · SVG VECTOR</span></div>
+        <div class="svgbox">
+        <svg id="v45" viewBox="0 0 680 500" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bodyG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fafbfc"/><stop offset=".4" stop-color="#d4d7dc"/>
+              <stop offset=".75" stop-color="#a7abb3"/><stop offset="1" stop-color="#8d9199"/>
+            </linearGradient>
+            <linearGradient id="panelG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4a4b50"/><stop offset=".45" stop-color="#1a1b1e"/><stop offset="1" stop-color="#050506"/>
+            </linearGradient>
+            <radialGradient id="tireG" cx=".38" cy=".32" r=".9">
+              <stop offset="0" stop-color="#45484f"/><stop offset=".6" stop-color="#24262b"/><stop offset="1" stop-color="#141518"/>
+            </radialGradient>
+            <radialGradient id="hubG" cx=".4" cy=".35" r=".95">
+              <stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#e9ebee"/><stop offset="1" stop-color="#cfd2d7"/>
+            </radialGradient>
+            <linearGradient id="ringG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f2f3f6"/><stop offset="1" stop-color="#9ea3ab"/>
+            </linearGradient>
+            <linearGradient id="magG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#ff5fd0"/><stop offset="1" stop-color="#8a2be2"/>
+            </linearGradient>
+            <linearGradient id="estopG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ff9a52"/><stop offset=".55" stop-color="#f2701d"/><stop offset="1" stop-color="#d4550a"/>
+            </linearGradient>
+            <linearGradient id="steelG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#eef1f4"/><stop offset="1" stop-color="#9aa0a8"/>
+            </linearGradient>
+            <radialGradient id="guardG" cx=".42" cy=".4" r=".9">
+              <stop offset="0" stop-color="#5a5e66"/><stop offset="1" stop-color="#2c2f34"/>
+            </radialGradient>
+            <linearGradient id="fenderG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#eceef1"/><stop offset="1" stop-color="#9ba0a8"/>
+            </linearGradient>
+            <pattern id="dotPat" width="9" height="9" patternUnits="userSpaceOnUse">
+              <circle cx="3" cy="3" r="1.7" fill="#8d9199"/>
+            </pattern>
+            <filter id="soft" x="-40%" y="-300%" width="180%" height="700%">
+              <feGaussianBlur stdDeviation="9"/>
+            </filter>
+            <filter id="soft2" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3"/>
+            </filter>
+          </defs>
+
+          <!-- 地面投影 -->
+          <ellipse cx="345" cy="450" rx="268" ry="22" fill="rgba(20,24,30,.20)" filter="url(#soft)"/>
+
+          <!-- 万向小轮（藏于前鼻下方，先画再被机身压住上半） -->
+          <g id="caster">
+            <circle cx="592" cy="368" r="18" fill="#26282c" stroke="#101215" stroke-width="1.5"/>
+            <circle cx="592" cy="368" r="7" fill="url(#hubG)" stroke="#b0b4bb" stroke-width="1"/>
+          </g>
+
+          <!-- 机身主壳 -->
+          <g id="bodyShell">
+            <path d="M 150 302 C 146 236 162 132 224 96 C 258 76 300 68 344 72 C 402 78 470 122 530 186
+                     C 570 228 622 272 648 296 C 660 308 656 322 636 330 C 560 358 430 380 300 388
+                     C 220 392 168 388 154 372 C 146 362 148 330 150 302 Z"
+                  fill="url(#bodyG)" stroke="#7d8189" stroke-width="1.2"/>
+            <!-- 顶部高光 -->
+            <path d="M 226 100 C 300 78 380 80 470 132 C 520 162 560 200 600 240" fill="none"
+                  stroke="rgba(255,255,255,.55)" stroke-width="5" stroke-linecap="round" filter="url(#soft2)" opacity=".8"/>
+            <!-- 腰部点阵格栅 -->
+            <g transform="translate(268,262) rotate(-12)">
+              <rect x="-62" y="-26" width="124" height="52" rx="12" fill="url(#dotPat)" opacity=".85"/>
+            </g>
+            <!-- 品牌刻字 -->
+            <text x="330" y="336" transform="rotate(-7 330 336)" font-family="JetBrains Mono,monospace"
+                  font-size="11" letter-spacing="3" fill="#6f747c" opacity=".85">ViMOW·X1</text>
+          </g>
+
+          <!-- ② 可翻转后盖：拼缝线 -->
+          <g id="p2a" class="part-g" data-part="2">
+            <path d="M 198 306 C 186 250 194 150 230 102" fill="none" stroke="#9ea3ab" stroke-width="1.6" opacity=".9"/>
+            <path d="M 230 102 C 268 88 306 86 334 90" fill="none" stroke="#9ea3ab" stroke-width="1.6" opacity=".9"/>
+            <path d="M 198 306 C 220 300 250 296 278 296" fill="none" stroke="#9ea3ab" stroke-width="1.4" opacity=".7"/>
+            <path d="M 214 118 C 196 160 192 230 200 288 C 226 280 252 276 276 276 C 244 240 220 180 214 118 Z"
+                  fill="rgba(255,255,255,.16)"/>
+          </g>
+
+          <!-- ⑥ 侧防撞条（下裙深灰带） -->
+          <g id="p6a" class="part-g" data-part="6">
+            <path d="M 152 372 C 300 392 500 372 634 336" fill="none" stroke="#80858d" stroke-width="11" stroke-linecap="round"/>
+            <path d="M 152 380 C 300 399 500 379 634 343" fill="none" stroke="#565b62" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+          </g>
+
+          <!-- 黑色亮面板 -->
+          <g id="blackPanel">
+            <path d="M 318 112 C 348 84 420 78 480 108 C 535 135 570 185 578 232 C 583 262 574 282 552 288
+                     C 505 300 440 268 392 224 C 352 188 300 148 318 112 Z" fill="url(#panelG)"/>
+            <path d="M 340 108 C 400 92 460 104 510 140" fill="none" stroke="rgba(255,255,255,.30)"
+                  stroke-width="6" stroke-linecap="round" filter="url(#soft2)"/>
+            <path d="M 356 176 C 396 212 452 248 508 268" fill="none" stroke="rgba(255,255,255,.10)"
+                  stroke-width="3" stroke-linecap="round"/>
+          </g>
+
+          <!-- ⑫ 前视双目摄像头 -->
+          <g id="p12a" class="part-g" data-part="12">
+            <path d="M 552 212 C 582 236 600 266 596 292 C 588 308 564 308 546 297 C 528 285 520 258 527 233
+                     C 533 213 543 203 552 212 Z" fill="#17181b"/>
+            <circle cx="553" cy="240" r="5" fill="#3c4046" stroke="#565b63" stroke-width="1"/>
+            <circle cx="572" cy="264" r="5" fill="#3c4046" stroke="#565b63" stroke-width="1"/>
+            <path d="M 592 300 L 603 305 L 594 311 Z" fill="none" stroke="#6a6f77" stroke-width="1.6"/>
+          </g>
+
+          <!-- ⑬ 超声波传感器点阵 -->
+          <g id="p13a" class="part-g" data-part="13">
+            <circle cx="524" cy="284" r="4" fill="#26282c" stroke="#4a4e55" stroke-width="1"/>
+            <circle cx="540" cy="296" r="4" fill="#26282c" stroke="#4a4e55" stroke-width="1"/>
+            <circle cx="558" cy="305" r="4" fill="#26282c" stroke="#4a4e55" stroke-width="1"/>
+            <circle cx="505" cy="270" r="4" fill="#26282c" stroke="#4a4e55" stroke-width="1"/>
+          </g>
+
+          <!-- ⑩ 前保险杠（梳齿） -->
+          <g id="p10a" class="part-g" data-part="10"></g>
+
+          <!-- ⑤ 充电对接位 -->
+          <g id="p5a" class="part-g" data-part="5">
+            <rect x="604" y="345" width="12" height="6" rx="1.5" fill="#d9a441" transform="rotate(-16 610 348)"/>
+            <rect x="622" y="339" width="12" height="6" rx="1.5" fill="#d9a441" transform="rotate(-16 628 342)"/>
+          </g>
+
+          <!-- ⑪ 雨滴传感器 -->
+          <g id="p11a" class="part-g" data-part="11">
+            <ellipse cx="206" cy="116" rx="13" ry="9" fill="url(#hubG)" stroke="#b0b4bb" stroke-width="1"/>
+            <ellipse cx="202" cy="113" rx="4" ry="2.4" fill="rgba(255,255,255,.75)"/>
+          </g>
+
+          <!-- ③ 圆形屏与按键 -->
+          <g id="p3a" class="part-g" data-part="3">
+            <circle cx="290" cy="108" r="29" fill="url(#ringG)" stroke="#8f939b" stroke-width="1.2"/>
+            <circle cx="290" cy="108" r="22" fill="#0c0d0f"/>
+            <circle cx="290" cy="108" r="16.5" fill="none" stroke="url(#magG)" stroke-width="1.6" opacity=".9"/>
+            <circle cx="290" cy="108" r="16.5" fill="none" stroke="url(#magG)" stroke-width="4" opacity=".22" filter="url(#soft2)"/>
+            <path d="M 290 98 L 290 106" stroke="#ff7fe0" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M 284.5 100.5 A 8 8 0 1 0 295.5 100.5" fill="none" stroke="#ff7fe0" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M 276 96 A 18 18 0 0 1 296 90" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+
+          <!-- ① 急停开关 -->
+          <g id="p1a" class="part-g" data-part="1" transform="translate(238,80) rotate(-38)">
+            <rect x="-30" y="-11" width="60" height="22" rx="11" fill="url(#estopG)" stroke="#b64a08" stroke-width="1"/>
+            <rect x="-25" y="-8" width="50" height="7.5" rx="3.7" fill="rgba(255,255,255,.30)"/>
+            <rect x="-25" y="2.5" width="50" height="5.5" rx="2.7" fill="rgba(120,45,0,.28)"/>
+          </g>
+
+          <!-- ④ 俯视摄像头 -->
+          <g id="p4a" class="part-g" data-part="4">
+            <circle cx="497" cy="151" r="11" fill="#0c0d0f" stroke="#8d9199" stroke-width="2"/>
+            <circle cx="497" cy="151" r="4.6" fill="#1e3a5f"/>
+            <circle cx="495" cy="149" r="1.4" fill="#7fa8d9"/>
+          </g>
+
+          <!-- 驱动轮：锯齿胎 + Y 形轮毂 -->
+          <g id="wheel45">
+            <g id="wheelTeeth" transform="translate(128,330)"></g>
+            <circle cx="128" cy="330" r="86" fill="url(#tireG)" stroke="#101215" stroke-width="2"/>
+            <circle cx="128" cy="330" r="70" fill="none" stroke="#17181b" stroke-width="10"/>
+            <circle cx="128" cy="330" r="56" fill="url(#hubG)" stroke="#c2c5ca" stroke-width="1.5"/>
+            <g stroke="#1c1e22" stroke-width="13">
+              <line x1="122.3" y1="324.3" x2="94.1" y2="296.1"/>
+              <line x1="133.7" y1="324.3" x2="161.9" y2="296.1"/>
+              <line x1="128" y1="338" x2="128" y2="378"/>
+            </g>
+            <circle cx="128" cy="330" r="50" fill="none" stroke="#1c1e22" stroke-width="8"/>
+            <circle cx="128" cy="330" r="9" fill="#1c1e22"/>
+          </g>
+
+          <!-- 轮眉弧带（内缘压住轮胎，避免露缝） -->
+          <path d="M 28.3 283.5 A 110 110 0 0 1 231.4 292.4 L 201.3 303.3 A 78 78 0 0 0 57.3 297 Z"
+                fill="url(#fenderG)" stroke="#7d8189" stroke-width="1.2"/>
+          <path d="M 231 292 C 202 278 172 268 148 264" fill="none" stroke="#9ea3ab" stroke-width="1.4" opacity=".7"/>
+        </svg>
+        </div>
+        <p class="hint">悬停 / 点击 <b>编号徽章</b> 或右侧清单，联动高亮部件 · ⑦刀盘 ⑧电池仓 ⑨HSS 刀片 位于机身底部，见下方俯视图</p>
+      </div>
+
+      <!-- ===== 俯视图 ===== -->
+      <div class="card">
+        <div class="card-hd"><span class="tag-no">VIEW B</span> 俯视图 <span class="spec">GAME SPRITE BASE · 割草游戏主角基准</span></div>
+        <div class="svgbox">
+        <svg id="vTop" viewBox="0 0 440 360" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="topBodyG" cx=".5" cy=".45" r=".75">
+              <stop offset="0" stop-color="#f4f5f7"/><stop offset=".6" stop-color="#d9dce1"/><stop offset="1" stop-color="#aeb2b9"/>
+            </radialGradient>
+            <radialGradient id="guardG2" cx=".42" cy=".4" r=".9">
+              <stop offset="0" stop-color="#5a5e66"/><stop offset="1" stop-color="#2c2f34"/>
+            </radialGradient>
+          </defs>
+
+          <ellipse cx="220" cy="344" rx="180" ry="12" fill="rgba(20,24,30,.16)" filter="url(#soft)"/>
+
+          <!-- 机身对称轮廓（前尖后宽） -->
+          <path d="M 220 24 C 286 28 336 54 356 98 C 374 140 380 210 372 264 C 364 310 336 334 296 338
+                   C 246 342 194 342 144 338 C 104 334 76 310 68 264 C 60 210 66 140 84 98
+                   C 104 54 154 28 220 24 Z"
+                fill="url(#topBodyG)" stroke="#8d9199" stroke-width="1.3"/>
+
+          <!-- ⑥ 侧防撞条（轮组内侧，避免被轮覆盖） -->
+          <g id="p6b" class="part-g" data-part="6">
+            <path d="M 102 142 C 95 185 95 220 102 260" fill="none" stroke="#55595f" stroke-width="6" stroke-linecap="round"/>
+            <path d="M 338 142 C 345 185 345 220 338 260" fill="none" stroke="#55595f" stroke-width="6" stroke-linecap="round"/>
+          </g>
+
+          <!-- ⑩ 前保险杠（梳齿） -->
+          <g id="p10b" class="part-g" data-part="10"></g>
+
+          <!-- ⑤ 充电对接位 -->
+          <g id="p5b" class="part-g" data-part="5">
+            <rect x="203" y="33" width="9" height="7" rx="1.5" fill="#d9a441"/>
+            <rect x="228" y="33" width="9" height="7" rx="1.5" fill="#d9a441"/>
+          </g>
+
+          <!-- ⑫ 前视双目摄像头 -->
+          <g id="p12b" class="part-g" data-part="12">
+            <rect x="198" y="90" width="44" height="28" rx="10" fill="#17181b"/>
+            <circle cx="210" cy="104" r="4" fill="#3c4046" stroke="#565b63" stroke-width="1"/>
+            <circle cx="230" cy="104" r="4" fill="#3c4046" stroke="#565b63" stroke-width="1"/>
+          </g>
+
+          <!-- ⑬ 超声波传感器 -->
+          <g id="p13b" class="part-g" data-part="13">
+            <circle cx="154" cy="88" r="5" fill="#26282c" stroke="#4a4e55" stroke-width="1.2"/>
+            <circle cx="180" cy="78" r="5" fill="#26282c" stroke="#4a4e55" stroke-width="1.2"/>
+            <circle cx="260" cy="78" r="5" fill="#26282c" stroke="#4a4e55" stroke-width="1.2"/>
+            <circle cx="286" cy="88" r="5" fill="#26282c" stroke="#4a4e55" stroke-width="1.2"/>
+          </g>
+
+          <!-- ④ 俯视摄像头 -->
+          <g id="p4b" class="part-g" data-part="4">
+            <circle cx="220" cy="130" r="10" fill="#0c0d0f" stroke="#8d9199" stroke-width="2"/>
+            <circle cx="220" cy="130" r="4.2" fill="#1e3a5f"/>
+            <circle cx="218" cy="128" r="1.4" fill="#7fa8d9"/>
+          </g>
+
+          <!-- ⑦ 三刀盘刀组 + ⑨ HSS 刀片 -->
+          <g id="p7b" class="part-g" data-part="7">
+            <circle cx="220" cy="200" r="58" fill="url(#guardG2)" stroke="#1d1f23" stroke-width="2"/>
+            <circle cx="220" cy="200" r="51" fill="none" stroke="#4a4e55" stroke-width="1" stroke-dasharray="4 5"/>
+            <circle cx="220" cy="152" r="3" fill="#8d9199"/>
+            <circle cx="262" cy="224" r="3" fill="#8d9199"/>
+            <circle cx="178" cy="224" r="3" fill="#8d9199"/>
+          </g>
+          <g id="p9b" class="part-g" data-part="9" transform="translate(220,200)">
+            <path d="M -7 -18 C -8 -38 -5 -52 0 -56 C 5 -52 8 -38 7 -18 C 4 -14 -4 -14 -7 -18 Z"
+                  fill="url(#steelG)" stroke="#6d737b" stroke-width="1"/>
+            <path d="M -7 -18 C -8 -38 -5 -52 0 -56 C 5 -52 8 -38 7 -18 C 4 -14 -4 -14 -7 -18 Z"
+                  fill="url(#steelG)" stroke="#6d737b" stroke-width="1" transform="rotate(120)"/>
+            <path d="M -7 -18 C -8 -38 -5 -52 0 -56 C 5 -52 8 -38 7 -18 C 4 -14 -4 -14 -7 -18 Z"
+                  fill="url(#steelG)" stroke="#6d737b" stroke-width="1" transform="rotate(240)"/>
+            <circle r="15" fill="#2a2c30" stroke="#17181b" stroke-width="1"/>
+            <circle r="5" fill="#8d9199"/>
+          </g>
+
+          <!-- ⑪ 雨滴传感器 -->
+          <g id="p11b" class="part-g" data-part="11">
+            <ellipse cx="140" cy="258" rx="12" ry="8" fill="url(#hubG)" stroke="#b0b4bb" stroke-width="1"/>
+          </g>
+
+          <!-- ⑧ 电池仓 -->
+          <g id="p8b" class="part-g" data-part="8">
+            <rect x="258" y="250" width="88" height="62" rx="10" fill="rgba(255,255,255,.35)"
+                  stroke="#7d828a" stroke-width="1.4" stroke-dasharray="5 4"/>
+            <path d="M 300 258 L 290 276 L 297 276 L 292 292 L 306 272 L 298 272 L 304 258 Z"
+                  fill="none" stroke="#f2701d" stroke-width="1.6" stroke-linejoin="round" transform="translate(8,7)"/>
+          </g>
+
+          <!-- ① 急停开关 -->
+          <g id="p1b" class="part-g" data-part="1" transform="translate(152,282) rotate(-20)">
+            <rect x="-20" y="-9" width="40" height="18" rx="9" fill="url(#estopG)" stroke="#b64a08" stroke-width="1"/>
+            <rect x="-16" y="-6.5" width="32" height="6" rx="3" fill="rgba(255,255,255,.30)"/>
+          </g>
+
+          <!-- ③ 圆形屏与按键 -->
+          <g id="p3b" class="part-g" data-part="3">
+            <circle cx="220" cy="288" r="21" fill="url(#ringG)" stroke="#8f939b" stroke-width="1.2"/>
+            <circle cx="220" cy="288" r="15.5" fill="#0c0d0f"/>
+            <circle cx="220" cy="288" r="11.5" fill="none" stroke="url(#magG)" stroke-width="2" opacity=".95"/>
+            <path d="M 220 281 L 220 286.5" stroke="#ff7fe0" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M 216 282.5 A 5.5 5.5 0 1 0 224 282.5" fill="none" stroke="#ff7fe0" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+
+          <!-- ② 可翻转后盖：后部拼缝 -->
+          <g id="p2b" class="part-g" data-part="2">
+            <path d="M 118 306 C 165 330 275 330 322 306" fill="none" stroke="#9ea3ab" stroke-width="1.6" opacity=".9"/>
+            <path d="M 128 316 C 172 337 268 337 312 316" fill="none" stroke="#9ea3ab" stroke-width="1.2" opacity=".65"/>
+          </g>
+
+          <!-- 左右锯齿驱动轮 -->
+          <g id="wheelTL" transform="translate(68,196)"></g>
+          <g id="wheelTR" transform="translate(372,196)"></g>
+
+          <text x="220" y="326" text-anchor="middle" font-family="JetBrains Mono,monospace"
+                font-size="9.5" letter-spacing="4" fill="#8d9199">ViMOW</text>
+        </svg>
+        </div>
+        <p class="hint">俯视图同时是后续 <b>模拟割草游戏</b> 的主角精灵基准：刀盘 / 锯齿轮 / 传感器布局与整机 1:1 对应</p>
+      </div>
+
+      <!-- NEXT -->
+      <div class="card">
+        <div class="next">
+          <span class="nx-tag">NEXT</span>
+          <p><b>STEP 2 · 模拟割草互动游戏</b> —— 以俯视图为精灵，草坪网格 + 割草轨迹 + 边界/障碍避让 + 电量与返仓，整机建模页作为视觉基准。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 右列：部件清单 ============ -->
+    <aside class="parts">
+      <div class="card-hd"><span class="tag-no">BOM</span> 部件清单 · 13 项 <span class="spec">HOVER 联动</span></div>
+      <div class="pl-list" id="plList"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var NS='http://www.w3.org/2000/svg';
+function el(name,attrs,parent){
+  var e=document.createElementNS(NS,name);
+  for(var k in attrs)e.setAttribute(k,attrs[k]);
+  parent.appendChild(e);return e;
+}
+function qpoint(p0,p1,p2,t){
+  var a=(1-t)*(1-t),b=2*t*(1-t),c=t*t;
+  return [a*p0[0]+b*p1[0]+c*p2[0], a*p0[1]+b*p1[1]+c*p2[1]];
+}
+function qtan(p0,p1,p2,t){
+  var dx=2*(1-t)*(p1[0]-p0[0])+2*t*(p2[0]-p1[0]);
+  var dy=2*(1-t)*(p1[1]-p0[1])+2*t*(p2[1]-p1[1]);
+  return Math.atan2(dy,dx)*180/Math.PI;
+}
+
+/* ===== 45° 视图：驱动轮 18 齿 ===== */
+var wt=document.getElementById('wheelTeeth');
+for(var i=0;i<18;i++){
+  el('path',{d:'M -8.5 -80 L -4.5 -99 L 4.5 -99 L 8.5 -80 Z',fill:'#26282d',stroke:'#101215','stroke-width':1,transform:'rotate('+i*20+')'},wt);
+}
+
+/* ===== 45° 视图：前保险杠梳齿 ===== */
+var comb45=document.getElementById('p10a');
+el('path',{d:'M 538 318 Q 604 348 656 304',stroke:'#2e3136','stroke-width':9,fill:'none','stroke-linecap':'round'},comb45);
+for(var j=0;j<=13;j++){
+  var t=j/13;
+  var p=qpoint([538,318],[604,348],[656,304],t);
+  var ang=qtan([538,318],[604,348],[656,304],t);
+  el('rect',{x:-3.2,y:-13,width:6.4,height:26,rx:3,fill:'#3a3d43',
+    transform:'translate('+p[0]+','+p[1]+') rotate('+(ang+90)+')'},comb45);
+}
+
+/* ===== 俯视图：前保险杠梳齿（弧线朝前） ===== */
+var combT=document.getElementById('p10b');
+el('path',{d:'M 150 68 Q 220 40 290 68',stroke:'#2e3136','stroke-width':4.5,fill:'none','stroke-linecap':'round'},combT);
+for(var m=0;m<=11;m++){
+  var t2=m/11;
+  var p2=qpoint([150,68],[220,40],[290,68],t2);
+  var ang2=qtan([150,68],[220,40],[290,68],t2);
+  el('rect',{x:-2.6,y:-13,width:5.2,height:26,rx:2.4,fill:'#43474d',
+    transform:'translate('+p2[0]+','+p2[1]+') rotate('+(ang2+90)+')'},combT);
+}
+
+/* ===== 俯视图：左右锯齿驱动轮 ===== */
+function buildTopWheel(id){
+  var g=document.getElementById(id);
+  el('rect',{x:-30,y:-66,width:60,height:132,rx:12,fill:'#232529',stroke:'#14161a','stroke-width':1.5},g);
+  var dL='M -30 -64',dR='M 30 -64';
+  for(var y=-64;y<64;y+=8){
+    dL+=' L -39 '+(y+4)+' L -30 '+(y+8);
+    dR+=' L 39 '+(y+4)+' L 30 '+(y+8);
+  }
+  dL+=' L -30 64 Z';dR+=' L 30 64 Z';
+  el('path',{d:dL,fill:'#232529'},g);
+  el('path',{d:dR,fill:'#232529'},g);
+  el('circle',{r:15,fill:'url(#hubG)',stroke:'#b9bcc2','stroke-width':1.2},g);
+  [90,210,330].forEach(function(a){
+    var r=a*Math.PI/180;
+    el('line',{x1:Math.cos(r)*4,y1:Math.sin(r)*4,x2:Math.cos(r)*12,y2:Math.sin(r)*12,stroke:'#1c1e22','stroke-width':4},g);
+  });
+  el('circle',{r:3,fill:'#1c1e22'},g);
+}
+buildTopWheel('wheelTL');
+buildTopWheel('wheelTR');
+
+/* ===== 13 部件数据 ===== */
+var PARTS=[
+ {no:1,en:'Emergency stop switch',zh:'急停开关',desc:'按下立即切断刀盘与轮驱动力，旋转释放复位。',h45:[238,80],hTop:[152,282]},
+ {no:2,en:'Reversible back cover',zh:'可翻转后盖',desc:'双色后罩总成，翻开后可检修电池与刀仓。',h45:[214,190],hTop:[172,320]},
+ {no:3,en:'Round screen and buttons',zh:'圆形屏与按键',desc:'环形状态灯 + 触控按键，显示电量 / 信号 / 故障码。',h45:[290,108],hTop:[220,288]},
+ {no:4,en:'Top view camera',zh:'俯视摄像头',desc:'顶部广角镜头，构建草坪边界地图与厘米级定位。',h45:[497,151],hTop:[220,130]},
+ {no:5,en:'Charging position',zh:'充电对接位',desc:'前部镀金触点，自动回充对接基座充电。',h45:[618,342],hTop:[220,38]},
+ {no:6,en:'Side bumper strips',zh:'侧防撞条',desc:'机身环绕缓冲条，触碰即触发避让转向。',h45:[380,382],hTop:[101,152]},
+ {no:7,en:'Three-blade cutter',zh:'三刀盘刀组',desc:'中心刀盘总成，带动三片刀片高速旋转割草。',h45:null,hTop:[220,200]},
+ {no:8,en:'Battery compartment',zh:'电池仓',desc:'可拆卸锂电池组，满电续航约 2 小时。',h45:null,hTop:[302,281]},
+ {no:9,en:'High Speed Steel Blade',zh:'高速钢刀片',desc:'三片 HSS 刀片，割茬高度 2–5cm 可调。',h45:null,hTop:[251,218]},
+ {no:10,en:'Front bumper',zh:'前保险杠',desc:'梳齿状前杠，导向草茎并吸收正面冲击。',h45:[600,330],hTop:[220,56]},
+ {no:11,en:'Rain sensor',zh:'雨滴传感器',desc:'检测降雨自动暂停割剪并返回基座。',h45:[206,116],hTop:[140,258]},
+ {no:12,en:'Front-view binocular camera',zh:'前视双目摄像头',desc:'双目立体视觉，识别障碍物与宠物。',h45:[566,252],hTop:[220,104]},
+ {no:13,en:'Ultrasonic Sensors',zh:'超声波传感器',desc:'前向测距阵列，近距离避障补盲。',h45:[532,288],hTop:[220,80]}
+];
+
+/* ===== 渲染清单 ===== */
+var list=document.getElementById('plList');
+PARTS.forEach(function(p){
+  var it=document.createElement('div');
+  it.className='pl-item';it.dataset.part=p.no;
+  it.innerHTML='<span class="pl-no">'+p.no+'</span><div>'+
+    '<div class="pl-en">'+p.en+'</div>'+
+    '<div class="pl-zh">'+p.zh+(p.h45?'':'<span class="pl-top-tag">俯视可见</span>')+'</div>'+
+    '<div class="pl-desc">'+p.desc+'</div></div>';
+  list.appendChild(it);
+});
+
+/* ===== 渲染热点徽章 ===== */
+function hotspots(svgId,key){
+  var svg=document.getElementById(svgId);
+  PARTS.forEach(function(p){
+    var c=p[key];if(!c)return;
+    var g=el('g',{class:'hs','data-part':p.no,transform:'translate('+c[0]+','+c[1]+')'},svg);
+    el('circle',{class:'hs-hit',r:15},g);
+    el('circle',{class:'hs-ring',r:13},g);
+    el('circle',{class:'hs-bg',r:9},g);
+    var tx=el('text',{y:3.5},g);tx.textContent=p.no;
+  });
+}
+hotspots('v45','h45');
+hotspots('vTop','hTop');
+
+/* ===== 联动高亮 ===== */
+var pinned=null;
+function setActive(no){
+  document.querySelectorAll('.pl-item').forEach(function(n){
+    n.classList.toggle('on',String(no)===n.dataset.part);
+  });
+  document.querySelectorAll('.hs').forEach(function(n){
+    n.classList.toggle('on',String(no)===n.dataset.part);
+  });
+  document.querySelectorAll('.part-g').forEach(function(n){
+    n.classList.toggle('lit',String(no)===n.dataset.part);
+  });
+}
+function bind(node){
+  var no=node.dataset.part;
+  node.addEventListener('mouseenter',function(){setActive(no)});
+  node.addEventListener('mouseleave',function(){setActive(pinned)});
+  node.addEventListener('click',function(){
+    pinned=(pinned===no)?null:no;
+    setActive(pinned||no);
+    if(!pinned)setActive(null);
+  });
+}
+document.querySelectorAll('.pl-item,.hs').forEach(bind);
+})();
+</script>
+</body>
+</html>
